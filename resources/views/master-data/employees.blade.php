@@ -15,13 +15,13 @@
     </div>
 
     @if(session('success'))
-        <div style="padding: 1rem; background: var(--len-red); color: white; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+        <div style="padding: 1rem; background: var(--asr-green); color: white; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
             {{ session('success') }}
         </div>
     @endif
 
     <div class="table-container">
-        <table class="datatable" style="width: 100%;">
+        <table class="table datatable" style="width: 100%;">
             <thead>
                 <tr>
                     <th>No.</th>

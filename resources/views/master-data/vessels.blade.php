@@ -15,7 +15,7 @@
     </div>
 
     @if(session('success'))
-        <div style="padding: 1rem; background: var(--len-red); color: white; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+        <div style="padding: 1rem; background: var(--asr-green); color: white; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
             {{ session('success') }}
         </div>
     @endif
@@ -23,7 +23,7 @@
     <!-- Vessel Cards Grid -->
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 2rem;">
         @forelse($vessels as $vessel)
-        <div class="card" style="border-top: 3px solid {{ $vessel->status == 'Active' ? '#059669' : ($vessel->status == 'Maintenance' ? 'var(--len-red)' : '#2563EB') }}; position: relative; overflow: hidden;">
+        <div class="card" style="border-top: 3px solid {{ $vessel->status == 'Active' ? '#059669' : ($vessel->status == 'Maintenance' ? 'var(--asr-green)' : '#2563EB') }}; position: relative; overflow: hidden;">
             <div style="position: absolute; top: 1rem; right: 1rem; display: flex; gap: 0.5rem; align-items: center;">
                 <span class="badge {{ $vessel->status == 'Active' ? 'badge-success' : ($vessel->status == 'Maintenance' ? 'badge-danger' : 'badge-warning') }}">{{ $vessel->status }}</span>
                 <form action="{{ route('master-data.vessels.delete', $vessel->id) }}" method="POST" onsubmit="return confirm('Hapus kapal ini?');" style="margin: 0;">

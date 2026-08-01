@@ -19,7 +19,7 @@
     </div>
 
     <div class="table-responsive">
-        <table class="datatable" style="width: 100%;">
+        <table class="table datatable" style="width: 100%;">
             <thead>
                 <tr>
                     <th>NO</th>
@@ -51,7 +51,7 @@
                     <td>
                         <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 120px;">
                             <div style="flex: 1; height: 8px; background: var(--border-color); border-radius: 10px; overflow: hidden;">
-                                <div style="height: 100%; width: {{ $progress }}%; background: {{ $progress >= 80 ? '#22c55e' : ($progress >= 50 ? '#f59e0b' : 'var(--len-red)') }}; border-radius: 10px; transition: width 0.4s;"></div>
+                                <div style="height: 100%; width: {{ $progress }}%; background: {{ $progress >= 80 ? '#22c55e' : ($progress >= 50 ? '#f59e0b' : 'var(--asr-green)') }}; border-radius: 10px; transition: width 0.4s;"></div>
                             </div>
                             <span style="font-size: 0.85rem; font-weight: 700; min-width: 35px;">{{ $progress }}%</span>
                         </div>
@@ -67,7 +67,7 @@
                             <form action="/procurement/{{ $item->id }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-outline" style="padding: 0.25rem 0.5rem; color: #E31837; border-color: #E31837;" title="Delete">
+                                <button type="submit" class="btn btn-outline" style="padding: 0.25rem 0.5rem; color: #16a34a; border-color: #16a34a;" title="Delete">
                                     <i class="ph ph-trash"></i>
                                 </button>
                             </form>

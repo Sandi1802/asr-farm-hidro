@@ -16,6 +16,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'role_agri',
     ];
 
     protected $hidden = [
@@ -27,7 +28,22 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function activities()
+    {
+        return $this->hasMany(Activity::class);
+    }
+
     // ── Role helpers ──────────────────────────────────────────
+    public function isAgriAdmin(): bool
+    {
+        return $this->role_agri === 'admin';
+    }
+
+    public function isAgriPegawai(): bool
+    {
+        return $this->role_agri === 'pegawai';
+    }
+
     public function isSuperAdmin(): bool
     {
         return $this->role === 'super_admin';
@@ -47,17 +63,17 @@ class User extends Authenticatable
     {
         return match($this->role) {
             'super_admin' => 'Super Admin',
-            'admin'       => 'Admin',
-            'viewer'      => 'Viewer',
-            default       => ucfirst($this->role),
+            'admin'       => 'Super Admin',
+            'viewer'      => 'Staff',
+            default       => ucfirst($this->role ?? 'staff'),
         };
     }
 
     public function roleBadgeColor(): string
     {
         return match($this->role) {
-            'super_admin' => '#E31837',   // LEN red
-            'admin'       => '#2563EB',   // blue
+            'super_admin' => '#16a34a',   // asr-green
+            'admin'       => '#16a34a',   // asr-green
             'viewer'      => '#64748B',   // gray
             default       => '#64748B',
         };

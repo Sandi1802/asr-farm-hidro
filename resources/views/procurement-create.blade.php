@@ -16,8 +16,8 @@
         background: transparent; color: var(--text-main);
         font-family: inherit; font-size: 0.875rem; box-sizing: border-box;
     }
-    .form-control:focus { outline: none; border-color: var(--len-red); }
-    .form-error { color: #E31837; font-size: 0.78rem; margin-top: 0.3rem; }
+    .form-control:focus { outline: none; border-color: var(--asr-green); }
+    .form-error { color: #16a34a; font-size: 0.78rem; margin-top: 0.3rem; }
 </style>
 
 <div class="card">
@@ -25,7 +25,7 @@
     <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
         <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">
             <a href="/procurement" style="color: var(--text-muted); text-decoration: none;">Pengadaan</a>
-            &nbsp;›&nbsp; <span style="color: var(--len-red); font-weight: 600;">Tambah Data</span>
+            &nbsp;›&nbsp; <span style="color: var(--asr-green); font-weight: 600;">Tambah Data</span>
         </div>
         <h2 style="font-size: 1.4rem; font-weight: 700;">Tambah Data Pengadaan</h2>
         <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Isi formulir berikut untuk menambahkan data pengadaan baru.</div>
@@ -47,12 +47,12 @@
 
         <!-- Informasi Pengadaan -->
         <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-            <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; color: var(--len-red);">
+            <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; color: var(--asr-green);">
                 <i class="ph ph-list-dashes"></i> Informasi Pengadaan
             </h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
                 <div>
-                    <label class="form-label">Project ID <span style="color: var(--len-red);">*</span></label>
+                    <label class="form-label">Project ID <span style="color: var(--asr-green);">*</span></label>
                     <input type="text" name="project_id" class="form-control" placeholder="Contoh: PRJ-2024-V2-0045" value="{{ old('project_id') }}">
                     @error('project_id')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
@@ -61,12 +61,12 @@
                     <input type="text" name="project_name" class="form-control" placeholder="Nama proyek..." value="{{ old('project_name') }}">
                 </div>
                 <div style="grid-column: span 2;">
-                    <label class="form-label">Nama Pengadaan <span style="color: var(--len-red);">*</span></label>
+                    <label class="form-label">Nama Pengadaan <span style="color: var(--asr-green);">*</span></label>
                     <input type="text" name="procurement_name" class="form-control" placeholder="Nama pengadaan..." value="{{ old('procurement_name') }}">
                     @error('procurement_name')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
                 <div>
-                    <label class="form-label">Nama Vendor <span style="color: var(--len-red);">*</span></label>
+                    <label class="form-label">Nama Vendor <span style="color: var(--asr-green);">*</span></label>
                     <input type="text" name="vendor_name" class="form-control" placeholder="Nama vendor..." value="{{ old('vendor_name') }}">
                     @error('vendor_name')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
@@ -104,7 +104,7 @@
         <!-- Buttons -->
         <div style="display: flex; justify-content: flex-end; gap: 1rem; padding-top: 1rem;">
             <a href="/procurement" class="btn btn-outline" style="padding: 0.7rem 1.5rem; font-weight: 600;">Batalkan</a>
-            <button type="submit" class="btn btn-primary" style="padding: 0.7rem 1.5rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; background-color: var(--len-red);">
+            <button type="submit" class="btn btn-primary" style="padding: 0.7rem 1.5rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; background-color: var(--asr-green);">
                 <i class="ph ph-plus-circle"></i> Simpan Data
             </button>
         </div>

@@ -116,19 +116,19 @@
             <ul class="mini-sticky-grid">
                 <li class="mini-sticky red-sticky pinned" style="transform: rotate(-1deg);">
                     <div class="mini-sticky-header">
-                        <i class="ph ph-warning-circle" style="color: var(--len-red);"></i> Critical
+                        <i class="ph ph-warning-circle" style="color: var(--asr-green);"></i> Critical
                     </div>
                     Keterlambatan Material Pengembangan CMS Phase 1 Eltran
                 </li>
                 <li class="mini-sticky red-sticky pinned" style="transform: rotate(1.5deg);">
                     <div class="mini-sticky-header">
-                        <i class="ph ph-warning-circle" style="color: var(--len-red);"></i> Critical
+                        <i class="ph ph-warning-circle" style="color: var(--asr-green);"></i> Critical
                     </div>
                     Kesepahaman Dokumen Kontrak
                 </li>
                 <li class="mini-sticky red-sticky pinned" style="transform: rotate(-0.5deg);">
                     <div class="mini-sticky-header">
-                        <i class="ph ph-warning-circle" style="color: var(--len-red);"></i> Critical
+                        <i class="ph ph-warning-circle" style="color: var(--asr-green);"></i> Critical
                     </div>
                     Manajemen Proyek PT PAL
                 </li>
@@ -149,7 +149,7 @@
 
 
         <!-- AI Analysis Section -->
-        <div class="col-span-12 card executive-card" style="border-left: 4px solid var(--len-red);">
+        <div class="col-span-12 card executive-card" style="border-left: 4px solid var(--asr-green);">
             <div class="flex-start" style="margin-bottom: 1rem;">
                 <div class="icon-box red" style="width: 40px; height: 40px; font-size: 1.25rem;">
                     <i class="ph ph-brain"></i>
@@ -174,7 +174,7 @@
     <div style="background:var(--card-bg); border-radius:1.25rem; width:100%; max-width:1280px; margin:auto; box-shadow:0 30px 70px rgba(0,0,0,0.5); overflow:hidden; border:1px solid var(--border-color);">
 
         <!-- Header -->
-        <div style="background:linear-gradient(135deg,#8B0000,#C80A22,#E31837); padding:1.5rem 2rem; display:flex; justify-content:space-between; align-items:center;">
+        <div style="background:linear-gradient(135deg,#8B0000,#C80A22,#16a34a); padding:1.5rem 2rem; display:flex; justify-content:space-between; align-items:center;">
             <div>
                 <div style="color:rgba(255,255,255,0.65); font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; margin-bottom:0.3rem;"><i class="ph ph-share-network"></i>&nbsp; Organizational Structure</div>
                 <h2 style="color:#fff; font-size:1.4rem; font-weight:700; margin:0; letter-spacing:-0.01em;">Consortium Structure — KRI FPB Refurbishment</h2>
@@ -207,20 +207,20 @@
     min-width: 115px;
     white-space: nowrap;
 }
-.oc-card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(227,24,55,0.18); }
+.oc-card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(22,163,74,0.18); }
 
 /* Card variants */
 .oc-card.gov   { border-color: #C09060; background: #FFF8F0; }
-.oc-card.kso   { border: 2.5px dashed var(--len-red); background: rgba(227,24,55,0.05); }
-.oc-card.main  { border-color: var(--len-red); border-width: 2.5px; background: rgba(227,24,55,0.06); }
+.oc-card.kso   { border: 2.5px dashed var(--asr-green); background: rgba(22,163,74,0.05); }
+.oc-card.main  { border-color: var(--asr-green); border-width: 2.5px; background: rgba(22,163,74,0.06); }
 .oc-card.pal   { border-color: #2563EB; background: rgba(37,99,235,0.05); }
 .oc-card.sub1  { background: var(--card-bg); }
 .oc-card.sub2  { background: var(--card-bg); }
 
 /* Dark mode */
 :root[data-theme="dark"] .oc-card.gov  { background: rgba(160,82,45,0.12); }
-:root[data-theme="dark"] .oc-card.kso  { background: rgba(227,24,55,0.08); }
-:root[data-theme="dark"] .oc-card.main { background: rgba(227,24,55,0.10); }
+:root[data-theme="dark"] .oc-card.kso  { background: rgba(22,163,74,0.08); }
+:root[data-theme="dark"] .oc-card.main { background: rgba(22,163,74,0.10); }
 :root[data-theme="dark"] .oc-card.pal  { background: rgba(37,99,235,0.12); }
 
 .oc-title { font-size: 0.8rem; font-weight: 700; color: var(--text-main); margin: 0.25rem 0 0.15rem; line-height: 1.3; }
@@ -233,7 +233,7 @@
 }
 .oc-badge.gov-b  { background: #FEF3C7; color: #92400E; }
 :root[data-theme="dark"] .oc-badge.gov-b { background:rgba(245,158,11,0.18); color:#FCD34D; }
-.oc-badge.main-b { background: var(--len-red); color: #fff; }
+.oc-badge.main-b { background: var(--asr-green); color: #fff; }
 .oc-badge.pal-b  { background: rgba(37,99,235,0.14); color: #2563EB; }
 :root[data-theme="dark"] .oc-badge.pal-b { background:rgba(96,165,250,0.18); color:#93C5FD; }
 
@@ -269,7 +269,7 @@
     left: var(--grp-l, 10%);
     right: var(--grp-r, 10%);
     height: 2px;
-    background: var(--grp-color, var(--len-red));
+    background: var(--grp-color, var(--asr-green));
 }
 
 /* Vertical drop from horizontal bar to each sibling card */
@@ -289,13 +289,13 @@
     transform: translateX(-50%);
     width: 2px;
     height: 32px;
-    background: var(--grp-color, var(--len-red));
+    background: var(--grp-color, var(--asr-green));
 }
 
 /* Vertical line going down from a parent to child group */
 .oc-vdown {
     width: 2px;
-    background: var(--vc-color, var(--len-red));
+    background: var(--vc-color, var(--asr-green));
     margin: 0 auto;
     flex-shrink: 0;
 }
@@ -362,16 +362,16 @@
          └──────────────────────────────┘ -->
     <div style="margin-right:280px; display:flex; flex-direction:column; align-items:center;">
         <div class="oc-card kso" style="min-width:260px; padding:1rem 1.5rem;">
-            <div style="font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--len-red); margin-bottom:0.6rem;">KSO Non-Administratif</div>
+            <div style="font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--asr-green); margin-bottom:0.6rem;">KSO Non-Administratif</div>
             <div style="display:flex; align-items:center; justify-content:center; gap:0.7rem; margin-bottom:0.5rem;">
                 <!-- LEN placeholder logo text -->
-                <span style="font-size:1.1rem; font-weight:900; color:var(--len-red); letter-spacing:-1px;">LEN</span>
-                <span style="color:var(--len-red); font-size:1.2rem; font-weight:700;">+</span>
+                <span style="font-size:1.1rem; font-weight:900; color:var(--asr-green); letter-spacing:-1px;">LEN</span>
+                <span style="color:var(--asr-green); font-size:1.2rem; font-weight:700;">+</span>
                 <span style="font-size:1.1rem; font-weight:900; color:#1D4ED8; letter-spacing:-1px;">PAL</span>
             </div>
             <div style="font-size:0.68rem; color:var(--text-muted);">PT LEN Industri &nbsp;+&nbsp; PT PAL Indonesia</div>
         </div>
-        <div class="oc-vdown" style="height:30px; --vc-color:var(--len-red);"></div>
+        <div class="oc-vdown" style="height:30px; --vc-color:var(--asr-green);"></div>
     </div>
 
     <!-- ┌────────────────────────────────────────────┐
@@ -385,9 +385,9 @@
         <!-- manual fork: horizontal bar -->
         <div style="position:relative; width:100%; height:30px;">
             <!-- bar from LEN center (17.5%) to PAL center (82.5%) -->
-            <div style="position:absolute; top:0; left:17.5%; right:17.5%; height:2px; background:var(--len-red);"></div>
+            <div style="position:absolute; top:0; left:17.5%; right:17.5%; height:2px; background:var(--asr-green);"></div>
             <!-- drop to LEN -->
-            <div style="position:absolute; top:0; left:calc(17.5% - 1px); width:2px; height:30px; background:var(--len-red);"></div>
+            <div style="position:absolute; top:0; left:calc(17.5% - 1px); width:2px; height:30px; background:var(--asr-green);"></div>
             <!-- drop to PAL -->
             <div style="position:absolute; top:0; right:calc(17.5% - 1px); width:2px; height:30px; background:#2563EB;"></div>
         </div>
@@ -396,14 +396,14 @@
             <!-- LEN Main Contractor -->
             <div style="display:flex; flex-direction:column; align-items:center;">
                 <div class="oc-card main" style="min-width:155px;">
-                    <div class="oc-emblem" style="background:rgba(227,24,55,0.12); color:var(--len-red);">
+                    <div class="oc-emblem" style="background:rgba(22,163,74,0.12); color:var(--asr-green);">
                         <span style="font-size:1rem; font-weight:900;">LEN</span>
                     </div>
                     <div class="oc-title">PT LEN Industri</div>
                     <span class="oc-badge main-b">Main Contractor</span>
                     <div class="oc-hint" style="margin-top:0.25rem;">Mission System Integrator</div>
                 </div>
-                <div class="oc-vdown" style="height:28px; --vc-color:var(--len-red);"></div>
+                <div class="oc-vdown" style="height:28px; --vc-color:var(--asr-green);"></div>
             </div>
 
             <!-- PAL Indonesia -->
@@ -424,7 +424,7 @@
          │  LEVEL 4: 5 Sub-Contractors under LEN (full width)          │
          └──────────────────────────────────────────────────────────────┘ -->
     <!-- Group spans full 1100px; 5 items → bar: left=10%, right=10% -->
-    <div class="oc-group" style="width:100%; --grp-l:10%; --grp-r:10%; --grp-color:var(--len-red);">
+    <div class="oc-group" style="width:100%; --grp-l:10%; --grp-r:10%; --grp-color:var(--asr-green);">
 
         @php
         $sub1list = [
@@ -437,7 +437,7 @@
         @endphp
 
         @foreach($sub1list as $s)
-        <div class="oc-branch" style="--grp-color:var(--len-red);">
+        <div class="oc-branch" style="--grp-color:var(--asr-green);">
             <div style="display:flex; flex-direction:column; align-items:center;">
                 <div class="oc-card sub1" style="border-color:{{ $s['bg'] }}; min-width:120px;">
                     <div class="oc-icon" style="background:{{ $s['bg'] }}18; color:{{ $s['bg'] }};">{{ $s['abbr'] }}</div>
@@ -496,10 +496,10 @@
             <div style="width:13px; height:13px; border-radius:4px; background:#FFF8F0; border:1.5px solid #C09060;"></div> Government Entity
         </div>
         <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; color:var(--text-main);">
-            <div style="width:13px; height:13px; border-radius:4px; background:rgba(227,24,55,0.06); border:1.5px dashed var(--len-red);"></div> KSO Non-Administratif
+            <div style="width:13px; height:13px; border-radius:4px; background:rgba(22,163,74,0.06); border:1.5px dashed var(--asr-green);"></div> KSO Non-Administratif
         </div>
         <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; color:var(--text-main);">
-            <div style="width:13px; height:13px; border-radius:4px; background:rgba(227,24,55,0.08); border:2px solid var(--len-red);"></div> Main Contractor — PT LEN
+            <div style="width:13px; height:13px; border-radius:4px; background:rgba(22,163,74,0.08); border:2px solid var(--asr-green);"></div> Main Contractor — PT LEN
         </div>
         <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; color:var(--text-main);">
             <div style="width:13px; height:13px; border-radius:4px; background:rgba(37,99,235,0.06); border:1.5px solid #2563EB;"></div> Consortium Partner — PT PAL

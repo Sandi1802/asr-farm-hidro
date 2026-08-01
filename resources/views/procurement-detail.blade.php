@@ -84,12 +84,12 @@
         background: transparent; color: var(--text-main);
         font-family: inherit; font-size: 0.875rem; box-sizing: border-box;
     }
-    .form-control:focus { outline: none; border-color: var(--len-red); }
+    .form-control:focus { outline: none; border-color: var(--asr-green); }
     .custom-checkbox {
         display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
     }
     .custom-checkbox input {
-        width: 18px; height: 18px; accent-color: var(--len-red); cursor: pointer; flex-shrink: 0;
+        width: 18px; height: 18px; accent-color: var(--asr-green); cursor: pointer; flex-shrink: 0;
     }
     .custom-checkbox label { font-size: 0.875rem; color: var(--text-main); cursor: pointer; }
 </style>
@@ -106,9 +106,9 @@
         <h3 style="font-size: 1rem; font-weight: 600;">Progress Tahapan Pengadaan</h3>
         <div style="display: flex; align-items: center; gap: 0.75rem;">
             <div style="width: 140px; height: 8px; background: var(--border-color); border-radius: 10px; overflow: hidden;">
-                <div style="height: 100%; width: {{ $progress }}%; background: {{ $progress >= 80 ? '#22c55e' : ($progress >= 50 ? '#f59e0b' : 'var(--len-red)') }}; border-radius: 10px; transition: width 0.5s;"></div>
+                <div style="height: 100%; width: {{ $progress }}%; background: {{ $progress >= 80 ? '#22c55e' : ($progress >= 50 ? '#f59e0b' : 'var(--asr-green)') }}; border-radius: 10px; transition: width 0.5s;"></div>
             </div>
-            <span style="font-weight: 700; font-size: 1rem; color: var(--len-red);">{{ $progress }}%</span>
+            <span style="font-weight: 700; font-size: 1rem; color: var(--asr-green);">{{ $progress }}%</span>
         </div>
     </div>
 
@@ -142,7 +142,7 @@
         <div>
             <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">
                 <a href="/procurement" style="color: var(--text-muted); text-decoration: none;">Pengadaan</a>
-                &nbsp;›&nbsp; <span style="color: var(--len-red); font-weight: 600;">Edit Pengadaan</span>
+                &nbsp;›&nbsp; <span style="color: var(--asr-green); font-weight: 600;">Edit Pengadaan</span>
             </div>
             <h2 style="font-size: 1.4rem; font-weight: 700;">Detail Pengadaan</h2>
             <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
@@ -156,7 +156,7 @@
 
         <!-- Informasi Pengadaan -->
         <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-            <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; color: var(--len-red);">
+            <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; color: var(--asr-green);">
                 <i class="ph ph-list-dashes"></i> Informasi Pengadaan
             </h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
@@ -209,7 +209,7 @@
 
         <!-- Checklist Tahapan -->
         <div style="margin-bottom: 1.5rem;">
-            <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; color: var(--len-red);">
+            <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; color: var(--asr-green);">
                 <i class="ph ph-check-square-offset"></i> Checklist Penagihan / Tahapan Lanjutan
             </h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; padding: 1.25rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: rgba(0,0,0,0.01); margin-bottom: 1.25rem;">
@@ -236,7 +236,7 @@
         <!-- Buttons -->
         <div style="display: flex; justify-content: flex-end; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
             <a href="/procurement" class="btn btn-outline" style="padding: 0.7rem 1.5rem; font-weight: 600;">Batalkan</a>
-            <button type="submit" class="btn btn-primary" style="padding: 0.7rem 1.5rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; background-color: var(--len-red);">
+            <button type="submit" class="btn btn-primary" style="padding: 0.7rem 1.5rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; background-color: var(--asr-green);">
                 <i class="ph ph-floppy-disk"></i> Simpan & Perbarui Data
             </button>
         </div>
@@ -250,7 +250,7 @@
     </div>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem;">
         <div>
-            <div style="font-size: 0.8rem; font-weight: 600; color: var(--len-red); margin-bottom: 0.3rem;">Hari ini, {{ now()->format('H:i') }} WIB</div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--asr-green); margin-bottom: 0.3rem;">Hari ini, {{ now()->format('H:i') }} WIB</div>
             <div style="font-size: 0.85rem; color: var(--text-main);">Data diakses dan ditampilkan.</div>
         </div>
         <div>

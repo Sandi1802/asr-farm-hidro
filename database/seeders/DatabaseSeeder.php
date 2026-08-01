@@ -18,17 +18,17 @@ class DatabaseSeeder extends Seeder
         $accounts = [
             [
                 'name' => 'Super Admin',
-                'email' => 'superadmin@len.co.id',
+                'email' => 'superadmin@asrfarm.com',
                 'role' => 'super_admin',
             ],
             [
                 'name' => 'Admin',
-                'email' => 'admin@len.co.id',
+                'email' => 'admin@asrfarm.com',
                 'role' => 'admin',
             ],
             [
                 'name' => 'Viewer',
-                'email' => 'viewer@len.co.id',
+                'email' => 'viewer@asrfarm.com',
                 'role' => 'viewer',
             ],
         ];
@@ -39,10 +39,12 @@ class DatabaseSeeder extends Seeder
                 [
                     'name' => $account['name'],
                     'role' => $account['role'],
-                    'password' => Hash::make('LenBTC@2024'),
+                    'password' => Hash::make('ASRFarm@2026'),
                     'email_verified_at' => now(),
                 ]
             );
         }
+
+        $this->call(HydroponicSeeder::class);
     }
 }
