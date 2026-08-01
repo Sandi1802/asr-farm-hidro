@@ -1,6 +1,12 @@
 #!/bin/bash
 
-echo "=== Running migrations (errors won't stop Apache) ==="
+echo "=== Passing environment variables to Apache ==="
+# Export all container env vars so Apache/PHP can read them
+printenv | grep -v "^_" | while IFS='=' read -r name value; do
+    echo "export $name=\"$value\""
+done >> /etc/apache2/envvars
+
+echo "=== Running migrations ==="
 php artisan migrate --force || echo "WARNING: Migration failed, continuing anyway..."
 
 echo "=== Caching config ==="
@@ -15,4 +21,3 @@ php artisan storage:link || true
 
 echo "=== Starting Apache ==="
 exec apache2-foreground
-
