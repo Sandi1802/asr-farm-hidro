@@ -45,101 +45,7 @@
 </head>
 <body>
 
-    <!-- Sidebar -->
-    <aside class="sidebar" id="mainSidebar">
-        <div class="sidebar-header" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 0.875rem 1rem; border-bottom: 1px solid var(--border-color);">
-            {{-- Logo --}}
-            <img src="{{ asset('images/logo-asr.png') }}"
-                 alt="ASR Farm Logo"
-                 class="sidebar-logo"
-                 style="width: 48px; height: 48px; object-fit: contain; display: block;"
-                 onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';">
-
-            {{-- Fallback jika logo belum diupload --}}
-            <div id="logoFallback" style="display: none; width: 48px; height: 48px; border-radius: 50%; background: var(--asr-green-light); align-items: center; justify-content: center;">
-                <i class="ph ph-plant" style="font-size: 1.6rem; color: var(--asr-green);"></i>
-            </div>
-            
-            {{-- Toggle button kanan --}}
-            <i class="ph ph-list" id="sidebarToggle" onclick="toggleSidebar()"
-               style="font-size: 1.3rem; color: var(--text-muted); cursor: pointer; flex-shrink: 0;"></i>
-        </div>
-        <div class="sidebar-nav-container">
-        <nav class="sidebar-nav">
-            <a href="/hydroponics/dashboard" class="nav-item {{ request()->is('hydroponics/dashboard') ? 'active' : '' }}">
-                <i class="ph ph-squares-four"></i>
-                <span class="nav-text">Dashboard</span>
-            </a>
-            
-            <a href="/hydroponics/greenhouses" class="nav-item {{ request()->is('hydroponics/greenhouses*') ? 'active' : '' }}">
-                <i class="ph ph-house-line"></i>
-                <span class="nav-text">Green House</span>
-            </a>
-
-            <a href="/hydroponics/semai" class="nav-item {{ request()->is('hydroponics/semai*') ? 'active' : '' }}">
-                <i class="ph ph-plant"></i>
-                <span class="nav-text">Semai</span>
-                @php $semaiCount = \App\Models\Semai::where('status','aktif')->count(); @endphp
-                @if($semaiCount > 0)
-                <span style="margin-left:auto; background:#16a34a; color:white; font-size:0.65rem; font-weight:800; padding:0.1rem 0.45rem; border-radius:50px; min-width:18px; text-align:center;">{{ $semaiCount }}</span>
-                @endif
-            </a>
-
-            <div class="nav-item nav-dropdown {{ request()->is('hydroponics/inventory*') ? 'active' : '' }}" onclick="toggleDropdown(this)">
-                <div style="display: flex; align-items: center;">
-                    <i class="ph ph-package"></i>
-                    <span class="nav-text">Inventaris</span>
-                </div>
-                <i class="ph ph-caret-down" style="margin-right: 0; font-size: 0.9rem;"></i>
-            </div>
-            
-            <div class="nav-submenu {{ request()->is('hydroponics/inventory*') ? 'open' : '' }}">
-                <a href="/hydroponics/inventory?cat=bibit" class="submenu-item {{ request('cat') == 'bibit' ? 'active' : '' }}">Stok Bibit</a>
-                <a href="/hydroponics/inventory?cat=media_tanam" class="submenu-item {{ request('cat') == 'media_tanam' ? 'active' : '' }}">Media Tanam</a>
-                <a href="/hydroponics/inventory?cat=nutrisi" class="submenu-item {{ request('cat') == 'nutrisi' ? 'active' : '' }}">Nutrisi Tanaman</a>
-                <a href="/hydroponics/inventory?cat=obat" class="submenu-item {{ request('cat') == 'obat' ? 'active' : '' }}">Obat & Pestisida</a>
-                <a href="/hydroponics/inventory?cat=peralatan" class="submenu-item {{ request('cat') == 'peralatan' ? 'active' : '' }}">Peralatan</a>
-                <a href="/hydroponics/inventory?cat=perlengkapan" class="submenu-item {{ request('cat') == 'perlengkapan' ? 'active' : '' }}">Perlengkapan</a>
-            </div>
-
-            <a href="/hydroponics/damage-notes" class="nav-item {{ request()->is('hydroponics/damage-notes*') ? 'active' : '' }}">
-                <i class="ph ph-warning-octagon"></i>
-                <span class="nav-text">Catatan Kerusakan</span>
-            </a>
-
-            <div class="nav-item nav-dropdown {{ request()->is('hydroponics/bandar*') ? 'active' : '' }}" onclick="toggleDropdown(this)" style="margin-top: 1rem;">
-                <div style="display: flex; align-items: center;">
-                    <i class="ph ph-storefront"></i>
-                    <span class="nav-text">Pusat Distribusi</span>
-                </div>
-                <i class="ph ph-caret-down"></i>
-            </div>
-            <div class="nav-submenu {{ request()->is('hydroponics/bandar*') ? 'open' : '' }}">
-                <a href="/hydroponics/bandar" class="submenu-item {{ request()->is('hydroponics/bandar') ? 'active' : '' }}">Dashboard Distribusi</a>
-                <a href="/hydroponics/bandar/products" class="submenu-item {{ request()->is('hydroponics/bandar/products') ? 'active' : '' }}">Data Produk (Stok)</a>
-                <a href="/hydroponics/bandar/partners" class="submenu-item {{ request()->is('hydroponics/bandar/partners') ? 'active' : '' }}">Data Mitra</a>
-                <a href="/hydroponics/bandar/transactions" class="submenu-item {{ request()->is('hydroponics/bandar/transactions') ? 'active' : '' }}">Riwayat Transaksi</a>
-            </div>
-
-            @if(Auth::user()?->role === 'super_admin')
-            <div class="nav-item nav-dropdown {{ request()->is('hydroponics/master-data/*') ? 'active' : '' }}" onclick="toggleDropdown(this)">
-                <div style="display: flex; align-items: center;">
-                    <i class="ph ph-database"></i>
-                    <span class="nav-text">Master Data</span>
-                </div>
-                <i class="ph ph-caret-down" style="margin-right: 0; font-size: 0.9rem;"></i>
-            </div>
-            
-            <div class="nav-submenu {{ request()->is('hydroponics/master-data/*') ? 'open' : '' }}">
-                <a href="/hydroponics/master-data/plants" class="submenu-item {{ request()->is('hydroponics/master-data/plants') ? 'active' : '' }}">Jenis Tanaman</a>
-                <a href="/hydroponics/master-data/users" class="submenu-item {{ request()->is('hydroponics/master-data/users') ? 'active' : '' }}">Pengguna</a>
-            </div>
-            @endif
-
-        </nav>
-        </div>
-    </aside>
-    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    @include('layouts.sidebar')
 
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -153,7 +59,7 @@
                 <div style="flex: 1; overflow: hidden; display: flex; align-items: center; background: transparent; padding: 0.2rem 0;">
                     <div class="global-marquee-wrapper">
                         <div class="global-marquee-content">
-                            <img src="{{ asset('images/logo-asr.png') }}" alt="Logo" style="height: 24px; width: 24px; object-fit: cover; margin-right: 10px; border-radius: 50%;">
+                            <img src="{{ asset('images/logo-asr.png') }}" alt="Logo" style="height: 24px; width: 24px; object-fit: cover; margin-right: 10px; background-color: #ffffff; border-radius: 50%; padding: 1px;">
                             <span style="font-weight: 500; color: var(--text-main); font-size: 0.9rem;">Selamat Datang, {{ Auth::user()->name ?? 'Super Admin' }}! Pantau perkembangbiakan, produksi, dan operasional ASR FARM dengan mudah di sini.</span>
                         </div>
                     </div>
@@ -162,7 +68,19 @@
             
             <div class="header-actions" style="flex-shrink: 0;">
                 <button class="icon-btn" id="themeToggle"><i class="ph ph-sun" id="themeIcon"></i></button>
-                <button class="icon-btn"><i class="ph ph-bell"></i></button>
+                <div id="bellWrapper" style="display: flex; align-items: center; position: relative; cursor: pointer; flex-shrink: 0; margin-right: 0.5rem;" onclick="toggleNotificationDropdown(event)">
+                    <button class="icon-btn" style="position: relative; pointer-events: none;">
+                        <i class="ph ph-bell"></i>
+                        <span id="notifBadge" style="display:none; position:absolute; top:-4px; right:-8px; background:#ef4444; color:white; font-size:0.6rem; font-weight:bold; border-radius:10px; min-width:18px; height:18px; line-height:18px; text-align:center; padding:0 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></span>
+                    </button>
+                    <div id="notifDropdown" class="notif-dropdown" style="display:none; position: absolute; top: 110%; right: -10px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); min-width: 320px; max-width: 380px; box-shadow: var(--shadow-lg); z-index: 100; overflow: hidden;">
+                        <div id="notifContent">
+                            <div style="padding: 2rem; text-align: center;">
+                                <i class="ph ph-spinner ph-spin" style="font-size: 2rem; color: #cbd5e1;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="user-profile" style="position: relative; cursor: pointer; flex-shrink: 0;" onclick="this.querySelector('.user-dropdown').classList.toggle('open')">
                     <div class="user-info" style="text-align: right;">
@@ -171,7 +89,13 @@
                             {{ Auth::user()?->roleLabel() ?? 'Super Admin' }}
                         </span>
                     </div>
-                    <div class="avatar">{{ strtoupper(substr(Auth::user()->name ?? 'SA', 0, 2)) }}</div>
+                    @if(Auth::user()?->avatar)
+                        <div class="avatar" style="background: transparent; overflow: hidden; padding: 0;">
+                            <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    @else
+                        <div class="avatar">{{ strtoupper(substr(Auth::user()->name ?? 'SA', 0, 2)) }}</div>
+                    @endif
                     <div class="user-dropdown" style="display:none; position: absolute; top: 110%; right: 0; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); min-width: 180px; box-shadow: var(--shadow-md); z-index: 100; overflow: hidden;">
                         <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color);">
                             <div style="font-size: 0.75rem; color: var(--text-muted);">Login sebagai</div>
@@ -180,6 +104,9 @@
                                 {{ Auth::user()?->roleLabel() ?? 'Super Admin' }}
                             </span>
                         </div>
+                        <a href="{{ route('profile.index') }}" style="display:block; width:100%; padding: 0.75rem 1rem; background:none; border-bottom: 1px solid var(--border-color); text-align:left; cursor:pointer; color: var(--text-main); font-size:0.875rem; text-decoration:none; display:flex; align-items:center; gap:0.5rem;">
+                            <i class="ph ph-user" style="color: var(--asr-green);"></i> Profil Saya
+                        </a>
                         <form action="{{ route('auth.logout') }}" method="POST" style="margin:0;">
                             @csrf
                             <button type="submit" style="width:100%; padding: 0.75rem 1rem; background:none; border:none; text-align:left; cursor:pointer; color: var(--text-main); font-size:0.875rem; display:flex; align-items:center; gap:0.5rem; font-family: inherit;">
@@ -212,12 +139,12 @@
             const submenu = element.nextElementSibling;
             submenu.classList.toggle('open');
             
-            const caret = element.querySelector('.ph-caret-down') || element.querySelector('.ph-caret-up');
+            const caret = element.querySelector('.ph-caret-down') || element.querySelector('.ph-caret-up') || element.querySelector('.ph-caret-left');
             if (caret) {
                 if (submenu.classList.contains('open')) {
-                    caret.classList.replace('ph-caret-down', 'ph-caret-up');
+                    caret.className = caret.className.replace(/ph-caret-\w+/, 'ph-caret-down');
                 } else {
-                    caret.classList.replace('ph-caret-up', 'ph-caret-down');
+                    caret.className = caret.className.replace(/ph-caret-\w+/, 'ph-caret-left');
                 }
             }
         }
@@ -473,6 +400,66 @@
                     });
                 }, 150);
             }
+        });
+
+        function toggleNotificationDropdown(event) {
+            if(event) event.stopPropagation();
+            const dropdown = document.getElementById('notifDropdown');
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function fetchNotifications() {
+            fetch('/hydroponics/notifications', {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                const badge = document.getElementById('notifBadge');
+                const content = document.getElementById('notifContent');
+                
+                content.innerHTML = data.html;
+                if (data.has_new && data.count > 0) {
+                    badge.style.display = 'block';
+                    badge.textContent = data.count > 99 ? '99+' : data.count;
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(err => console.error(err));
+        }
+
+        function markNotificationsRead() {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            fetch('/hydroponics/notifications/read', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('notifBadge').style.display = 'none';
+                document.getElementById('notifDropdown').style.display = 'none';
+            })
+            .catch(err => console.error(err));
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchNotifications();
+
+            // Close notification dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                const bell = document.getElementById('bellWrapper');
+                const dropdown = document.getElementById('notifDropdown');
+                if (bell && dropdown && !bell.contains(e.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
         });
     </script>
     @stack('scripts')

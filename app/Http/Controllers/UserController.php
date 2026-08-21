@@ -25,20 +25,20 @@ class UserController extends Controller
         $this->checkSuperAdmin();
 
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-            'role'     => 'required|in:super_admin,staff',
+            'name'      => 'required|string|max:255',
+            'username'  => 'required|string|max:255|unique:users,username',
+            'email'     => 'required|email|unique:users,email',
+            'password'  => 'required|min:6',
+            'role_agri' => 'required|in:it_admin,atasan,produksi,produksi_gh,produksi_konven,keuangan,pemasaran,packing',
         ]);
-
-        $role_agri = $request->role === 'super_admin' ? 'admin' : 'pegawai';
 
         User::create([
             'name'      => $request->name,
+            'username'  => $request->username,
             'email'     => $request->email,
             'password'  => Hash::make($request->password),
-            'role'      => $request->role === 'staff' ? 'viewer' : 'super_admin',
-            'role_agri' => $role_agri,
+            'role'      => $request->role_agri === 'it_admin' ? 'super_admin' : 'viewer',
+            'role_agri' => $request->role_agri,
         ]);
 
         return redirect()->route('hydroponics.users')->with('success', 'Pengguna berhasil ditambahkan!');
@@ -50,24 +50,33 @@ class UserController extends Controller
 
         $user = User::findOrFail($id);
 
-        $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email,' . $user->id,
-            'role'     => 'required|in:super_admin,staff',
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'name'      => 'required|string|max:255',
+            'username'  => 'required|string|max:255|unique:users,username,' . $user->id,
+            'email'     => 'required|email|unique:users,email,' . $user->id,
+            'role_agri' => 'required|in:it_admin,atasan,produksi,produksi_gh,produksi_konven,keuangan,pemasaran,packing',
         ]);
 
-        $role_agri = $request->role === 'super_admin' ? 'admin' : 'pegawai';
+        if ($validator->fails()) {
+            return redirect()->route('hydroponics.users')->withErrors($validator)->withInput();
+        }
 
         $user->name = $request->name;
+        $user->username = $request->username;
         $user->email = $request->email;
-        $user->role = $request->role === 'staff' ? 'viewer' : 'super_admin';
-        $user->role_agri = $role_agri;
+        $user->role = $request->role_agri === 'it_admin' ? 'super_admin' : 'viewer';
+        $user->role_agri = $request->role_agri;
 
         if ($request->filled('password')) {
-            $request->validate([
+            $passValidator = \Illuminate\Support\Facades\Validator::make($request->all(), [
                 'password' => 'min:6',
             ]);
-            $user->password = Hash::make($request->password);
+            
+            if ($passValidator->fails()) {
+                return redirect()->route('hydroponics.users')->withErrors($passValidator)->withInput();
+            }
+            
+            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
         }
 
         $user->save();

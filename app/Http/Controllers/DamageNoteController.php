@@ -27,9 +27,9 @@ class DamageNoteController extends Controller
         if ($request->filled('search')) {
             $q = $request->search;
             $query->where(function ($sub) use ($q) {
-                $sub->where('plant_name', 'like', "%$q%")
-                    ->orWhere('description', 'like', "%$q%")
-                    ->orWhere('location', 'like', "%$q%");
+                $sub->where('plant_name', 'ilike', "%$q%")
+                    ->orWhere('description', 'ilike', "%$q%")
+                    ->orWhere('location', 'ilike', "%$q%");
             });
         }
         if ($request->filled('date_from')) {

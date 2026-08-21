@@ -109,128 +109,161 @@
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
-        @foreach($greenhouse->racks as $rack)
-        <div class="card" style="border: 1px solid var(--border-color); background: var(--bg-color); display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <div class="flex-between" style="margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; align-items: center;">
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <i class="ph ph-squares-four" style="font-size: 1.5rem; color: var(--asr-green);"></i>
-                        <h3 style="font-weight: 700; font-size: 1.1rem; margin: 0; color: var(--text-main);">{{ $rack->name }}</h3>
-                    </div>
-                    @if(Auth::user()->isAgriAdmin())
-                    <div style="display: flex; gap: 0.25rem;">
-                        <a href="{{ route('hydroponics.racks.print-qr', $rack->id) }}" target="_blank"
-                            style="padding: 0.25rem 0.5rem; background: var(--asr-green-light); color: var(--asr-green-dark); border: 1px solid var(--asr-green); border-radius: 6px; font-size: 0.75rem; cursor: pointer; text-decoration: none; display: flex; align-items: center;"
-                            title="Cetak QR Rak">
-                            <i class="ph ph-qr-code"></i>
+    <div class="card" style="padding: 1.5rem; overflow-x: auto; border: 1px solid var(--border-color);">
+        <table class="datatable" style="width: 100%; border-collapse: collapse; min-width: 800px;">
+            <thead>
+                <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+                    <th style="padding: 1rem; font-weight: 700; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Nama Rak</th>
+                    <th style="padding: 1rem; font-weight: 700; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Nutrisi</th>
+                    <th style="padding: 1rem; font-weight: 700; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Kuras Terakhir</th>
+                    <th style="padding: 1rem; font-weight: 700; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Status Lubang</th>
+                    <th style="padding: 1rem; font-weight: 700; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Keterisian</th>
+                    <th style="padding: 1rem; font-weight: 700; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; text-align: right;">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($greenhouse->racks as $rack)
+                @php
+                    $total = $rack->total_holes ?: 1;
+                    $pct = round((($rack->planted_holes ?? 0) / $total) * 100);
+                @endphp
+                <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    <td style="padding: 1rem; vertical-align: middle;">
+                        <a href="{{ route('hydroponics.racks.show', $rack->id) }}" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem; color: var(--text-main); font-weight: 700;">
+                            <i class="ph ph-squares-four" style="font-size: 1.25rem; color: var(--asr-green);"></i>
+                            {{ $rack->name }}
                         </a>
-                        <button onclick="openEditRackModal({{ $rack->id }}, '{{ addslashes($rack->name) }}', '{{ $rack->status }}', {{ $rack->rows->count() }})"
-                            style="padding: 0.25rem 0.5rem; background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center;"
-                            title="Edit Rak">
-                            <i class="ph ph-pencil-simple"></i>
-                        </button>
-                        <button type="button" 
-                                onclick="confirmAction('Hapus Rak?', 'Hapus {{ addslashes($rack->name) }} beserta baris & lubang di dalamnya?', '{{ route('hydroponics.racks.destroy', $rack->id) }}', 'DELETE')"
-                                style="padding: 0.25rem 0.5rem; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; border-radius: 6px; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center;" 
-                                title="Hapus Rak">
-                            <i class="ph ph-trash"></i>
-                        </button>
-                    </div>
-                    @endif
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
-                    <div style="background: white; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
-                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">PPM Level</div>
-                        <div style="font-size: 1.25rem; font-weight: 800; color: #15803d; margin-top: 0.15rem;">{{ $rack->ppm_level ?? '-' }}</div>
-                    </div>
-                    <div style="background: white; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
-                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">pH Level</div>
-                        <div style="font-size: 1.25rem; font-weight: 800; color: #1d4ed8; margin-top: 0.15rem;">{{ $rack->ph_level ?? '-' }}</div>
-                    </div>
-                </div>
-
-                <div class="flex-between" style="background: #f8fafc; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.25rem; align-items: center;">
-                    <div>
-                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 0.25rem;">Kuras Air Terakhir</div>
-                        <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">
-                            @if($rack->last_drained_at)
-                                {{ \Carbon\Carbon::parse($rack->last_drained_at)->translatedFormat('l, d F Y') }}
-                            @else
-                                <span style="color: #9ca3af;">Belum pernah dikuras</span>
+                    </td>
+                    <td style="padding: 1rem; vertical-align: middle;">
+                        <div style="display: flex; gap: 0.5rem; font-size: 0.85rem;">
+                            <span style="background: #f1f5f9; padding: 0.2rem 0.5rem; border-radius: 4px;"><strong style="color: #475569;">PPM:</strong> <span style="color: #15803d; font-weight: 700;">{{ $rack->ppm_level ?? '-' }}</span></span>
+                            <span style="background: #f1f5f9; padding: 0.2rem 0.5rem; border-radius: 4px;"><strong style="color: #475569;">pH:</strong> <span style="color: #1d4ed8; font-weight: 700;">{{ $rack->ph_level ?? '-' }}</span></span>
+                        </div>
+                    </td>
+                    <td style="padding: 1rem; vertical-align: middle; font-size: 0.85rem; color: var(--text-main); font-weight: 500;">
+                        @if($rack->last_drained_at)
+                            {{ \Carbon\Carbon::parse($rack->last_drained_at)->translatedFormat('d M Y') }}
+                        @else
+                            <span style="color: #9ca3af;">Belum pernah</span>
+                        @endif
+                    </td>
+                    <td style="padding: 1rem; vertical-align: middle;">
+                        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                            <span style="background: #dcfce7; color: #16a34a; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;" title="Ditanam"><i class="ph ph-plant"></i> {{ number_format($rack->planted_holes ?? 0, 0, ',', '.') }}</span>
+                            <span style="background: #f1f5f9; color: #475569; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;" title="Kosong"><i class="ph ph-circle"></i> {{ number_format($rack->empty_holes ?? 0, 0, ',', '.') }}</span>
+                            @if(($rack->harvested_holes ?? 0) > 0)
+                            <span style="background: #dbeafe; color: #2563eb; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;" title="Panen"><i class="ph ph-basket"></i> {{ $rack->harvested_holes }}</span>
+                            @endif
+                            @if(($rack->damaged_holes ?? 0) > 0)
+                            <span style="background: #fee2e2; color: #dc2626; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;" title="Rusak"><i class="ph ph-warning"></i> {{ $rack->damaged_holes }}</span>
                             @endif
                         </div>
-                    </div>
-                    @if(Auth::user()->isAgriAdmin())
-                        <button type="button" 
-                                onclick="confirmAction('Kuras Air Rak?', 'Anda yakin ingin mencatat pengurasan air untuk {{ addslashes($rack->name) }} hari ini?', '{{ route('hydroponics.racks.drain', $rack->id) }}', 'POST')"
-                                style="background: white; border: 1px solid #3b82f6; color: #3b82f6; border-radius: 6px; padding: 0.35rem 0.75rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.35rem;">
-                            <i class="ph ph-drop"></i> Kuras Air
-                        </button>
-                    @endif
-                </div>
-
-                {{-- Status Lubang Real-time --}}
-                <div style="background: white; border: 1px solid var(--border-color); border-radius: 10px; padding: 0.875rem; margin-bottom: 1.25rem;">
-                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.625rem; display: flex; justify-content: space-between; align-items: center;">
-                        <span>Status Lubang Tanam</span>
-                        <span style="font-size: 0.7rem; color: #6b7280; font-weight: 600;">Total: {{ number_format($rack->total_holes ?? 408, 0, ',', '.') }}</span>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem;">
-                        <div style="background: #dcfce7; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.5rem 0.625rem; display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 0.8rem; font-weight: 600; color: #15803d; display: flex; align-items: center; gap: 0.35rem;">
-                                <i class="ph ph-plant"></i> Ditanam
-                            </span>
-                            <span style="font-size: 0.95rem; font-weight: 800; color: #16a34a;">{{ number_format($rack->planted_holes ?? 0, 0, ',', '.') }}</span>
+                    </td>
+                    <td style="padding: 1rem; vertical-align: middle;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 60px; height: 6px; background: #e2e8f0; border-radius: 10px; overflow: hidden;">
+                                <div style="width: {{ $pct }}%; height: 100%; background: #16a34a; border-radius: 10px;"></div>
+                            </div>
+                            <span style="font-size: 0.8rem; font-weight: 700; color: #64748b;">{{ $pct }}%</span>
                         </div>
-                        <div style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.5rem 0.625rem; display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 0.8rem; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 0.35rem;">
-                                <i class="ph ph-circle"></i> Kosong
-                            </span>
-                            <span style="font-size: 0.95rem; font-weight: 800; color: #64748b;">{{ number_format($rack->empty_holes ?? 0, 0, ',', '.') }}</span>
+                    </td>
+                    <td style="padding: 1rem; vertical-align: middle; text-align: right;">
+                        <div style="display: flex; gap: 0.35rem; justify-content: flex-end;">
+                            <a href="{{ route('hydroponics.racks.show', $rack->id) }}" class="btn btn-outline" style="padding: 0.35rem 0.6rem; font-size: 0.75rem;">
+                                Detail
+                            </a>
+                            @if(Auth::user()->isAgriAdmin())
+                            <button type="button" 
+                                    onclick="confirmAction('Kuras Air Rak?', 'Catat pengurasan air untuk {{ addslashes($rack->name) }}?', '{{ route('hydroponics.racks.drain', $rack->id) }}', 'POST')"
+                                    style="padding: 0.35rem 0.6rem; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;" title="Catat Kuras">
+                                <i class="ph ph-drop"></i>
+                            </button>
+                            <a href="{{ route('hydroponics.racks.print-qr', $rack->id) }}" target="_blank"
+                                style="padding: 0.35rem 0.5rem; background: var(--asr-green-light); color: var(--asr-green-dark); border: 1px solid var(--asr-green); border-radius: 6px; cursor: pointer;" title="Cetak QR">
+                                <i class="ph ph-qr-code" style="font-size: 0.9rem;"></i>
+                            </a>
+                            <button onclick="openEditRackModal({{ $rack->id }}, '{{ addslashes($rack->name) }}', '{{ $rack->status }}', {{ $rack->rows->count() }})"
+                                style="padding: 0.35rem 0.5rem; background: white; color: #374151; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;" title="Edit Rak">
+                                <i class="ph ph-pencil-simple" style="font-size: 0.9rem;"></i>
+                            </button>
+                            <button type="button" 
+                                    onclick="confirmAction('Hapus Rak?', 'Hapus {{ addslashes($rack->name) }} beserta baris & lubang di dalamnya?', '{{ route('hydroponics.racks.destroy', $rack->id) }}', 'DELETE')"
+                                    style="padding: 0.35rem 0.5rem; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer;" title="Hapus Rak">
+                                <i class="ph ph-trash" style="font-size: 0.9rem;"></i>
+                            </button>
+                            @endif
                         </div>
-                    </div>
-
-                    @if(($rack->harvested_holes ?? 0) > 0 || ($rack->damaged_holes ?? 0) > 0)
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem;">
-                        @if(($rack->harvested_holes ?? 0) > 0)
-                        <div style="background: #dbeafe; border: 1px solid #bfdbfe; border-radius: 6px; padding: 0.35rem 0.5rem; display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 0.75rem; font-weight: 600; color: #1d4ed8;">🧺 Panen</span>
-                            <span style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">{{ $rack->harvested_holes }}</span>
-                        </div>
-                        @endif
-                        @if(($rack->damaged_holes ?? 0) > 0)
-                        <div style="background: #fee2e2; border: 1px solid #fecaca; border-radius: 6px; padding: 0.35rem 0.5rem; display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 0.75rem; font-weight: 600; color: #b91c1c;">⚠️ Rusak</span>
-                            <span style="font-size: 0.85rem; font-weight: 700; color: #dc2626;">{{ $rack->damaged_holes }}</span>
-                        </div>
-                        @endif
-                    </div>
-                    @endif
-
-                    @php
-                        $total = $rack->total_holes ?: 1;
-                        $pct = round((($rack->planted_holes ?? 0) / $total) * 100);
-                    @endphp
-                    <div>
-                        <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #6b7280; font-weight: 600; margin-bottom: 0.25rem;">
-                            <span>Keterisian Rak</span>
-                            <span>{{ $pct }}%</span>
-                        </div>
-                        <div style="width: 100%; height: 6px; background: #e2e8f0; border-radius: 10px; overflow: hidden;">
-                            <div style="width: {{ $pct }}%; height: 100%; background: #16a34a; border-radius: 10px; transition: width 0.3s ease;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <a href="{{ route('hydroponics.racks.show', $rack->id) }}" class="btn btn-outline" style="width: 100%; justify-content: center;">
-                Lihat Baris & Lubang <i class="ph ph-arrow-right"></i>
-            </a>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+        @if($greenhouse->racks->count() === 0)
+        <div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+            Belum ada rak di Green House ini.
         </div>
-        @endforeach
+        @endif
+    </div>
+</div>
+
+<!-- Maintenance Logs History -->
+@php
+    $ghMaintenanceLogs = \App\Models\MaintenanceLog::with('user')
+        ->where('loggable_type', \App\Models\Greenhouse::class)
+        ->where('loggable_id', $greenhouse->id)
+        ->orderBy('created_at', 'desc')
+        ->take(10)
+        ->get();
+@endphp
+<div class="card bg-white shadow-sm border-0 mb-4 rounded-4 mt-4" style="background: white; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+    <div class="card-header bg-white border-0 py-3" style="padding: 1.5rem 1.5rem 0 1.5rem;">
+        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;"><i class="ph ph-journal-text" style="margin-right: 0.5rem;"></i>Riwayat Perawatan & Checklist (10 Terakhir)</h3>
+    </div>
+    <div class="card-body p-0">
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #475569;">
+                    <tr>
+                        <th style="padding: 1rem 1.5rem; text-align: left; font-weight: 600;">Tanggal</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 600;">Petugas</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 600;">Pekerjaan (Scanner)</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 600;">Catatan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($ghMaintenanceLogs as $log)
+                    @php
+                        $details = is_string($log->details) ? json_decode($log->details, true) : $log->details;
+                        $jobs = [];
+                        if(is_array($details)) {
+                            if($details['swept'] ?? false) $jobs[] = 'Sapu Lantai';
+                            if($details['sprayed'] ?? false) $jobs[] = 'Semprot Hama';
+                        }
+                    @endphp
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 1rem 1.5rem; color: #64748b;">{{ $log->created_at->format('d M Y, H:i') }}</td>
+                        <td style="padding: 1rem; font-weight: 600; color: #334155;">{{ $log->user->name ?? 'Unknown' }}</td>
+                        <td style="padding: 1rem;">
+                            @if(count($jobs) > 0)
+                                <ul style="margin: 0; padding-left: 1rem; color: #64748b;">
+                                    @foreach($jobs as $job)
+                                        <li>{{ $job }}</li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <span style="color: #94a3b8;">-</span>
+                            @endif
+                        </td>
+                        <td style="padding: 1rem; color: #64748b;">{{ $log->notes ?? '-' }}</td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" style="padding: 2rem; text-align: center; color: #94a3b8;">Belum ada riwayat perawatan.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

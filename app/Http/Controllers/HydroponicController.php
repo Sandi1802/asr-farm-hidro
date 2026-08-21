@@ -25,25 +25,35 @@ class HydroponicController extends Controller
         $plantedHoles   = Hole::where('status', 'ditanam')->count();
         $plantedTypesCount = Hole::where('status', 'ditanam')->distinct('plant_name')->count('plant_name');
         
-        $harvestedHoles = Hole::where('status', 'panen')->count();
-        $harvestedTypesCount = Hole::where('status', 'panen')->distinct('plant_name')->count('plant_name');
+        $logs = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)->get();
+        $harvestedHoles = $logs->where('action_type', 'panen')->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
+        $harvestedTypesCount = 0; // Not easily computable from logs without parsing all
         
-        $damagedHoles   = Hole::where('status', 'rusak')->count();
-        $damagedTypesCount = Hole::where('status', 'rusak')->distinct('plant_name')->count('plant_name');
+        $damagedHoles   = $logs->where('action_type', 'rusak')->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
+        $damagedTypesCount = 0;
 
         // Build a map of plant_name -> growth_days from plant_types
         $plantTypeMap = PlantType::pluck('growth_days', 'name');  // ['Pakcoy' => 20, ...]
         $defaultDays  = 30;
 
         // Siap Panen — per-plant dynamic threshold
-        $activePlanted = Hole::where('status', 'ditanam')
-            ->whereNotNull('planted_at')
-            ->get(['id', 'plant_name', 'planted_at']);
-
-        $readyIds = $activePlanted->filter(function ($hole) use ($plantTypeMap, $defaultDays) {
-            $days = $plantTypeMap->get($hole->plant_name, $defaultDays);
-            return Carbon::parse($hole->planted_at)->addDays($days)->lte(now());
-        })->pluck('id');
+        $readyIds = collect();
+        foreach ($plantTypeMap as $plantName => $days) {
+            $thresholdDate = now()->subDays($days);
+            $ids = Hole::where('status', 'ditanam')
+                ->where('plant_name', $plantName)
+                ->whereDate('planted_at', '<=', $thresholdDate)
+                ->pluck('id');
+            $readyIds = $readyIds->merge($ids);
+        }
+        $knownPlants = $plantTypeMap->keys()->toArray();
+        $defaultThreshold = now()->subDays($defaultDays);
+        $ids = Hole::where('status', 'ditanam')
+            ->whereNotNull('plant_name')
+            ->whereNotIn('plant_name', $knownPlants)
+            ->whereDate('planted_at', '<=', $defaultThreshold)
+            ->pluck('id');
+        $readyIds = $readyIds->merge($ids);
 
         $readyToHarvestCount = $readyIds->count();
 
@@ -114,10 +124,10 @@ class HydroponicController extends Controller
             $end   = now()->subWeeks($i)->endOfWeek();
             $weeklyTrendLabels[] = "Mg " . $start->format('d/m');
 
-            $weeklySemai[] = Semai::whereBetween('semai_date', [$start, $end])->sum('quantity');
-            $weeklyTanam[] = Activity::where('type', 'tanam')->whereBetween('created_at', [$start, $end])->count();
-            $weeklyPanen[] = Activity::where('type', 'panen')->whereBetween('created_at', [$start, $end])->count();
-            $weeklyRusak[] = Activity::where('type', 'rusak')->whereBetween('created_at', [$start, $end])->count();
+            $weeklySemai[] = \App\Models\Semai::whereBetween('semai_date', [$start, $end])->sum('quantity');
+            $weeklyTanam[] = \App\Models\Hole::whereBetween('planted_at', [$start, $end])->count();
+            $weeklyPanen[] = \App\Models\Hole::whereBetween('harvested_at', [$start, $end])->count();
+            $weeklyRusak[] = \App\Models\Hole::where('status', 'rusak')->whereBetween('updated_at', [$start, $end])->count();
         }
 
         $weeklyTrendData = [
@@ -128,35 +138,29 @@ class HydroponicController extends Controller
             'rusak'  => $weeklyRusak
         ];
 
-        $extractTopPlants = function($activities, $actionWords) {
-            $counts = [];
-            foreach ($activities as $act) {
-                $desc = $act->description ?? '';
-                $plantName = $desc;
-                foreach ($actionWords as $word) {
-                    $plantName = str_replace([ucfirst($word).' massal ', ucfirst($word).' tanaman ', strtolower($word).' massal ', strtolower($word).' tanaman '], '', $plantName);
-                }
-                $plantName = trim($plantName);
-                if (!empty($plantName) && $plantName !== $desc) {
-                    if (!isset($counts[$plantName])) $counts[$plantName] = 0;
-                    $counts[$plantName]++;
-                }
-            }
-            arsort($counts);
-            return array_slice($counts, 0, 8, true);
-        };
-
         // ─── CHART: Tanaman Paling Sering Ditanam ───
-        $tanamActivities = Activity::whereIn('type', ['ditanam', 'tanam'])->get();
-        $topPlanted = $extractTopPlants($tanamActivities, ['Ditanam', 'Tanam']);
-        $mostPlantedLabels = array_keys($topPlanted);
-        $mostPlantedValues = array_values($topPlanted);
+        $topPlantedQuery = \App\Models\Hole::whereNotNull('plant_name')
+            ->whereNotNull('planted_at')
+            ->selectRaw('plant_name, count(*) as count')
+            ->groupBy('plant_name')
+            ->orderByDesc('count')
+            ->take(8)
+            ->pluck('count', 'plant_name')
+            ->toArray();
+        $mostPlantedLabels = array_keys($topPlantedQuery);
+        $mostPlantedValues = array_values($topPlantedQuery);
 
         // ─── CHART: Tanaman Paling Sering Dipanen ───
-        $panenActivities = Activity::where('type', 'panen')->get();
-        $topHarvested = $extractTopPlants($panenActivities, ['Panen']);
-        $mostHarvestedLabels = array_keys($topHarvested);
-        $mostHarvestedValues = array_values($topHarvested);
+        $topHarvestedQuery = \App\Models\Hole::whereNotNull('plant_name')
+            ->whereNotNull('harvested_at')
+            ->selectRaw('plant_name, count(*) as count')
+            ->groupBy('plant_name')
+            ->orderByDesc('count')
+            ->take(8)
+            ->pluck('count', 'plant_name')
+            ->toArray();
+        $mostHarvestedLabels = array_keys($topHarvestedQuery);
+        $mostHarvestedValues = array_values($topHarvestedQuery);
 
         // ─── CHART: Tingkat Occupancy Tiap Greenhouse (Perputaran) ───
         $greenhousesList = Greenhouse::all();
@@ -164,14 +168,16 @@ class HydroponicController extends Controller
         foreach ($greenhousesList as $gh) {
             $ghTotal     = Hole::whereHas('row.rack', fn($q) => $q->where('greenhouse_id', $gh->id))->count();
             $ghPlanted   = Hole::whereHas('row.rack', fn($q) => $q->where('greenhouse_id', $gh->id))->where('status', 'ditanam')->count();
-            $ghHarvested = Hole::whereHas('row.rack', fn($q) => $q->where('greenhouse_id', $gh->id))->where('status', 'panen')->count();
-            $ghReady     = Hole::whereHas('row.rack', fn($q) => $q->where('greenhouse_id', $gh->id))
-                ->where('status', 'ditanam')->whereNotNull('planted_at')
-                ->get(['id','plant_name','planted_at'])
-                ->filter(function ($hole) use ($plantTypeMap, $defaultDays) {
-                    $days = $plantTypeMap->get($hole->plant_name, $defaultDays);
-                    return Carbon::parse($hole->planted_at)->addDays($days)->lte(now());
-                })->count();
+            $rackIds = $gh->racks->pluck('id')->toArray();
+            $ghHarvested = \App\Models\MaintenanceLog::where('loggable_type', 'App\Models\Rack')
+                ->whereIn('loggable_id', $rackIds)
+                ->whereMonth('created_at', now()->month)
+                ->where('action_type', 'panen')
+                ->get()
+                ->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
+            $ghReady = Hole::whereHas('row.rack', fn($q) => $q->where('greenhouse_id', $gh->id))
+                ->whereIn('id', $readyIds)
+                ->count();
             $rotationData[] = [
                 'name'      => $gh->name,
                 'total'     => $ghTotal,
@@ -186,6 +192,9 @@ class HydroponicController extends Controller
         // Data for GH Distribution Chart
         $ghDistribution = \App\Models\Greenhouse::with('racks')->get()->map(function($gh) {
             $racksCount = $gh->racks->count();
+            $plantedCount = \App\Models\Hole::whereHas('row.rack', function($q) use ($gh) {
+                $q->where('greenhouse_id', $gh->id);
+            })->where('status', 'ditanam')->count();
             $plants = \App\Models\Hole::whereHas('row.rack', function($q) use ($gh) {
                 $q->where('greenhouse_id', $gh->id);
             })->where('status', 'ditanam')->whereNotNull('plant_name')->distinct('plant_name')->pluck('plant_name')->toArray();
@@ -193,6 +202,7 @@ class HydroponicController extends Controller
             return [
                 'name' => $gh->name,
                 'racks' => $racksCount,
+                'planted_count' => $plantedCount,
                 'plants' => $plants
             ];
         });
@@ -222,16 +232,14 @@ class HydroponicController extends Controller
         $totalJenisSemai = $semaiThisMonth->unique('plant_name')->count();
         $totalBenihSemai = $semaiThisMonth->sum('quantity');
 
-        // Tanam / Pindah ke GH (Bulan terpilih) -> dari Activity
-        $tanamBulanIni = \App\Models\Activity::where('type', 'tanam')
-            ->whereMonth('created_at', $month)
-            ->whereYear('created_at', $year)
+        // Tanam / Pindah ke GH (Bulan terpilih)
+        $tanamBulanIni = \App\Models\Hole::whereMonth('planted_at', $month)
+            ->whereYear('planted_at', $year)
             ->count();
 
-        // Panen (Bulan terpilih) -> dari Activity
-        $panenBulanIni = \App\Models\Activity::where('type', 'panen')
-            ->whereMonth('created_at', $month)
-            ->whereYear('created_at', $year)
+        // Panen (Bulan terpilih)
+        $panenBulanIni = \App\Models\Hole::whereMonth('harvested_at', $month)
+            ->whereYear('harvested_at', $year)
             ->count();
 
         return response()->json([
@@ -240,6 +248,60 @@ class HydroponicController extends Controller
             'total_tanam' => $tanamBulanIni,
             'total_panen' => $panenBulanIni,
             'month_name' => \Carbon\Carbon::createFromDate($year, $month, 1)->translatedFormat('F Y')
+        ]);
+    }
+
+    public function getDashboardPeriodStats(\Illuminate\Http\Request $request)
+    {
+        $period = $request->query('period', 'month');
+        $now = \Carbon\Carbon::now();
+
+        switch ($period) {
+            case 'year':
+                $start = $now->copy()->startOfYear();
+                $end = $now->copy()->endOfYear();
+                $periodLabel = 'Tahun ' . $now->year;
+                break;
+            case 'week':
+                $start = $now->copy()->startOfWeek();
+                $end = $now->copy()->endOfWeek();
+                $periodLabel = 'Minggu Ini';
+                break;
+            case 'today':
+                $start = $now->copy()->startOfDay();
+                $end = $now->copy()->endOfDay();
+                $periodLabel = 'Hari Ini (' . $now->translatedFormat('d M Y') . ')';
+                break;
+            default: // month
+                $start = $now->copy()->startOfMonth();
+                $end = $now->copy()->endOfMonth();
+                $periodLabel = $now->translatedFormat('F Y');
+                break;
+        }
+
+        // Semai in period
+        $semaiInPeriod = \App\Models\Semai::whereBetween('semai_date', [$start, $end])->get();
+        $totalJenisSemai = $semaiInPeriod->unique('plant_name')->count();
+        $totalBenihSemai = $semaiInPeriod->sum('quantity');
+
+        // Tanam in period
+        $totalTanam = \App\Models\Hole::whereBetween('planted_at', [$start, $end])->count();
+
+        // Panen in period
+        $panenLogs = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])->where('action_type', 'panen')->get();
+        $totalPanen = $panenLogs->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
+
+        // Rusak in period
+        $rusakLogs = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])->where('action_type', 'rusak')->get();
+        $totalRusak = $rusakLogs->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
+
+        return response()->json([
+            'period_label' => $periodLabel,
+            'total_semai_benih' => $totalBenihSemai,
+            'total_semai_jenis' => $totalJenisSemai,
+            'total_tanam' => $totalTanam,
+            'total_panen' => $totalPanen,
+            'total_rusak' => $totalRusak,
         ]);
     }
 
@@ -260,9 +322,11 @@ class HydroponicController extends Controller
                 $year = now()->subYears($i)->year;
                 $labels[] = (string)$year;
                 $semai[] = \App\Models\Semai::whereYear('semai_date', $year)->sum('quantity');
-                $tanam[] = \App\Models\Activity::where('type', 'tanam')->whereYear('created_at', $year)->count();
-                $panen[] = \App\Models\Activity::where('type', 'panen')->whereYear('created_at', $year)->count();
-                $rusak[] = \App\Models\Activity::where('type', 'rusak')->whereYear('created_at', $year)->count();
+                $tanam[] = \App\Models\Hole::whereYear('planted_at', $year)->count();
+                $panenLogs = \App\Models\MaintenanceLog::whereYear('created_at', $year)->where('action_type', 'panen')->get();
+                $panen[] = $panenLogs->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
+                $rusakLogs = \App\Models\MaintenanceLog::whereYear('created_at', $year)->where('action_type', 'rusak')->get();
+                $rusak[] = $rusakLogs->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
             }
         } elseif ($period === 'bulanan') {
             for ($i = 5; $i >= 0; $i--) {
@@ -270,9 +334,11 @@ class HydroponicController extends Controller
                 $end   = now()->subMonths($i)->endOfMonth();
                 $labels[] = $start->translatedFormat('M Y');
                 $semai[] = \App\Models\Semai::whereBetween('semai_date', [$start, $end])->sum('quantity');
-                $tanam[] = \App\Models\Activity::where('type', 'tanam')->whereBetween('created_at', [$start, $end])->count();
-                $panen[] = \App\Models\Activity::where('type', 'panen')->whereBetween('created_at', [$start, $end])->count();
-                $rusak[] = \App\Models\Activity::where('type', 'rusak')->whereBetween('created_at', [$start, $end])->count();
+                $tanam[] = \App\Models\Hole::whereBetween('planted_at', [$start, $end])->count();
+                $panenLogs = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])->where('action_type', 'panen')->get();
+                $panen[] = $panenLogs->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
+                $rusakLogs = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])->where('action_type', 'rusak')->get();
+                $rusak[] = $rusakLogs->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
             }
         } else {
             // mingguan
@@ -281,9 +347,11 @@ class HydroponicController extends Controller
                 $end   = now()->subWeeks($i)->endOfWeek();
                 $labels[] = "Mg " . $start->format('d/m');
                 $semai[] = \App\Models\Semai::whereBetween('semai_date', [$start, $end])->sum('quantity');
-                $tanam[] = \App\Models\Activity::where('type', 'tanam')->whereBetween('created_at', [$start, $end])->count();
-                $panen[] = \App\Models\Activity::where('type', 'panen')->whereBetween('created_at', [$start, $end])->count();
-                $rusak[] = \App\Models\Activity::where('type', 'rusak')->whereBetween('created_at', [$start, $end])->count();
+                $tanam[] = \App\Models\Hole::whereBetween('planted_at', [$start, $end])->count();
+                $panenLogs = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])->where('action_type', 'panen')->get();
+                $panen[] = $panenLogs->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
+                $rusakLogs = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])->where('action_type', 'rusak')->get();
+                $rusak[] = $rusakLogs->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
             }
         }
 
@@ -314,25 +382,30 @@ class HydroponicController extends Controller
             $plantedHoles = \App\Models\Hole::where('status', 'ditanam')->count();
             $plantedTypesCount = $plantedHolesGroup->count();
 
-            $harvestedHolesGroup = \App\Models\Hole::where('status', 'panen')->whereNotNull('plant_name')->get()->groupBy('plant_name');
-            $harvestedHoles = \App\Models\Hole::where('status', 'panen')->count();
-            $harvestedTypesCount = $harvestedHolesGroup->count();
+            $logs = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)->get();
+            $harvestedHoles = $logs->where('action_type', 'panen')->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
+            $harvestedTypesCount = 0;
 
-            $damagedHolesGroup = \App\Models\Hole::where('status', 'rusak')->whereNotNull('plant_name')->get()->groupBy('plant_name');
-            $damagedHoles = \App\Models\Hole::where('status', 'rusak')->count();
-            $damagedTypesCount = $damagedHolesGroup->count();
+            $damagedHoles = $logs->where('action_type', 'rusak')->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
+            $damagedTypesCount = 0;
             
             // Siap panen logic
-            $plantTypeMap = \App\Models\PlantType::pluck('growth_days', 'name');
+            $plantTypes = \App\Models\PlantType::all()->keyBy('name');
             $defaultDays = 30;
             $activePlanted = \App\Models\Hole::where('status', 'ditanam')->whereNotNull('planted_at')->get(['id', 'plant_name', 'planted_at']);
-            $readyIds = $activePlanted->filter(function ($hole) use ($plantTypeMap, $defaultDays) {
-                $days = $plantTypeMap->get($hole->plant_name, $defaultDays);
-                return \Carbon\Carbon::parse($hole->planted_at)->addDays($days)->lte(now());
+            $readyIds = $activePlanted->filter(function ($hole) use ($plantTypes, $defaultDays, $month, $year) {
+                $pt = $plantTypes->get($hole->plant_name);
+                $days = $pt ? ($pt->growth_days - $pt->semai_days) : $defaultDays;
+                $harvestDate = \Carbon\Carbon::parse($hole->planted_at)->addDays($days);
+                return $harvestDate->month == (int)$month && $harvestDate->year == (int)$year;
             })->pluck('id');
             $readyToHarvestCount = $readyIds->count();
             $readyTypesCount = \App\Models\Hole::whereIn('id', $readyIds)->whereNotNull('plant_name')->get()->groupBy('plant_name')->count();
             
+            $panenBulanIni = \App\Models\Activity::where('type', 'panen')->whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
+            $tanamBulanIni = \App\Models\Activity::where('type', 'tanam')->whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
+            $semaiBulanIni = \App\Models\Semai::whereMonth('semai_date', $month)->whereYear('semai_date', $year)->sum('quantity');
+
             return response()->json([
                 'lubang_kosong' => number_format($emptyHolesCount,0,',','.'),
                 'lubang_terisi' => number_format($plantedHoles,0,',','.'),
@@ -342,7 +415,10 @@ class HydroponicController extends Controller
                 'sudah_panen' => number_format($harvestedHoles,0,',','.'),
                 'sudah_panen_sub' => $harvestedTypesCount.' Jenis Tanaman',
                 'gagal_panen' => number_format($damagedHoles,0,',','.'),
-                'gagal_panen_sub' => $damagedTypesCount.' Jenis Rusak'
+                'gagal_panen_sub' => $damagedTypesCount.' Jenis Rusak',
+                'total_tanam_bulan_ini' => number_format($tanamBulanIni,0,',','.'),
+                'total_panen_bulan_ini' => number_format($panenBulanIni,0,',','.'),
+                'total_semai_bulan_ini' => number_format($semaiBulanIni,0,',','.'),
             ]);
         } else {
             // Historical from Activity
@@ -354,17 +430,22 @@ class HydroponicController extends Controller
             if ($emptyHolesCount < 0) $emptyHolesCount = 0;
             
             // Siap panen logic (Projected from current planted holes)
-            $plantTypeMap = \App\Models\PlantType::pluck('growth_days', 'name');
+            $plantTypes = \App\Models\PlantType::all()->keyBy('name');
             $defaultDays = 30;
             $activePlanted = \App\Models\Hole::where('status', 'ditanam')->whereNotNull('planted_at')->get(['id', 'plant_name', 'planted_at']);
-            $readyIds = $activePlanted->filter(function ($hole) use ($plantTypeMap, $defaultDays, $month, $year) {
-                $days = $plantTypeMap->get($hole->plant_name, $defaultDays);
+            $readyIds = $activePlanted->filter(function ($hole) use ($plantTypes, $defaultDays, $month, $year) {
+                $pt = $plantTypes->get($hole->plant_name);
+                $days = $pt ? ($pt->growth_days - $pt->semai_days) : $defaultDays;
                 $harvestDate = \Carbon\Carbon::parse($hole->planted_at)->addDays($days);
                 return $harvestDate->month == (int)$month && $harvestDate->year == (int)$year;
             })->pluck('id');
             
             $readyToHarvestCount = $readyIds->count();
             $readyTypesCount = \App\Models\Hole::whereIn('id', $readyIds)->whereNotNull('plant_name')->get()->groupBy('plant_name')->count();
+
+            $panenBulanIniHist = \App\Models\Activity::where('type', 'panen')->whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
+            $tanamBulanIniHist = \App\Models\Activity::where('type', 'tanam')->whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
+            $semaiBulanIniHist = \App\Models\Semai::whereMonth('semai_date', $month)->whereYear('semai_date', $year)->sum('quantity');
 
             return response()->json([
                 'lubang_kosong' => number_format($emptyHolesCount,0,',','.'),
@@ -375,7 +456,10 @@ class HydroponicController extends Controller
                 'sudah_panen' => number_format($harvestedHoles,0,',','.'),
                 'sudah_panen_sub' => 'Total Panen',
                 'gagal_panen' => number_format($damagedHoles,0,',','.'),
-                'gagal_panen_sub' => 'Total Kerusakan'
+                'gagal_panen_sub' => 'Total Kerusakan',
+                'total_tanam_bulan_ini' => number_format($tanamBulanIniHist,0,',','.'),
+                'total_panen_bulan_ini' => number_format($panenBulanIniHist,0,',','.'),
+                'total_semai_bulan_ini' => number_format($semaiBulanIniHist,0,',','.'),
             ]);
         }
     }
@@ -404,51 +488,43 @@ class HydroponicController extends Controller
             $total   = $pt ? (int)$pt->growth_days : $defaultDays;
             $daysOld = Carbon::parse($hole->planted_at)->diffInDays(now());
             $base    = Carbon::parse($hole->planted_at);
-            $locationBase = (optional(optional(optional($hole->row)->rack)->greenhouse)->name ?? 'GH') . ' › ' .
-                            (optional(optional($hole->row)->rack)->name ?? 'Rak');
+            $ghName = optional(optional(optional($hole->row)->rack)->greenhouse)->name ?? 'GH';
+            $rackName = optional(optional($hole->row)->rack)->name ?? 'Rak';
+            $locationBase = $ghName . ' › ' . $rackName;
             $location = $locationBase . ' › ' . $hole->name;
             $harvester = $pt->harvested_by ?? null;
 
-            // Fase 1 — Penyemaian (hari ke-0, saat tanam)
+            // Fase 1 — Penanaman (hari ke-0, saat dipindah ke lubang)
             $events->push([
                 'date'       => $base->format('Y-m-d'),
-                'type'       => 'semai',
+                'type'       => 'tanam',
                 'plant_name' => $hole->plant_name ?? 'Tanaman',
                 'location'   => $location,
                 'location_base' => $locationBase,
+                'gh_name'    => $ghName,
+                'rack_name'  => $rackName,
                 'time'       => $base->format('H:i'),
                 'stage_day'  => 0,
                 'days_old'   => $daysOld,
             ]);
 
-            // Fase 2 — Penanaman
-            if ($semai > 0) {
+            // Fase 2 — Remaja
+            if ($tanam > 0) {
                 $events->push([
-                    'date'       => $base->copy()->addDays($semai)->format('Y-m-d'),
-                    'type'       => 'tanam',
-                    'plant_name' => $hole->plant_name ?? 'Tanaman',
-                    'location'   => $location,
-                    'location_base' => $locationBase,
-                    'stage_day'  => $semai,
-                    'days_old'   => $daysOld,
-                ]);
-            }
-
-            // Fase 3 — Remaja
-            if ($semai + $tanam > 0) {
-                $events->push([
-                    'date'       => $base->copy()->addDays($semai + $tanam)->format('Y-m-d'),
+                    'date'       => $base->copy()->addDays($tanam)->format('Y-m-d'),
                     'type'       => 'remaja',
                     'plant_name' => $hole->plant_name ?? 'Tanaman',
                     'location'   => $location,
                     'location_base' => $locationBase,
-                    'stage_day'  => $semai + $tanam,
+                    'gh_name'    => $ghName,
+                    'rack_name'  => $rackName,
+                    'stage_day'  => $tanam,
                     'days_old'   => $daysOld,
                 ]);
             }
 
-            // Fase 4 — Dewasa/Panen
-            $harvestDate    = $base->copy()->addDays($total);
+            // Fase 3 — Dewasa/Panen (total - semai)
+            $harvestDate    = $base->copy()->addDays($total - $semai);
             $harvestDateStr = $harvestDate->format('Y-m-d');
             $events->push([
                 'date'         => $harvestDateStr,
@@ -456,6 +532,8 @@ class HydroponicController extends Controller
                 'plant_name'   => $hole->plant_name ?? 'Tanaman',
                 'location'     => $location,
                 'location_base'=> $locationBase,
+                'gh_name'      => $ghName,
+                'rack_name'    => $rackName,
                 'is_ready'     => $harvestDate->lte(now()),
                 'days_old'     => $daysOld,
                 'growth_days'  => $total,
@@ -463,23 +541,51 @@ class HydroponicController extends Controller
             ]);
         }
 
-        // Group hole events by rack to prevent duplicates
+        // Group hole events by GH to prevent duplicates but keep them separated per GH
         $groupedEvents = collect();
         foreach ($events as $ev) {
-            $locBase = $ev['location_base'] ?? $ev['location'];
-            $key = $ev['date'] . '_' . $ev['type'] . '_' . $ev['plant_name'] . '_' . $locBase;
+            $gh = $ev['gh_name'] ?? 'GH';
+            $key = $ev['date'] . '_' . $ev['type'] . '_' . $gh;
             
             if (!$groupedEvents->has($key)) {
                 $ev['hole_count'] = 1;
-                $ev['location'] = $locBase; // replace specific hole location with rack location
+                $ev['plant_data'] = [];
+                if (isset($ev['plant_name']) && isset($ev['rack_name'])) {
+                    $ev['plant_data'][$ev['plant_name']] = [$ev['rack_name'] => true];
+                }
                 $groupedEvents->put($key, $ev);
             } else {
                 $existing = $groupedEvents->get($key);
                 $existing['hole_count']++;
+                if (isset($ev['plant_name']) && isset($ev['rack_name'])) {
+                    if (!isset($existing['plant_data'][$ev['plant_name']])) {
+                        $existing['plant_data'][$ev['plant_name']] = [];
+                    }
+                    $existing['plant_data'][$ev['plant_name']][$ev['rack_name']] = true;
+                }
                 $groupedEvents->put($key, $existing);
             }
         }
-        $events = collect($groupedEvents->values());
+        $events = collect($groupedEvents->values())->map(function($ev) {
+            if (isset($ev['plant_data']) && count($ev['plant_data']) > 0) {
+                $plantsList = [];
+                $plants = array_keys($ev['plant_data']);
+                natsort($plants);
+                foreach ($plants as $plant) {
+                    $rackKeys = array_keys($ev['plant_data'][$plant]);
+                    natsort($rackKeys);
+                    $rackNumbers = array_map(function($r) { return str_replace('Rak ', '', $r); }, $rackKeys);
+                    $plantsList[] = [
+                        'name' => $plant,
+                        'racks' => implode(', ', $rackNumbers)
+                    ];
+                }
+                $ev['plants_list'] = $plantsList;
+                // Optional: remove raw data to save payload size
+                unset($ev['plant_data']);
+            }
+            return $ev;
+        });
 
         // 2. Custom Events
         $customs = CalendarEvent::all();
@@ -518,7 +624,10 @@ class HydroponicController extends Controller
     public function greenhouses()
     {
         $greenhouses = Greenhouse::with(['racks.rows.holes'])->withCount('racks')->get();
-        return view('hydroponics.greenhouses', compact('greenhouses'));
+        $plantTypeMap = PlantType::pluck('growth_days', 'name');
+        $defaultDays = 30;
+
+        return view('hydroponics.greenhouses', compact('greenhouses', 'plantTypeMap', 'defaultDays'));
     }
 
     public function storeGreenhouse(Request $request)
@@ -972,5 +1081,61 @@ class HydroponicController extends Controller
             'message' => count($holes) . ' lubang berhasil diperbarui.',
             'count'   => count($holes),
         ]);
+    }
+    public function getNotifications()
+    {
+        $plantTypeMap = \App\Models\PlantType::pluck('growth_days', 'name');
+        $defaultDays = 30;
+
+        $activePlanted = \App\Models\Hole::with(['row.rack.greenhouse'])->where('status', 'ditanam')->whereNotNull('planted_at')->get();
+        $readyHoles = $activePlanted->filter(function ($hole) use ($plantTypeMap, $defaultDays) {
+            $days = $plantTypeMap->get($hole->plant_name, $defaultDays);
+            return \Carbon\Carbon::parse($hole->planted_at)->addDays($days)->lte(now());
+        });
+
+        $count = $readyHoles->count();
+        $readCount = session('harvest_notif_read_count', 0);
+        
+        if ($count < $readCount) {
+            session(['harvest_notif_read_count' => $count]);
+            $readCount = $count;
+        }
+
+        $hasNew = $count > 0 && $count > $readCount;
+        $displayCount = $count - $readCount;
+
+        $groups = $readyHoles->map(function ($hole) {
+            $ghName = optional(optional(optional($hole->row)->rack)->greenhouse)->name ?? 'GH Unknown';
+            $rackName = optional(optional($hole->row)->rack)->name ?? 'Rak Unknown';
+            return [
+                'plant' => $hole->plant_name ?? 'Unknown',
+                'gh_name' => $ghName,
+                'rack_name' => $rackName,
+                'planted_at' => $hole->planted_at,
+            ];
+        })->groupBy('plant');
+
+        $html = view('components.notifications', ['readyGroups' => $groups, 'count' => $count])->render();
+
+        return response()->json([
+            'count' => $hasNew ? $displayCount : $count,
+            'has_new' => $hasNew,
+            'html' => $html
+        ]);
+    }
+
+    public function markNotificationsRead()
+    {
+        $plantTypeMap = \App\Models\PlantType::pluck('growth_days', 'name');
+        $defaultDays = 30;
+
+        $count = \App\Models\Hole::where('status', 'ditanam')->whereNotNull('planted_at')->get()
+            ->filter(function ($hole) use ($plantTypeMap, $defaultDays) {
+                $days = $plantTypeMap->get($hole->plant_name, $defaultDays);
+                return \Carbon\Carbon::parse($hole->planted_at)->addDays($days)->lte(now());
+            })->count();
+
+        session(['harvest_notif_read_count' => $count]);
+        return response()->json(['success' => true]);
     }
 }

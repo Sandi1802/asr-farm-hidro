@@ -104,7 +104,7 @@ class RealDataSeeder extends Seeder
         // GH 1
         $gh1 = Greenhouse::create(['name' => 'GH 1', 'description' => 'GH 1 - 21 Rak']);
         for ($i = 1; $i <= 21; $i++) {
-            $rackName = ($i == 1) ? 'Rak 1 (Penyemaian)' : "Rak $i";
+            $rackName = ($i == 21) ? 'Rak 21 (Penyemaian)' : "Rak $i";
             $rack = Rack::create(['greenhouse_id' => $gh1->id, 'name' => $rackName, 'ppm_level' => 1000, 'ph_level' => 6.0]);
             
             $rowCount = ($i == 1) ? 10 : 7;

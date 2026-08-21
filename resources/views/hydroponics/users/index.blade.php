@@ -56,7 +56,8 @@
             <table class="table datatable" id="usersTable">
                 <thead>
                     <tr>
-                        <th>Nama Pengguna</th>
+                        <th>Nama Lengkap</th>
+                        <th>Username</th>
                         <th>Email</th>
                         <th>Peran (Role)</th>
                         <th>Dibuat Pada</th>
@@ -67,18 +68,19 @@
                     @foreach($users as $user)
                     <tr>
                         <td style="font-weight: 500; color: var(--text-main);">{{ $user->name }}</td>
+                        <td>{{ $user->username }}</td>
                         <td>{{ $user->email }}</td>
                         <td>
                             <span style="padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; 
-                                background: {{ in_array($user->role, ['super_admin', 'admin']) ? 'rgba(22, 163, 74, 0.1)' : 'rgba(100, 116, 139, 0.1)' }}; 
-                                color: {{ in_array($user->role, ['super_admin', 'admin']) ? 'var(--asr-green)' : '#64748b' }};">
-                                {{ in_array($user->role, ['super_admin', 'admin']) ? 'Super Admin' : 'Staff' }}
+                                background: {{ $user->roleBadgeColor() }}1A; 
+                                color: {{ $user->roleBadgeColor() }};">
+                                {{ $user->roleLabel() }}
                             </span>
                         </td>
                         <td>{{ $user->created_at->format('d M Y') }}</td>
                         <td style="text-align: right;">
                             <button class="btn btn-sm btn-light" title="Edit" 
-                                onclick="openEditModal({{ $user->id }}, '{{ addslashes($user->name) }}', '{{ addslashes($user->email) }}', '{{ in_array($user->role, ['super_admin', 'admin']) ? 'super_admin' : 'staff' }}')"
+                                onclick="openEditModal({{ $user->id }}, '{{ addslashes($user->name) }}', '{{ addslashes($user->username ?? '') }}', '{{ addslashes($user->email) }}', '{{ $user->role_agri }}')"
                                 style="width: 32px; height: 32px; padding: 0; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; margin-right: 0.25rem;">
                                 <i class="ph ph-pencil-simple" style="font-size: 1.1rem; color: #0ea5e9;"></i>
                             </button>
@@ -112,8 +114,12 @@
             <form action="{{ route('hydroponics.users.store') }}" method="POST">
                 @csrf
                 <div class="form-group">
-                    <label>Nama Pengguna <span>*</span></label>
+                    <label>Nama Lengkap <span>*</span></label>
                     <input type="text" name="name" class="form-control" required placeholder="Contoh: Budi Santoso">
+                </div>
+                <div class="form-group">
+                    <label>Username (Login) <span>*</span></label>
+                    <input type="text" name="username" class="form-control" required placeholder="Contoh: budi.s">
                 </div>
                 <div class="form-group">
                     <label>Email <span>*</span></label>
@@ -124,10 +130,17 @@
                     <input type="password" name="password" class="form-control" required minlength="6" placeholder="Minimal 6 karakter">
                 </div>
                 <div class="form-group">
-                    <label>Peran (Role) <span>*</span></label>
-                    <select name="role" class="form-select" required>
-                        <option value="super_admin">Super Admin (Akses Penuh)</option>
-                        <option value="staff">Staff (Hanya Melihat)</option>
+                    <label>Peran Divisi (Role) <span>*</span></label>
+                    <select name="role_agri" class="form-select" required>
+                        <option value="admin">Tim IT / Super Admin</option>
+                        <option value="atasan">Atasan / Manajer</option>
+                        <option value="kepala_produksi">Kepala Produksi</option>
+                        <option value="kepala_greenhouse">Kepala Greenhouse</option>
+                        <option value="kepala_konven">Kepala Konven</option>
+                        <option value="staff">Staff Umum</option>
+                        <option value="keuangan">Tim Keuangan</option>
+                        <option value="pemasaran">Tim Pemasaran</option>
+                        <option value="packing">Tim Packing</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-primary-form" style="margin-top: 1.5rem;">
@@ -149,8 +162,12 @@
             <form id="editForm" method="POST">
                 @csrf
                 <div class="form-group">
-                    <label>Nama Pengguna <span>*</span></label>
+                    <label>Nama Lengkap <span>*</span></label>
                     <input type="text" name="name" id="editName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Username (Login) <span>*</span></label>
+                    <input type="text" name="username" id="editUsername" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label>Email <span>*</span></label>
@@ -161,10 +178,17 @@
                     <input type="password" name="password" class="form-control" minlength="6" placeholder="Kosongkan jika tidak ingin mengubah sandi">
                 </div>
                 <div class="form-group">
-                    <label>Peran (Role) <span>*</span></label>
-                    <select name="role" id="editRole" class="form-select" required>
-                        <option value="super_admin">Super Admin (Akses Penuh)</option>
-                        <option value="staff">Staff (Hanya Melihat)</option>
+                    <label>Peran Divisi (Role) <span>*</span></label>
+                    <select name="role_agri" id="editRole" class="form-select" required>
+                        <option value="admin">Tim IT / Super Admin</option>
+                        <option value="atasan">Atasan / Manajer</option>
+                        <option value="kepala_produksi">Kepala Produksi</option>
+                        <option value="kepala_greenhouse">Kepala Greenhouse</option>
+                        <option value="kepala_konven">Kepala Konven</option>
+                        <option value="staff">Staff Umum</option>
+                        <option value="keuangan">Tim Keuangan</option>
+                        <option value="pemasaran">Tim Pemasaran</option>
+                        <option value="packing">Tim Packing</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-primary-form" style="margin-top: 1.5rem;">
@@ -175,19 +199,7 @@
     </div>
 </div>
 
-<!-- DataTables & Scripts -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#usersTable').DataTable({
-            language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json' },
-            pageLength: 25
-        });
-    });
-
-    function openModal(id) {
+<script>    function openModal(id) {
         document.getElementById(id).style.display = 'flex';
         document.body.style.overflow = 'hidden';
     }
@@ -197,9 +209,10 @@
         document.body.style.overflow = 'auto';
     }
 
-    function openEditModal(id, name, email, role) {
+    function openEditModal(id, name, username, email, role) {
         document.getElementById('editForm').action = '/hydroponics/master-data/users/' + id;
         document.getElementById('editName').value = name;
+        document.getElementById('editUsername').value = username;
         document.getElementById('editEmail').value = email;
         document.getElementById('editRole').value = role;
         openModal('editModal');

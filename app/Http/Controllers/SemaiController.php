@@ -14,7 +14,7 @@ class SemaiController extends Controller
     public function index()
     {
         $semais        = Semai::with(['plantType', 'targetGreenhouse', 'user'])
-                            ->orderByRaw("FIELD(status,'aktif','sudah_pindah','gagal')")
+                            ->orderByRaw("CASE status WHEN 'aktif' THEN 1 WHEN 'sudah_pindah' THEN 2 WHEN 'gagal' THEN 3 ELSE 4 END")
                             ->orderByDesc('semai_date')
                             ->get();
         $plantTypes    = PlantType::orderBy('name')->get();

@@ -25,113 +25,122 @@
         </div>
     @endif
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
-        @foreach($greenhouses as $gh)
-        <div class="card" style="border: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: space-between; position: relative;">
-            <div>
-                <div class="flex-between" style="margin-bottom: 1rem; align-items: flex-start;">
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <div class="icon-box green">
-                            <i class="ph ph-house-line"></i>
-                        </div>
-                        <div>
-                            <h3 style="font-weight: 700; font-size: 1.1rem; color: var(--text-main);">{{ $gh->name }}</h3>
-                            <span style="font-size: 0.85rem; color: var(--text-muted);">{{ $gh->racks_count }} Rak Aktif</span>
-                        </div>
-                    </div>
-                    <span class="badge {{ $gh->status == 'aktif' ? 'badge-success' : 'badge-warning' }}">{{ ucfirst($gh->status) }}</span>
-                </div>
-                <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.4;">
-                    {{ $gh->description ?: 'Tidak ada deskripsi.' }}
-                </p>
-
+    <div class="card" style="padding: 1.5rem; overflow-x: auto; border: 1px solid var(--border-color);">
+        <table class="datatable" style="width: 100%; border-collapse: collapse; min-width: 1000px;">
+            <thead>
+                <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+                    <th style="padding: 1rem; font-weight: 700; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Green House</th>
+                    <th style="padding: 1rem; font-weight: 700; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; text-align: center;">Rak</th>
+                    <th style="padding: 1rem; font-weight: 700; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Keterisian</th>
+                    <th style="padding: 1rem; font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; text-align: center;">Kosong</th>
+                    <th style="padding: 1rem; font-weight: 700; color: #16a34a; font-size: 0.85rem; text-transform: uppercase; text-align: center;">Ditanam</th>
+                    <th style="padding: 1rem; font-weight: 700; color: #ea580c; font-size: 0.85rem; text-transform: uppercase; text-align: center;">Siap Panen</th>
+                    <th style="padding: 1rem; font-weight: 700; color: #2563eb; font-size: 0.85rem; text-transform: uppercase; text-align: center;">Panen</th>
+                    <th style="padding: 1rem; font-weight: 700; color: #dc2626; font-size: 0.85rem; text-transform: uppercase; text-align: center;">Rusak</th>
+                    <th style="padding: 1rem; font-weight: 700; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; text-align: right;">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($greenhouses as $gh)
                 @php
                     $thirtyDaysAgo = now()->subDays(30);
                     $allHoles = $gh->racks->flatMap->rows->flatMap->holes;
                     $cntKosong  = $allHoles->where('status', 'kosong')->count();
                     $cntDitanamTotal = $allHoles->where('status', 'ditanam')->count();
-                    $cntReady   = $allHoles->where('status', 'ditanam')->filter(fn($h) => $h->planted_at && \Carbon\Carbon::parse($h->planted_at) <= $thirtyDaysAgo)->count();
+                    $cntReady   = $allHoles->where('status', 'ditanam')->filter(function($h) use ($plantTypeMap, $defaultDays) {
+                        if (!$h->planted_at) return false;
+                        $days = isset($plantTypeMap[$h->plant_name]) ? $plantTypeMap[$h->plant_name] : $defaultDays;
+                        return \Carbon\Carbon::parse($h->planted_at)->addDays($days)->lte(now());
+                    })->count();
                     $cntDitanam = max(0, $cntDitanamTotal - $cntReady);
                     $cntPanen   = $allHoles->where('status', 'panen')->count();
                     $cntRusak   = $allHoles->where('status', 'rusak')->count();
+                    
+                    $total = $allHoles->count() ?: 1;
+                    $pct = round((($cntDitanamTotal) / $total) * 100);
                 @endphp
-
-                {{-- AKUMULASI DARI SELURUH RAK INI --}}
-                <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.875rem; margin-bottom: 1.25rem;">
-                    <div style="font-size: 0.725rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.625rem; display: flex; justify-content: space-between; align-items: center;">
-                        <span><i class="ph ph-chart-pie"></i> Akumulasi Seluruh Rak</span>
-                        <span style="color: var(--text-main); font-size: 0.75rem;">{{ number_format($allHoles->count(), 0, ',', '.') }} Lubang</span>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem; font-size: 0.78rem;">
-                        <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.35rem 0.5rem; display: flex; justify-content: space-between; align-items: center;" title="Lubang Tidak Ditanam">
-                            <span style="color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 0.3rem;">
-                                <div style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8;"></div> Tidak Ditanam
-                            </span>
-                            <strong style="color: var(--text-main);">{{ number_format($cntKosong, 0, ',', '.') }}</strong>
+                <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    <td style="padding: 1rem; vertical-align: middle;">
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                            <div class="icon-box green" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="ph ph-house-line" style="font-size: 1.1rem;"></i>
+                            </div>
+                            <div>
+                                <a href="{{ route('hydroponics.greenhouses.show', $gh->id) }}" style="font-weight: 700; font-size: 1.1rem; color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+                                    {{ $gh->name }}
+                                </a>
+                                <div style="margin-top: 0.25rem;">
+                                    <span class="badge {{ $gh->status == 'aktif' ? 'badge-success' : 'badge-warning' }}" style="font-size: 0.65rem; padding: 0.15rem 0.4rem;">{{ ucfirst($gh->status) }}</span>
+                                </div>
+                            </div>
                         </div>
+                    </td>
+                    
+                    <td style="padding: 1rem; vertical-align: middle; text-align: center;">
+                        <span style="font-weight: 700; color: var(--text-main); font-size: 1rem;">{{ $gh->racks_count }}</span>
+                    </td>
 
-                        <div style="background: rgba(22, 163, 74, 0.1); border: 1px solid rgba(22, 163, 74, 0.2); border-radius: 6px; padding: 0.35rem 0.5rem; display: flex; justify-content: space-between; align-items: center;" title="Sedang Ditanam">
-                            <span style="color: #16a34a; font-weight: 500; display: flex; align-items: center; gap: 0.3rem;">
-                                <div style="width: 7px; height: 7px; border-radius: 50%; background: #16a34a;"></div> Ditanam
-                            </span>
-                            <strong style="color: #16a34a;">{{ number_format($cntDitanam, 0, ',', '.') }}</strong>
+                    <td style="padding: 1rem; vertical-align: middle;">
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">{{ $pct }}% <span style="font-weight: 500; color: var(--text-muted);">({{ number_format($allHoles->count(), 0, ',', '.') }} Lubang)</span></span>
+                            <div style="width: 100px; height: 6px; background: #e2e8f0; border-radius: 10px; overflow: hidden;">
+                                <div style="width: {{ $pct }}%; height: 100%; background: #16a34a; border-radius: 10px;"></div>
+                            </div>
                         </div>
+                    </td>
 
-                        <div style="background: rgba(234, 88, 12, 0.1); border: 1px solid rgba(234, 88, 12, 0.2); border-radius: 6px; padding: 0.35rem 0.5rem; display: flex; justify-content: space-between; align-items: center;" title="Siap Dipanen (>=30 Hari)">
-                            <span style="color: #ea580c; font-weight: 600; display: flex; align-items: center; gap: 0.3rem;">
-                                <div style="width: 7px; height: 7px; border-radius: 50%; background: #ea580c;"></div> Siap Panen
-                            </span>
-                            <strong style="color: #ea580c;">{{ number_format($cntReady, 0, ',', '.') }}</strong>
+                    <td style="padding: 1rem; vertical-align: middle; text-align: center;">
+                        <span style="background: #f1f5f9; color: #475569; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">{{ number_format($cntKosong, 0, ',', '.') }}</span>
+                    </td>
+                    
+                    <td style="padding: 1rem; vertical-align: middle; text-align: center;">
+                        <span style="background: #dcfce7; color: #16a34a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">{{ number_format($cntDitanam, 0, ',', '.') }}</span>
+                    </td>
+
+                    <td style="padding: 1rem; vertical-align: middle; text-align: center;">
+                        <span style="background: #ffedd5; color: #ea580c; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">{{ number_format($cntReady, 0, ',', '.') }}</span>
+                    </td>
+
+                    <td style="padding: 1rem; vertical-align: middle; text-align: center;">
+                        <span style="background: #dbeafe; color: #2563eb; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">{{ number_format($cntPanen, 0, ',', '.') }}</span>
+                    </td>
+
+                    <td style="padding: 1rem; vertical-align: middle; text-align: center;">
+                        <span style="background: #fee2e2; color: #dc2626; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">{{ number_format($cntRusak, 0, ',', '.') }}</span>
+                    </td>
+
+                    <td style="padding: 1rem; vertical-align: middle; text-align: right;">
+                        <div style="display: flex; gap: 0.35rem; justify-content: flex-end; flex-wrap: wrap;">
+                            <a href="{{ route('hydroponics.greenhouses.show', $gh->id) }}" class="btn btn-outline" style="padding: 0.35rem 0.6rem; font-size: 0.75rem;">
+                                Kelola Rak
+                            </a>
+                            <a href="{{ route('hydroponics.greenhouses.print-single-gh-qr', $gh->id) }}" target="_blank"
+                                style="padding: 0.35rem 0.5rem; background: var(--asr-green-light); color: var(--asr-green-dark); border: 1px solid var(--asr-green); border-radius: 6px; cursor: pointer;" title="Cetak QR GH">
+                                <i class="ph ph-qr-code" style="font-size: 0.9rem;"></i>
+                            </a>
+                            @if(Auth::user()->isAgriAdmin())
+                            <button onclick="openEditGHModal({{ $gh->id }}, '{{ addslashes($gh->name) }}', '{{ addslashes($gh->description ?? '') }}', '{{ $gh->status }}')"
+                                style="padding: 0.35rem 0.5rem; background: white; color: #374151; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;" title="Edit GH">
+                                <i class="ph ph-pencil-simple" style="font-size: 0.9rem;"></i>
+                            </button>
+                            <button type="button" 
+                                    onclick="confirmAction('Hapus Green House?', 'Apakah Anda yakin ingin menghapus {{ addslashes($gh->name) }} beserta seluruh rak & lubang di dalamnya?', '{{ route('hydroponics.greenhouses.destroy', $gh->id) }}', 'DELETE')"
+                                    style="padding: 0.35rem 0.5rem; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer;" title="Hapus GH">
+                                <i class="ph ph-trash" style="font-size: 0.9rem;"></i>
+                            </button>
+                            @endif
                         </div>
-
-                        <div style="background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: 6px; padding: 0.35rem 0.5rem; display: flex; justify-content: space-between; align-items: center;" title="Sudah Dipanen">
-                            <span style="color: #2563eb; font-weight: 500; display: flex; align-items: center; gap: 0.3rem;">
-                                <div style="width: 7px; height: 7px; border-radius: 50%; background: #2563eb;"></div> Dipanen
-                            </span>
-                            <strong style="color: #2563eb;">{{ number_format($cntPanen, 0, ',', '.') }}</strong>
-                        </div>
-
-                        <div style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.2); border-radius: 6px; padding: 0.35rem 0.5rem; display: flex; justify-content: space-between; align-items: center; grid-column: span 2;" title="Total Kerusakan / Lubang Rusak">
-                            <span style="color: #dc2626; font-weight: 500; display: flex; align-items: center; gap: 0.3rem;">
-                                <div style="width: 7px; height: 7px; border-radius: 50%; background: #dc2626;"></div> Kerusakan (Rusak)
-                            </span>
-                            <strong style="color: #dc2626;">{{ number_format($cntRusak, 0, ',', '.') }}</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
-                <a href="{{ route('hydroponics.greenhouses.show', $gh->id) }}" style="text-decoration: none; color: var(--asr-green); font-weight: 600; font-size: 0.875rem; display: flex; align-items: center; gap: 0.375rem;">
-                    Kelola Rak & Lubang <i class="ph ph-arrow-right"></i>
-                </a>
-
-                <div style="display: flex; gap: 0.375rem; align-items: center;">
-                    <a href="{{ route('hydroponics.greenhouses.print-single-gh-qr', $gh->id) }}" target="_blank"
-                        style="padding: 0.375rem 0.625rem; background: var(--asr-green-light); color: var(--asr-green-dark); border: 1px solid var(--asr-green); border-radius: 6px; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem; font-weight: 600;"
-                        title="Cetak QR Code Green House Ini">
-                        <i class="ph ph-qr-code"></i> QR GH
-                    </a>
-                    @if(Auth::user()->isAgriAdmin())
-                    <button onclick="openEditGHModal({{ $gh->id }}, '{{ addslashes($gh->name) }}', '{{ addslashes($gh->description ?? '') }}', '{{ $gh->status }}')"
-                        style="padding: 0.375rem 0.625rem; background: var(--bg-color); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.8rem; cursor: pointer;"
-                        title="Edit Green House">
-                        <i class="ph ph-pencil-simple"></i> Edit
-                    </button>
-                    <form action="{{ route('hydroponics.greenhouses.destroy', $gh->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus {{ addslashes($gh->name) }} beserta seluruh rak & lubang di dalamnya?')" style="display: inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" style="padding: 0.375rem 0.625rem; background: rgba(220, 38, 38, 0.1); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.2); border-radius: 6px; font-size: 0.8rem; cursor: pointer;"
-                            title="Hapus Green House">
-                            <i class="ph ph-trash"></i> Hapus
-                        </button>
-                    </form>
-                    @endif
-                </div>
-            </div>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+        
+        @if($greenhouses->count() === 0)
+        <div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+            Belum ada Green House yang ditambahkan.
         </div>
-        @endforeach
+        @endif
     </div>
 </div>
 

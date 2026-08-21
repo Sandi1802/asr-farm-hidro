@@ -15,14 +15,14 @@ class HydroponicSeeder extends Seeder
 {
     public function run()
     {
-        // Create Admin User
-        $admin = User::updateOrCreate(
-            ['email' => 'admin@asrfarm.com'],
+        // Create Atasan User
+        $atasan = User::updateOrCreate(
+            ['email' => 'atasan@asrfarm.com'],
             [
-                'name'       => 'Admin ASR FARM',
+                'name'       => 'Atasan Kebun',
                 'password'   => Hash::make('password'),
                 'role'       => 'admin',
-                'role_agri'  => 'admin',
+                'role_agri'  => 'atasan',
             ]
         );
 

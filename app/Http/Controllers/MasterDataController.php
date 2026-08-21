@@ -105,17 +105,29 @@ class MasterDataController extends Controller
             'position'   => 'required',
             'department' => 'required',
             'status'     => 'required',
-            'email'      => 'required|email|unique:users,email',
-            'role'       => 'required',
+            'username'   => 'required|unique:users,username',
+            'role_agri'  => 'required',
             'password'   => 'required|min:6',
+            'avatar'     => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
+        $avatarPath = null;
+        if ($request->hasFile('avatar')) {
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+        }
+
         // 1. Buat User Account
+        $email = strtolower(str_replace(' ', '', $request->username)) . '@asrfarm.local';
+
         $user = \App\Models\User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
-            'role'     => $request->role,
+            'name'      => $request->name,
+            'nip'       => $request->nip,
+            'username'  => $request->username,
+            'email'     => $email,
+            'password'  => \Illuminate\Support\Facades\Hash::make($request->password),
+            'role'      => $request->role_agri === 'it_admin' ? 'super_admin' : 'viewer',
+            'role_agri' => $request->role_agri,
+            'avatar'    => $avatarPath,
         ]);
 
         // 2. Buat Employee Record
@@ -124,9 +136,10 @@ class MasterDataController extends Controller
             'name'       => $request->name,
             'position'   => $request->position,
             'department' => $request->department,
-            'email'      => $request->email,
+            'email'      => $email,
             'phone'      => $request->phone,
             'status'     => $request->status,
+            'avatar'     => $avatarPath,
         ]);
 
         return back()->with('success', 'Pegawai & Akun berhasil ditambahkan.');

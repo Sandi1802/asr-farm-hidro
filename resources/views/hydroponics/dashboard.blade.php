@@ -20,7 +20,7 @@ $plantStageJson = json_encode($plantStageData ?? []);
 <style>
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
 .cal-day-header { text-align:center; font-size:0.75rem; font-weight:700; color:var(--text-muted, #9ca3af); padding:0.4rem 0; text-transform:uppercase; letter-spacing:0.5px; }
-.cal-day { border-radius:10px; min-height:54px; padding:6px 8px; font-size:0.78rem; cursor:pointer; transition:all 0.2s ease; border: 1px solid var(--border-color, #e5e7eb); background: var(--card-bg, #ffffff); display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+.cal-day { border-radius:10px; min-height:75px; padding:6px 6px; font-size:0.78rem; cursor:pointer; transition:all 0.2s ease; border: 1px solid var(--border-color, #e5e7eb); background: var(--card-bg, #ffffff); display: flex; flex-direction: column; align-items: stretch; position: relative; }
 .cal-day:hover { border-color: var(--asr-green, #16a34a); box-shadow: 0 4px 12px rgba(22, 163, 74, 0.12); transform: translateY(-1px); }
 .cal-day.today { background: rgba(22, 163, 74, 0.08) !important; border: 2px solid var(--asr-green, #16a34a) !important; }
 [data-theme="dark"] .cal-day.today { background: rgba(22, 163, 74, 0.2) !important; border: 2px solid #22c55e !important; }
@@ -56,10 +56,16 @@ $plantStageJson = json_encode($plantStageData ?? []);
 
 <div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:-0.75rem;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:-0.75rem; flex-wrap: wrap; gap: 0.75rem;">
         <h2 style="font-size:1.15rem;font-weight:800;color:var(--text-main);display:flex;align-items:center;gap:0.5rem;margin:0; letter-spacing:-0.3px;">
             <i class="ph ph-squares-four" style="color:var(--asr-green);"></i> <span id="summaryGlobalTitle">Ringkasan Global</span>
         </h2>
+        <div id="periodFilterTabs" style="display: flex; gap: 0.25rem; background: var(--bg-main); border-radius: 10px; padding: 4px; border: 1px solid var(--border-color);">
+            <button onclick="switchPeriod('year', this)" class="period-tab" style="border:none; background:transparent; padding:0.4rem 0.85rem; border-radius:7px; font-size:0.78rem; font-weight:700; color:var(--text-muted); cursor:pointer; transition:all 0.2s; font-family:inherit;">Tahun Ini</button>
+            <button onclick="switchPeriod('month', this)" class="period-tab period-tab-active" style="border:none; background:var(--asr-green); padding:0.4rem 0.85rem; border-radius:7px; font-size:0.78rem; font-weight:700; color:white; cursor:pointer; transition:all 0.2s; font-family:inherit;">Bulan Ini</button>
+            <button onclick="switchPeriod('week', this)" class="period-tab" style="border:none; background:transparent; padding:0.4rem 0.85rem; border-radius:7px; font-size:0.78rem; font-weight:700; color:var(--text-muted); cursor:pointer; transition:all 0.2s; font-family:inherit;">Minggu Ini</button>
+            <button onclick="switchPeriod('today', this)" class="period-tab" style="border:none; background:transparent; padding:0.4rem 0.85rem; border-radius:7px; font-size:0.78rem; font-weight:700; color:var(--text-muted); cursor:pointer; transition:all 0.2s; font-family:inherit;">Hari Ini</button>
+        </div>
     </div>
     <div class="dashboard-stats">
         @php
@@ -68,31 +74,24 @@ $plantStageJson = json_encode($plantStageData ?? []);
         $todayActivities = isset($calendarEvents[$todayStr]) ? count($calendarEvents[$todayStr]) : 0;
         
         $pendingProcurements = \App\Models\Procurement::where('status_po', false)->count();
-        $topStats = [
+        $combinedStats = [
+            // Baris 1: Kapasitas & Operasional (4 Kolom)
             ['label' => 'Total Fasilitas', 'value' => $totalGH . ' GH', 'icon' => 'ph-buildings', 'class' => 'sbc-dark-green', 'sub' => $totalRacks . ' Rak • ' . number_format($totalHoles,0,',','.') . ' Lubang'],
-            ['label' => 'Keterisian Lahan', 'value' => $occupancyRate . '%', 'icon' => 'ph-chart-pie-slice', 'class' => 'sbc-mid-green', 'sub' => number_format($plantedHoles,0,',','.') . ' Lubang Terisi'],
-            ['label' => 'Pengajuan Kebutuhan', 'value' => $pendingProcurements, 'icon' => 'ph-clipboard-text', 'class' => 'sbc-olive', 'sub' => 'Kasus Pembelian Aktif', 'link' => '/hydroponics/inventory'],
-            ['label' => 'Perbaikan Aset',   'value' => $totalDamage, 'icon' => 'ph-warning-octagon','class' => 'sbc-rust', 'link' => '/hydroponics/damage-notes', 'sub' => 'Kasus Menunggu'],
-            ['label' => 'Jadwal Hari Ini', 'value' => $todayActivities, 'icon' => 'ph-calendar-check', 'class' => 'sbc-gold', 'sub' => 'Kegiatan Operasional'],
-        ];
-        
-        $holeStats = [
+            ['label' => 'Keterisian Lahan', 'value' => $occupancyRate . '%', 'icon' => 'ph-chart-pie-slice', 'class' => 'sbc-mid-green', 'sub' => number_format($plantedHoles,0,',','.') . ' Lubang Terisi (' . $plantedTypesCount . ' Jenis)'],
             ['id' => 'card-lubang-kosong', 'label' => 'Lubang Kosong', 'value' => number_format($emptyHolesCount,0,',','.'),        'icon' => 'ph-circle-dashed', 'class' => 'sbc-slate-farm', 'sub' => 'Menunggu ditanam'],
-            ['id' => 'card-lubang-terisi', 'label' => 'Lubang Terisi', 'value' => number_format($plantedHoles,0,',','.'),           'icon' => 'ph-plant',         'class' => 'sbc-mid-green', 'sub' => $plantedTypesCount.' Jenis Tanaman'],
+            ['label' => 'Jadwal Hari Ini', 'value' => $todayActivities, 'icon' => 'ph-calendar-check', 'class' => 'sbc-gold', 'sub' => 'Kegiatan Operasional'],
+            
+            // Baris 2: Siklus Produksi
+            ['id' => 'val-total-semai', 'label' => 'Total Semai',       'value' => number_format($produksiBulanIni['total_semai'],0,',','.').' Benih', 'icon' => 'ph-seedling',   'class' => 'sbc-mid-green', 'sub' => $produksiBulanIni['jenis_semai'].' Jenis Tanaman'],
+            ['id' => 'val-total-tanam', 'label' => 'Total Masuk GH',    'value' => number_format($produksiBulanIni['total_tanam'],0,',','.').' Lubang', 'icon' => 'ph-plant',    'class' => 'sbc-teal-farm'],
             ['id' => 'card-siap-panen', 'label' => 'Siap Panen',    'value' => number_format($readyToHarvestCount,0,',','.'),    'icon' => 'ph-trophy',        'class' => 'sbc-gold',        'sub' => $readyTypesCount.' Jenis Tanaman'],
+            
+            // Baris 3: Laporan & Isu
             ['id' => 'card-sudah-panen', 'label' => 'Sudah Panen',   'value' => number_format($harvestedHoles,0,',','.'),         'icon' => 'ph-basket',        'class' => 'sbc-teal-farm', 'sub' => $harvestedTypesCount.' Jenis Tanaman'],
             ['id' => 'card-gagal-panen', 'label' => 'Gagal Panen',   'value' => number_format($damagedHoles,0,',','.'),           'icon' => 'ph-warning',       'class' => 'sbc-earth',       'sub' => $damagedTypesCount.' Jenis Rusak'],
+            ['label' => 'Perbaikan Aset',   'value' => $totalDamage, 'icon' => 'ph-warning-octagon','class' => 'sbc-rust', 'link' => '/hydroponics/damage-notes', 'sub' => 'Kasus Menunggu'],
+            ['label' => 'Pengajuan Kebutuhan', 'value' => $pendingProcurements, 'icon' => 'ph-clipboard-text', 'class' => 'sbc-olive', 'sub' => 'Kasus Pembelian Aktif', 'link' => '/hydroponics/inventory'],
         ];
-
-        $prodStats = [
-            ['id' => 'val-jenis-semai', 'label' => 'Total Jenis Semai', 'value' => $produksiBulanIni['jenis_semai'].' Jenis',   'icon' => 'ph-plant',       'class' => 'sbc-olive'],
-            ['id' => 'val-total-semai', 'label' => 'Total Semai',       'value' => number_format($produksiBulanIni['total_semai'],0,',','.').' Benih', 'icon' => 'ph-seedling',   'class' => 'sbc-mid-green'],
-            ['id' => 'val-total-tanam', 'label' => 'Total Masuk GH',    'value' => number_format($produksiBulanIni['total_tanam'],0,',','.').' Lubang', 'icon' => 'ph-plant',    'class' => 'sbc-teal-farm'],
-            ['id' => 'val-total-panen', 'label' => 'Total Panen',       'value' => number_format($produksiBulanIni['total_panen'],0,',','.').' Lubang', 'icon' => 'ph-basket',    'class' => 'sbc-gold'],
-        ];
-
-        // Combine both into one array to render in a single grid
-        $combinedStats = array_merge($topStats, $holeStats, $prodStats);
         @endphp
 
         @foreach($combinedStats as $s)
@@ -117,48 +116,6 @@ $plantStageJson = json_encode($plantStageData ?? []);
     {{-- PRODUKSI BULAN INI MERGED WITH COMBINED STATS ABOVE --}}
 
 
-    @if($readyToHarvestCount > 0)
-    <div style="background: linear-gradient(135deg, #fff7ed, #ffedd5); border-radius: 14px; border: 2px solid #fed7aa; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
-        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #fed7aa; display: flex; align-items: center; gap: 0.75rem;">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background: #ea580c; display: flex; align-items: center; justify-content: center;">
-                <i class="ph ph-trophy" style="color: white; font-size: 1.2rem;"></i>
-            </div>
-            <div>
-                <h2 style="font-size: 1.1rem; font-weight: 700; color: #9a3412; margin: 0;">🎉 Siap Panen! ({{ $readyToHarvestCount }} lubang)</h2>
-                <p style="font-size: 0.8rem; color: #c2410c; margin: 0;">Tanaman yang sudah melewati batas waktu tumbuh berdasarkan master data</p>
-            </div>
-        </div>
-        <div style="padding: 1rem 1.5rem;">
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
-                @foreach($readyToHarvestItems as $plantName => $holes)
-                <div style="background: white; border-radius: 10px; padding: 1rem 1.25rem; border: 1px solid #fed7aa;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="ph ph-plant" style="color: #ea580c; font-size: 1.1rem;"></i>
-                            <span style="font-weight: 700; color: #9a3412; font-size: 0.95rem;">{{ $plantName ?: 'Tanaman belum diberi nama' }}</span>
-                        </div>
-                        <span style="background: #ea580c; color: white; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 50px;">{{ $holes->count() }} lubang</span>
-                    </div>
-                    @php $byGH = $holes->groupBy(fn($h) => $h->row->rack->greenhouse->name ?? 'GH'); @endphp
-                    @foreach($byGH as $ghName => $ghHoles)
-                    <div style="font-size: 0.8rem; color: #78350f; padding: 0.3rem 0; border-top: 1px dashed #fde68a;">
-                        <strong>{{ $ghName }}</strong> ·
-                        @php $byRack = $ghHoles->groupBy(fn($h) => $h->row->rack->name ?? 'Rak'); @endphp
-                        @foreach($byRack as $rackName => $rackHoles)
-                            {{ $rackName }} ({{ $rackHoles->count() }}){{ !$loop->last ? ', ' : '' }}
-                        @endforeach
-                    </div>
-                    @endforeach
-                    @php $oldest = $holes->min('planted_at'); @endphp
-                    <div style="font-size: 0.75rem; color: #a16207; margin-top: 0.5rem;">
-                        <i class="ph ph-clock"></i> Tanam sejak {{ \Carbon\Carbon::parse($oldest)->diffForHumans() }}
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-    @endif
 
 
 
@@ -220,7 +177,7 @@ $plantStageJson = json_encode($plantStageData ?? []);
         </div>
 
         {{-- DAILY SCHEDULE --}}
-        <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; height: 100%;">
+        <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; height: 100%; min-height: 0; max-height: 520px;">
             <div style="padding: 1.1rem 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
                 <h2 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
                     <i class="ph ph-calendar-check" style="color: var(--asr-green);"></i> Jadwal: <span id="scheduleDateLabel">{{ now()->format('d M Y') }}</span>
@@ -238,38 +195,6 @@ $plantStageJson = json_encode($plantStageData ?? []);
 
 
     {{-- ═══════════════════════════════════════════════════════════════ --}}
-    {{-- TREN PRODUKSI MINGGUAN (Line Chart) --}}
-    {{-- ═══════════════════════════════════════════════════════════════ --}}
-    <div class="chart-card" style="position: relative;">
-        <div class="chart-export-wrapper">
-            <button class="chart-export-btn" onclick="toggleChartMenu(this)"><i class="ph ph-list"></i></button>
-            <div class="chart-export-dropdown">
-                <a class="chart-export-item" onclick="updateTrendChart('mingguan')">Mingguan</a>
-                <a class="chart-export-item" onclick="updateTrendChart('bulanan')">Bulanan</a>
-                <a class="chart-export-item" onclick="updateTrendChart('tahunan')">Tahunan</a>
-                <div class="chart-export-separator"></div>
-                <a class="chart-export-item" onclick="exportChart('chartWeeklyTrend', 'fullscreen')">View in full screen</a>
-                <a class="chart-export-item" onclick="exportChart('chartWeeklyTrend', 'print')">Print chart</a>
-                <div class="chart-export-separator"></div>
-                <a class="chart-export-item" onclick="exportChart('chartWeeklyTrend', 'png')">Download PNG image</a>
-                <a class="chart-export-item" onclick="exportChart('chartWeeklyTrend', 'jpeg')">Download JPEG image</a>
-                <a class="chart-export-item" onclick="exportChart('chartWeeklyTrend', 'svg')">Download SVG vector image</a>
-                <div class="chart-export-separator"></div>
-                <a class="chart-export-item" onclick="exportChart('chartWeeklyTrend', 'csv')">Download CSV</a>
-                <a class="chart-export-item" onclick="exportChart('chartWeeklyTrend', 'xls')">Download XLS</a>
-                <a class="chart-export-item" onclick="exportChart('chartWeeklyTrend', 'table')">View data table</a>
-            </div>
-        </div>
-        <div class="chart-card-title" style="padding-right: 30px;">
-            <i class="ph ph-chart-line-up" style="color:#0ea5e9;font-size:1.3rem;"></i>
-            <span id="trendChartTitleText">Tren Produksi (4 Minggu Terakhir)</span>
-        </div>
-        <div style="position: relative; height: 260px;">
-            <canvas id="chartWeeklyTrend"></canvas>
-        </div>
-    </div>
-
-    {{-- ═══════════════════════════════════════════════════════════════ --}}
     {{-- GRAFIK BARIS 1: Tanaman Sering Ditanam + Sering Dipanen --}}
     {{-- ═══════════════════════════════════════════════════════════════ --}}
     <div class="responsive-grid-2">
@@ -279,16 +204,16 @@ $plantStageJson = json_encode($plantStageData ?? []);
             <div class="chart-export-wrapper">
                 <button class="chart-export-btn" onclick="toggleChartMenu(this)"><i class="ph ph-list"></i></button>
                 <div class="chart-export-dropdown">
-                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'fullscreen')">View in full screen</a>
-                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'print')">Print chart</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'fullscreen')">Lihat layar penuh</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'print')">Cetak grafik</a>
                     <div class="chart-export-separator"></div>
-                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'png')">Download PNG image</a>
-                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'jpeg')">Download JPEG image</a>
-                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'svg')">Download SVG vector image</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'png')">Unduh gambar PNG</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'jpeg')">Unduh gambar JPEG</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'svg')">Unduh vektor SVG</a>
                     <div class="chart-export-separator"></div>
-                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'csv')">Download CSV</a>
-                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'xls')">Download XLS</a>
-                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'table')">View data table</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'csv')">Unduh CSV</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'xls')">Unduh XLS</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostPlanted', 'table')">Lihat tabel data</a>
                 </div>
             </div>
             <div class="chart-card-title" style="padding-right: 30px;">
@@ -309,16 +234,16 @@ $plantStageJson = json_encode($plantStageData ?? []);
             <div class="chart-export-wrapper">
                 <button class="chart-export-btn" onclick="toggleChartMenu(this)"><i class="ph ph-list"></i></button>
                 <div class="chart-export-dropdown">
-                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'fullscreen')">View in full screen</a>
-                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'print')">Print chart</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'fullscreen')">Lihat layar penuh</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'print')">Cetak grafik</a>
                     <div class="chart-export-separator"></div>
-                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'png')">Download PNG image</a>
-                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'jpeg')">Download JPEG image</a>
-                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'svg')">Download SVG vector image</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'png')">Unduh gambar PNG</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'jpeg')">Unduh gambar JPEG</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'svg')">Unduh vektor SVG</a>
                     <div class="chart-export-separator"></div>
-                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'csv')">Download CSV</a>
-                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'xls')">Download XLS</a>
-                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'table')">View data table</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'csv')">Unduh CSV</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'xls')">Unduh XLS</a>
+                    <a class="chart-export-item" onclick="exportChart('chartMostHarvested', 'table')">Lihat tabel data</a>
                 </div>
             </div>
             <div class="chart-card-title" style="padding-right: 30px;">
@@ -345,21 +270,21 @@ $plantStageJson = json_encode($plantStageData ?? []);
             <div class="chart-export-wrapper">
                 <button class="chart-export-btn" onclick="toggleChartMenu(this)"><i class="ph ph-list"></i></button>
                 <div class="chart-export-dropdown">
-                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'fullscreen')">View in full screen</a>
-                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'print')">Print chart</a>
+                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'fullscreen')">Lihat layar penuh</a>
+                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'print')">Cetak grafik</a>
                     <div class="chart-export-separator"></div>
-                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'png')">Download PNG image</a>
-                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'jpeg')">Download JPEG image</a>
-                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'svg')">Download SVG vector image</a>
+                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'png')">Unduh gambar PNG</a>
+                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'jpeg')">Unduh gambar JPEG</a>
+                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'svg')">Unduh vektor SVG</a>
                     <div class="chart-export-separator"></div>
-                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'csv')">Download CSV</a>
-                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'xls')">Download XLS</a>
-                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'table')">View data table</a>
+                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'csv')">Unduh CSV</a>
+                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'xls')">Unduh XLS</a>
+                    <a class="chart-export-item" onclick="exportChart('chartRotation', 'table')">Lihat tabel data</a>
                 </div>
             </div>
             <div class="chart-card-title" style="padding-right: 30px;">
                 <i class="ph ph-arrows-clockwise" style="color:#7c3aed;font-size:1.3rem;"></i>
-                Perputaran & Occupancy per Greenhouse
+                Perputaran & Tingkat Keterisian per Green House
             </div>
             <div style="position: relative; height: 240px;">
                 <canvas id="chartRotation"></canvas>
@@ -371,16 +296,16 @@ $plantStageJson = json_encode($plantStageData ?? []);
             <div class="chart-export-wrapper">
                 <button class="chart-export-btn" onclick="toggleChartMenu(this)"><i class="ph ph-list"></i></button>
                 <div class="chart-export-dropdown">
-                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'fullscreen')">View in full screen</a>
-                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'print')">Print chart</a>
+                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'fullscreen')">Lihat layar penuh</a>
+                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'print')">Cetak grafik</a>
                     <div class="chart-export-separator"></div>
-                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'png')">Download PNG image</a>
-                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'jpeg')">Download JPEG image</a>
-                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'svg')">Download SVG vector image</a>
+                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'png')">Unduh gambar PNG</a>
+                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'jpeg')">Unduh gambar JPEG</a>
+                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'svg')">Unduh vektor SVG</a>
                     <div class="chart-export-separator"></div>
-                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'csv')">Download CSV</a>
-                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'xls')">Download XLS</a>
-                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'table')">View data table</a>
+                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'csv')">Unduh CSV</a>
+                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'xls')">Unduh XLS</a>
+                    <a class="chart-export-item" onclick="exportChart('chartGHDistribution', 'table')">Lihat tabel data</a>
                 </div>
             </div>
             <div class="chart-card-title" style="padding-right: 30px;">
@@ -420,50 +345,116 @@ $plantStageJson = json_encode($plantStageData ?? []);
 
     {{-- INVENTORY SECTION --}}
     {{-- INVENTORY SECTION --}}
+    <style>
+        .inv-card-premium {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            background: #ffffff;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .inv-card-premium:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+        .inv-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(to bottom right, #ffffff, #f8fafc);
+        }
+        .inv-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+        .inv-list {
+            max-height: 240px;
+            overflow-y: auto;
+            padding: 0 1.5rem;
+        }
+        .inv-list::-webkit-scrollbar {
+            width: 5px;
+        }
+        .inv-list::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .inv-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .inv-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .inv-item:last-child {
+            border-bottom: none;
+        }
+    </style>
     <div style="margin-top: 2rem;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
-            <h2 style="font-size:1.2rem;font-weight:800;color:var(--text-main);display:flex;align-items:center;gap:0.5rem;margin:0;">
-                <i class="ph ph-boxes" style="color:var(--asr-green); font-size:1.4rem;"></i> Stok Inventaris Real-time
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+            <h2 style="font-size:1.2rem;font-weight:800;color:var(--text-main);display:flex;align-items:center;gap:0.6rem;margin:0;">
+                <i class="ph-fill ph-stack" style="color:var(--asr-green); font-size:1.5rem;"></i> 
+                <span>Stok Inventaris Real-time</span>
             </h2>
-            <a href="{{ route('hydroponics.inventory') }}" style="font-size:0.85rem;color:white;background:var(--asr-green);padding:0.4rem 1rem;border-radius:6px;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:0.4rem;transition:all 0.2s;box-shadow:0 2px 5px rgba(22,163,74,0.2);">
+            <a href="{{ route('hydroponics.inventory') }}" style="font-size:0.85rem;color:white;background:var(--asr-green);padding:0.5rem 1.25rem;border-radius:8px;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:0.5rem;transition:all 0.2s;box-shadow:0 4px 10px rgba(22,163,74,0.25);">
                 Kelola Inventaris <i class="ph ph-arrow-right"></i>
             </a>
         </div>
-        <div class="responsive-grid-inv" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.25rem;">
+        <div class="responsive-grid-inv" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.5rem;">
             @foreach(array_diff_key($categoryConfig, ['lainnya' => '']) as $typeKey => $cfg)
                 @php $items = $inventoryItems->where('type', $typeKey); @endphp
-                <div class="card inv-card" style="padding:0; overflow:hidden; border:1px solid #e2e8f0; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.02); transition:transform 0.2s, box-shadow 0.2s; display:flex; flex-direction:column; height:100%; background:#ffffff;">
-                    <div style="padding:1.25rem; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between; position:relative;">
-                        <div style="position:absolute; top:0; left:0; width:100%; height:4px; background:{{ $cfg['color'] }};"></div>
-                        <div style="display:flex; align-items:center; gap:0.85rem;">
-                            <div style="width:42px; height:42px; border-radius:12px; background:{{ $cfg['color'] }}15; color:{{ $cfg['color'] }}; display:flex; align-items:center; justify-content:center; font-size:1.6rem;">
+                <div class="inv-card-premium">
+                    <div class="inv-header">
+                        <div style="display:flex; align-items:center; gap:1rem;">
+                            <div class="inv-icon-box" style="background:{{ $cfg['color'] }}15; color:{{ $cfg['color'] }}; box-shadow: 0 4px 12px {{ $cfg['color'] }}15;">
                                 <i class="{{ $cfg['icon'] }}"></i>
                             </div>
-                            <span style="font-weight:800; font-size:1.05rem; color:#1e293b; letter-spacing:-0.2px;">{{ $cfg['label'] }}</span>
+                            <div>
+                                <h3 style="margin:0; font-weight:800; font-size:1.1rem; color:#1e293b; letter-spacing:-0.2px;">{{ $cfg['label'] }}</h3>
+                                <span style="font-size:0.75rem; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">{{ $items->count() }} Jenis Item</span>
+                            </div>
                         </div>
-                        <span style="background:#f8fafc; color:#64748b; font-size:0.75rem; font-weight:700; padding:0.3rem 0.75rem; border-radius:20px; border:1px solid #e2e8f0;">
-                            {{ $items->count() }} Item
-                        </span>
                     </div>
-                    <div style="padding:0; flex-grow:1; background:#fafafa;">
-                        <div style="max-height: 220px; overflow-y: auto; padding: 0.5rem 1.25rem;" class="inv-scroll">
+                    <div style="padding:0; flex-grow:1; background:#ffffff;">
+                        <div class="inv-list">
                         @forelse($items as $inv)
-                        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 0; border-bottom:1px dashed #e2e8f0;">
-                            <span style="font-size:0.9rem; color:#334155; font-weight:600;">{{ $inv->name }}</span>
-                            <div style="display:flex; align-items:center; gap:0.5rem;">
-                                <span style="font-size:0.95rem; font-weight:800; color:{{ $inv->quantity < 10 ? '#ef4444' : '#0f172a' }};">
+                        <div class="inv-item">
+                            <div style="display:flex; flex-direction:column; gap:0.2rem;">
+                                <span style="font-size:0.95rem; color:#334155; font-weight:700;">{{ $inv->name }}</span>
+                                <span style="font-size:0.75rem; color:#94a3b8; font-weight:500;">
+                                    Batas min: 10 {{ $inv->unit }}
+                                </span>
+                            </div>
+                            <div style="display:flex; align-items:center; justify-content:center; padding:0.4rem 0.8rem; border-radius:8px; background:{{ $inv->quantity < 10 ? '#fef2f2' : '#f8fafc' }}; border:1px solid {{ $inv->quantity < 10 ? '#fecaca' : '#e2e8f0' }}; min-width:80px; box-shadow:inset 0 1px 2px rgba(0,0,0,0.02);">
+                                <span style="font-size:1rem; font-weight:800; color:{{ $inv->quantity < 10 ? '#ef4444' : '#0f172a' }};">
                                     {{ number_format($inv->quantity,0,',','.') }}
                                 </span>
-                                <span style="font-size:0.8rem; color:#94a3b8; font-weight:600;">{{ $inv->unit }}</span>
-                                @if($inv->quantity < 10)
-                                <i class="ph-fill ph-warning-circle" style="color:#ef4444; font-size:1.1rem; margin-left:2px;" title="Stok menipis!"></i>
-                                @endif
+                                <span style="font-size:0.8rem; color:{{ $inv->quantity < 10 ? '#ef4444' : '#64748b' }}; font-weight:700; margin-left:4px;">{{ $inv->unit }}</span>
                             </div>
                         </div>
                         @empty
-                        <div style="padding:2.5rem 0; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0.5rem;">
-                            <i class="ph ph-package" style="font-size:2.5rem; color:#cbd5e1;"></i>
-                            <span style="color:#94a3b8; font-size:0.85rem; font-weight:600;">Tidak ada stok</span>
+                        <div style="padding:3.5rem 0; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0.75rem;">
+                            <div style="width:64px; height:64px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; box-shadow:inset 0 2px 4px rgba(0,0,0,0.05);">
+                                <i class="ph ph-package" style="font-size:2rem; color:#cbd5e1;"></i>
+                            </div>
+                            <div>
+                                <div style="color:#64748b; font-size:0.95rem; font-weight:700;">Belum ada item</div>
+                                <div style="color:#94a3b8; font-size:0.8rem;">Stok kosong</div>
+                            </div>
                         </div>
                         @endforelse
                         </div>
@@ -506,6 +497,14 @@ $plantStageJson = json_encode($plantStageData ?? []);
                 Simpan Kegiatan
             </button>
         </form>
+    </div>
+</div>
+
+{{-- View Event Modal --}}
+<div class="modal-overlay" id="viewEventModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:14px; padding:1.5rem; width:100%; max-width:440px; box-shadow:0 20px 60px rgba(0,0,0,0.2); position:relative;">
+        <button onclick="document.getElementById('viewEventModal').classList.remove('open')" style="position:absolute; top:1.25rem; right:1.25rem; background:none; border:none; font-size:1.5rem; cursor:pointer; color:#6b7280; line-height:1;">&times;</button>
+        <div id="viewEventModalContent"></div>
     </div>
 </div>
 <style> .modal-overlay.open { display:flex !important; } </style>
@@ -668,18 +667,37 @@ function renderCalendar() {
         });
         const evCount = evList.length;
 
-        let dots = '';
-        evList.slice(0,4).forEach(ev => {
-            const color = typeColors[ev.type] || '#9ca3af';
-            dots += `<span class="cal-dot" style="background:${color};"></span>`;
+        let typeCounts = {};
+        let totalCount = 0;
+        evList.forEach(ev => {
+            if (!typeCounts[ev.type]) typeCounts[ev.type] = 0;
+            typeCounts[ev.type] += (ev.hole_count || 1);
+            totalCount++;
         });
-        if (evCount > 4) dots += `<span style="font-size:0.6rem;color:var(--text-muted);font-weight:700;line-height:1;">+${evCount-4}</span>`;
+
+        let dots = '';
+        let typeLabels = { semai: 'Semai', tanam: 'Tanam', remaja: 'Remaja', harvest: 'Panen', custom: 'Keg.' };
+        
+        Object.keys(typeCounts).slice(0, 3).forEach(type => {
+            const color = typeColors[type] || '#9ca3af';
+            const count = typeCounts[type];
+            const label = typeLabels[type] || type;
+            dots += `<div style="font-size: 0.65rem; background: ${color}15; border-left: 2px solid ${color}; color: ${color}; padding: 2px 4px; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; justify-content: space-between; margin-bottom: 2px; font-weight: 700; line-height:1;">
+                <span>${label}</span>
+                <span style="opacity:0.8;">${count > 1 ? count : ''}</span>
+            </div>`;
+        });
+        
+        let remainingTypes = Object.keys(typeCounts).length - 3;
+        if (remainingTypes > 0) {
+            dots += `<div style="font-size:0.6rem;color:var(--text-muted);font-weight:700;text-align:center;margin-top:2px;">+${remainingTypes} lainnya</div>`;
+        }
 
         html += `<div class="cal-day${isToday?' today':''}${evCount>0?' has-event':''}"
                      data-date="${dateStr}"
                      onclick="renderDailySchedule('${dateStr}')">
-                    <div class="cal-day-num">${d}</div>
-                    <div style="display:flex;flex-wrap:wrap;gap:2px;align-items:center;margin-top:2px;">${dots}</div>
+                    <div class="cal-day-num" style="margin-bottom:4px; text-align:right;">${d}</div>
+                    <div style="display:flex;flex-direction:column;gap:1px;width:100%;">${dots}</div>
                  </div>`;
     }
 
@@ -710,6 +728,7 @@ function renderDailySchedule(dateStr) {
         if (type === 'planting') type = 'tanam';
         return window.calFilters[type] !== false;
     });
+    window.currentEvList = evList;
     const container = document.getElementById('dailyScheduleList');
 
     if (evList.length === 0) {
@@ -732,7 +751,7 @@ function renderDailySchedule(dateStr) {
     };
 
     let html = '';
-    evList.forEach(ev => {
+    evList.forEach((ev, idx) => {
         const cfg = stageMap[ev.type] || stageMap.custom;
         let title, subtitle, badge = '';
 
@@ -765,19 +784,130 @@ function renderDailySchedule(dateStr) {
         }
 
 
-        html += `
-        <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1.25rem;border-bottom:1px solid var(--border-color);">
-            <div style="width:36px;height:36px;border-radius:50%;background:${cfg.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <i class="ph ${cfg.icon}" style="color:${cfg.color};font-size:1.1rem;"></i>
-            </div>
-            <div style="flex:1;min-width:0;line-height:1.4;">
-                <div style="font-size:0.875rem;color:var(--text-main);">${title}</div>
-                <div style="font-size:0.72rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${subtitle}</div>
-            </div>
-            <div>${badge}</div>
-        </div>`;
+        let plantRows = '';
+        if (ev.plants_list && ev.plants_list.length > 0) {
+            ev.plants_list.forEach(p => {
+                let pIcon = 'ph-leaf';
+                if (p.name.toLowerCase().includes('pakcoy')) pIcon = 'ph-plant';
+                if (p.name.toLowerCase().includes('selada')) pIcon = 'ph-flower-lotus';
+                if (p.name.toLowerCase().includes('bayam')) pIcon = 'ph-clover';
+                
+                plantRows += `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding: 0.5rem 0; border-bottom: 1px dashed var(--border-color);">
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-main); display:flex; align-items:center; gap:0.5rem;">
+                        <span style="background:var(--bg-body); width:24px; height:24px; display:flex; align-items:center; justify-content:center; border-radius:6px; color:var(--text-muted);"><i class="ph ${pIcon}"></i></span>
+                        ${p.name}
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-align:right;">
+                        Rak ${p.racks}
+                    </div>
+                </div>`;
+            });
+            // remove last border
+            plantRows = plantRows.replace(/border-bottom: 1px dashed var\(--border-color\);">$/, '">');
+        }
+
+        if (ev.type === 'custom') {
+            html += `
+            <div onclick="openEventDetails(${idx})" style="cursor:pointer; display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1.25rem;border-bottom:1px solid var(--border-color); transition:background 0.2s;" onmouseover="this.style.background='var(--bg-body)'" onmouseout="this.style.background='transparent'">
+                <div style="width:36px;height:36px;border-radius:50%;background:${cfg.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="ph ${cfg.icon}" style="color:${cfg.color};font-size:1.1rem;"></i>
+                </div>
+                <div style="flex:1;min-width:0;line-height:1.4;">
+                    <div style="font-size:0.875rem;color:var(--text-main);">${title}</div>
+                    <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.4;margin-top:0.2rem;">${subtitle}</div>
+                </div>
+                <div>${badge}</div>
+            </div>`;
+        } else {
+            html += `
+            <div onclick="openEventDetails(${idx})" style="cursor:pointer; margin: 0.8rem 1rem; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='0 2px 5px rgba(0,0,0,0.02)'">
+                <div style="display:flex; align-items:center; gap:0.75rem; padding: 0.75rem 1rem; background: ${cfg.bg}; border-bottom: 1px solid rgba(0,0,0,0.05);">
+                    <div style="width:34px;height:34px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+                        <i class="ph ${cfg.icon}" style="color:${cfg.color};font-size:1.1rem;"></i>
+                    </div>
+                    <div style="flex:1;min-width:0;line-height:1.3;">
+                        <div style="font-size:0.9rem;font-weight:700;color:var(--text-main);">${ev.gh_name || cfg.label}</div>
+                        <div style="font-size:0.75rem;color:${cfg.color};font-weight:600;margin-top:2px;">${cfg.label} &bull; ${ev.hole_count ? ev.hole_count.toLocaleString('id-ID') + ' lubang' : ''}</div>
+                    </div>
+                    <div>${badge}</div>
+                </div>
+                <div style="padding: 0.25rem 1rem;">
+                    ${plantRows}
+                </div>
+            </div>`;
+        }
     });
     container.innerHTML = html;
+}
+
+function openEventDetails(idx) {
+    const ev = window.currentEvList[idx];
+    if(!ev) return;
+    
+    const stageMap = {
+        semai:   { icon:'ph-seedling',  color:'#16a34a', bg:'#dcfce7', label:'Fase Penyemaian',  emoji:'🌱' },
+        tanam:   { icon:'ph-plant',     color:'#2563eb', bg:'#dbeafe', label:'Fase Penanaman',   emoji:'🪴' },
+        remaja:  { icon:'ph-leaf',      color:'#9333ea', bg:'#f3e8ff', label:'Fase Remaja',       emoji:'🌿' },
+        harvest: { icon:'ph-basket',    color:'#e11d48', bg:'#ffe4e6', label:'Jadwal Panen',      emoji:'🌾' },
+        planting:{ icon:'ph-plant',     color:'#16a34a', bg:'#dcfce7', label:'Penanaman',         emoji:'🌱' },
+        custom:  { icon:'ph-bookmark',  color:'#0891b2', bg:'#ecfeff', label:'Kegiatan',          emoji:'📌' },
+    };
+    const cfg = stageMap[ev.type] || stageMap.custom;
+
+    let title, subtitle;
+    if (ev.type === 'harvest') {
+        title    = `Panen ${ev.plant_name}`;
+        subtitle = ev.location || '';
+    } else if (ev.type === 'semai') {
+        title    = `Penyemaian ${ev.plant_name}`;
+        subtitle = ev.location || '';
+    } else if (ev.type === 'tanam') {
+        title    = `Fase Tanam ${ev.plant_name}`;
+        subtitle = ev.location || '';
+    } else if (ev.type === 'remaja') {
+        title    = `Fase Remaja ${ev.plant_name}`;
+        subtitle = ev.location || '';
+    } else if (ev.type === 'custom') {
+        title    = ev.title;
+        subtitle = '';
+    } else {
+        title    = ev.plant_name;
+        subtitle = ev.location || '';
+    }
+
+    let dateDisplay = window.currentActiveDate; 
+    let dParts = window.currentActiveDate.split('-');
+    if(dParts.length === 3) {
+        const mNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+        dateDisplay = dParts[2] + ' ' + mNames[parseInt(dParts[1], 10)-1] + ' ' + dParts[0];
+    }
+
+    let contentHtml = `
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; padding-right: 2rem;">
+            <span style="background:${cfg.bg}; color:${cfg.color}; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:700; display:flex; align-items:center; gap:0.3rem;"><i class="ph ${cfg.icon}"></i> ${cfg.label.toUpperCase()}</span>
+            ` + (ev.time ? `<span style="background:#f3f4f6; color:#4b5563; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;"><i class="ph ph-clock"></i> ${ev.time}</span>` : '') + `
+            ` + (ev.is_ready ? `<span style="background:#fee2e2; color:#dc2626; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">SIAP PANEN</span>` : '') + `
+        </div>
+        <h3 style="margin:0 0 0.75rem 0; font-size:1.2rem; color:var(--text-main); font-weight:700; line-height:1.3;">${title}</h3>
+        
+        <div style="display:flex; align-items:center; gap:0.5rem; color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">
+            <i class="ph ph-calendar-blank" style="font-size:1.1rem;"></i> 
+            <span>${dateDisplay}</span>
+        </div>
+        
+        <div style="border-top:1px dashed var(--border-color); padding-top:1.25rem;">
+            ` + (subtitle ? `<div style="margin-bottom:1rem;"><div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; margin-bottom:0.25rem;">Lokasi</div><div style="font-size:0.9rem; color:var(--text-main); font-weight:500;"><i class="ph ph-map-pin" style="color:var(--text-muted);"></i> ${subtitle}</div></div>` : '') + `
+            ` + (ev.description ? `<div style="margin-bottom:1rem;"><div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; margin-bottom:0.25rem;">Deskripsi</div><div style="font-size:0.9rem; color:var(--text-main); line-height:1.5;">${ev.description}</div></div>` : '') + `
+            ` + (ev.harvested_by ? `<div style="margin-bottom:1rem;"><div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; margin-bottom:0.25rem;">Dipanen Oleh</div><div style="font-size:0.9rem; color:var(--text-main); font-weight:500;"><i class="ph ph-user" style="color:var(--text-muted);"></i> ${ev.harvested_by}</div></div>` : '') + `
+            ` + (ev.days_old ? `<div style="margin-bottom:1rem;"><div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; margin-bottom:0.25rem;">Umur Tanaman</div><div style="font-size:0.9rem; color:var(--text-main); font-weight:500;">${ev.days_old} hari</div></div>` : '') + `
+            ` + (ev.stage_day ? `<div style="margin-bottom:1rem;"><div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; margin-bottom:0.25rem;">Lama Fase</div><div style="font-size:0.9rem; color:var(--text-main); font-weight:500;">Hari ke-${ev.stage_day} pada fase ini</div></div>` : '') + `
+            ` + (ev.hole_count ? `<div style="margin-bottom:1rem;"><div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; margin-bottom:0.25rem;">Jumlah Lubang</div><div style="font-size:0.9rem; color:var(--text-main); font-weight:500;">${ev.hole_count.toLocaleString('id-ID')} lubang tanam</div></div>` : '') + `
+        </div>
+    `;
+
+    document.getElementById('viewEventModalContent').innerHTML = contentHtml;
+    document.getElementById('viewEventModal').classList.add('open');
 }
 
 // Close modals on overlay click
@@ -852,7 +982,7 @@ function initCharts() {
         });
     }
 
-    // ── 3. Perputaran / Occupancy per Greenhouse ───────────────
+    // ── 3. Perputaran / Tingkat Keterisian per Green House ───────────────
     const rotCtx = document.getElementById('chartRotation');
     if (rotCtx && rotationData.length > 0) {
         new Chart(rotCtx.getContext('2d'), {
@@ -864,19 +994,19 @@ function initCharts() {
                         label: 'Ditanam',
                         data:  rotationData.map(r => r.planted),
                         backgroundColor: 'rgba(22,163,74,0.8)',
-                        borderRadius: 6, stack: 'stack',
+                        borderRadius: 6
                     },
                     {
                         label: 'Siap Panen',
                         data:  rotationData.map(r => r.ready),
                         backgroundColor: 'rgba(234,88,12,0.8)',
-                        borderRadius: 6, stack: 'stack',
+                        borderRadius: 6
                     },
                     {
                         label: 'Sudah Panen',
                         data:  rotationData.map(r => r.harvested),
                         backgroundColor: 'rgba(124,58,237,0.7)',
-                        borderRadius: 6, stack: 'stack',
+                        borderRadius: 6
                     },
                 ]
             },
@@ -888,7 +1018,7 @@ function initCharts() {
                         callbacks: {
                             afterBody: (items) => {
                                 const rd = rotationData[items[0].dataIndex];
-                                return [`Occupancy: ${rd.rate}%`];
+                                return [`Keterisian: ${rd.rate}%`];
                             }
                         }
                     }
@@ -929,7 +1059,7 @@ function initCharts() {
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            callbacks: {
+                                callbacks: {
                                 label: function(context) {
                                     const val = context.parsed;
                                     const total = context.chart._metasets[context.datasetIndex].total;
@@ -994,128 +1124,13 @@ function initCharts() {
             }
         }
     }
-
-    // ── 3C. Tren Produksi (4 Minggu Terakhir)
-    const trendCtx = document.getElementById('chartWeeklyTrend');
-    if (trendCtx) {
-        const trendData = {!! json_encode($weeklyTrendData ?? []) !!};
-        if (trendData && trendData.labels) {
-            window.trendChartInstance = new Chart(trendCtx.getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: trendData.labels,
-                    datasets: [
-                        {
-                            label: 'Semai',
-                            data: trendData.semai,
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.4
-                        },
-                        {
-                            label: 'Tanam',
-                            data: trendData.tanam,
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.4
-                        },
-                        {
-                            label: 'Panen',
-                            data: trendData.panen,
-                            borderColor: '#ef4444',
-                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.4
-                        },
-                        {
-                            label: 'Gagal Panen',
-                            data: trendData.rusak,
-                            borderColor: '#b45309',
-                            backgroundColor: 'rgba(180, 83, 9, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.4
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: {size: 11} } }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, grid: { borderDash: [4,4] } },
-                        x: { grid: { display: false } }
-                    },
-                    interaction: { mode: 'index', intersect: false }
-                }
-            });
-        }
-    }
 }
 
     function fetchProduksiStats(month, year) {
-    let totalJenisSemai = new Set();
-    let totalSemai = 0;
-    let totalTanam = 0;
-    let totalPanen = 0;
-
-    // We calculate from calendarData for the requested month/year
-    const daysInMonth = new Date(year, month, 0).getDate();
-    for (let d = 1; d <= daysInMonth; d++) {
-        const dateStr = year + '-' + pad(month) + '-' + pad(d);
-        let evList = calendarData[dateStr] || [];
-        
-        // Filter by calFilters to make it truly dynamic
-        evList = evList.filter(ev => {
-            let type = ev.type;
-            if (type === 'planting') type = 'tanam';
-            return window.calFilters[type] !== false;
-        });
-
-        evList.forEach(ev => {
-            let type = ev.type;
-            if (type === 'planting') type = 'tanam';
-            
-            // Determine quantity. Default to hole_count, or meta_qty, or 1.
-            const qty = ev.hole_count || ev.meta_qty || 1;
-            
-            if (type === 'semai') {
-                if (ev.plant_name) totalJenisSemai.add(ev.plant_name);
-                totalSemai += qty;
-            } else if (type === 'tanam') {
-                totalTanam += qty;
-            } else if (type === 'harvest') {
-                totalPanen += qty;
-            }
-        });
-    }
-
     const monthName = monthsStr[month - 1];
 
     if (document.getElementById('produksiTitleText')) {
         document.getElementById('produksiTitleText').textContent = `Produksi ${monthName} ${year}`;
-    }
-    if (document.getElementById('val-jenis-semai')) {
-        document.getElementById('val-jenis-semai').textContent = `${totalJenisSemai.size} Jenis`;
-    }
-    if (document.getElementById('val-total-semai')) {
-        const fmt = new Intl.NumberFormat('id-ID').format(totalSemai);
-        document.getElementById('val-total-semai').textContent = `${fmt} Benih`;
-    }
-    if (document.getElementById('val-total-tanam')) {
-        const fmt = new Intl.NumberFormat('id-ID').format(totalTanam);
-        document.getElementById('val-total-tanam').textContent = `${fmt} Lubang`;
-    }
-    if (document.getElementById('val-total-panen')) {
-        const fmt = new Intl.NumberFormat('id-ID').format(totalPanen);
-        document.getElementById('val-total-panen').textContent = `${fmt} Lubang`;
     }
 }
 
@@ -1158,26 +1173,7 @@ function exportChart(chartId, action) {
     }
 }
 
-function updateTrendChart(period) {
-    fetch('/hydroponics/dashboard/trend-chart?period=' + period)
-        .then(res => res.json())
-        .then(data => {
-            if(window.trendChartInstance) {
-                window.trendChartInstance.data.labels = data.labels;
-                window.trendChartInstance.data.datasets[0].data = data.semai;
-                window.trendChartInstance.data.datasets[1].data = data.tanam;
-                window.trendChartInstance.data.datasets[2].data = data.panen;
-                window.trendChartInstance.data.datasets[3].data = data.rusak;
-                window.trendChartInstance.update();
-                
-                let title = 'Tren Produksi ';
-                if(period === 'mingguan') title += '(4 Minggu Terakhir)';
-                else if(period === 'bulanan') title += '(Tahun Ini)';
-                else title += '(5 Tahun Terakhir)';
-                document.getElementById('trendChartTitleText').textContent = title;
-            }
-        });
-}
+
 function updateSummaryCards(month, year) {
     if (!month || !year) {
         month = new Date().getMonth() + 1;
@@ -1188,25 +1184,35 @@ function updateSummaryCards(month, year) {
     const monthsStr = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
     document.getElementById('summaryGlobalTitle').textContent = 'Ringkasan ' + monthsStr[month - 1] + ' ' + year;
 
-    // Set loading state
-    const ids = ['card-lubang-kosong', 'card-lubang-terisi', 'card-siap-panen', 'card-sudah-panen', 'card-gagal-panen'];
-    ids.forEach(id => {
-        if(document.getElementById(id)) document.getElementById(id).innerHTML = '<i class="ph ph-spinner ph-spin"></i>';
-    });
+      // Set loading state
+      const ids = ['card-lubang-kosong', 'card-lubang-terisi', 'card-siap-panen', 'card-sudah-panen', 'card-gagal-panen'];
+      ids.forEach(id => {
+          // User requested to show 0 instead of a loading spinner
+          if(document.getElementById(id)) document.getElementById(id).innerHTML = '0';
+      });
     
     fetch('/hydroponics/dashboard/summary-cards?month=' + month + '&year=' + year)
         .then(res => res.json())
         .then(data => {
             if(document.getElementById('card-lubang-kosong')) {
-                document.getElementById('card-lubang-kosong').textContent = data.lubang_kosong;
-                document.getElementById('card-lubang-terisi').textContent = data.lubang_terisi;
-                document.getElementById('card-lubang-terisi-sub').textContent = data.lubang_terisi_sub;
-                document.getElementById('card-siap-panen').textContent = data.siap_panen;
-                document.getElementById('card-siap-panen-sub').textContent = data.siap_panen_sub;
-                document.getElementById('card-sudah-panen').textContent = data.sudah_panen;
-                document.getElementById('card-sudah-panen-sub').textContent = data.sudah_panen_sub;
-                document.getElementById('card-gagal-panen').textContent = data.gagal_panen;
-                document.getElementById('card-gagal-panen-sub').textContent = data.gagal_panen_sub;
+                let elKosong = document.getElementById('card-lubang-kosong'); if(elKosong) elKosong.textContent = data.lubang_kosong;
+                let elTerisi = document.getElementById('card-lubang-terisi'); if(elTerisi) elTerisi.textContent = data.lubang_terisi;
+                let elTerisiSub = document.getElementById('card-lubang-terisi-sub'); if(elTerisiSub) elTerisiSub.textContent = data.lubang_terisi_sub;
+                let elSiap = document.getElementById('card-siap-panen'); if(elSiap) elSiap.textContent = data.siap_panen;
+                let elSiapSub = document.getElementById('card-siap-panen-sub'); if(elSiapSub) elSiapSub.textContent = data.siap_panen_sub;
+                let elSudah = document.getElementById('card-sudah-panen'); if(elSudah) elSudah.textContent = data.sudah_panen;
+                let elSudahSub = document.getElementById('card-sudah-panen-sub'); if(elSudahSub) elSudahSub.textContent = data.sudah_panen_sub;
+                let elGagal = document.getElementById('card-gagal-panen'); if(elGagal) elGagal.textContent = data.gagal_panen;
+                let elGagalSub = document.getElementById('card-gagal-panen-sub'); if(elGagalSub) elGagalSub.textContent = data.gagal_panen_sub;
+            }
+            if(document.getElementById('val-total-tanam')) {
+                document.getElementById('val-total-tanam').textContent = data.total_tanam_bulan_ini + ' Lubang';
+            }
+            if(document.getElementById('val-total-panen')) {
+                document.getElementById('val-total-panen').textContent = data.total_panen_bulan_ini + ' Lubang';
+            }
+            if(document.getElementById('val-total-semai')) {
+                document.getElementById('val-total-semai').textContent = data.total_semai_bulan_ini + ' Benih';
             }
         });
 }
@@ -1215,6 +1221,67 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof initCalendar === 'function') initCalendar();
     if (typeof initCharts === 'function') initCharts();
 });
+
+// ══════════════════════════════════════════════════════════════
+//  PERIOD FILTER (Tahun Ini / Bulan Ini / Minggu Ini / Hari Ini)
+// ══════════════════════════════════════════════════════════════
+function switchPeriod(period, btn) {
+    // Update tab active state
+    document.querySelectorAll('.period-tab').forEach(t => {
+        t.style.background = 'transparent';
+        t.style.color = 'var(--text-muted)';
+        t.classList.remove('period-tab-active');
+    });
+    btn.style.background = 'var(--asr-green)';
+    btn.style.color = 'white';
+    btn.classList.add('period-tab-active');
+
+    // Show loading indicator on stat cards
+    const loadingCards = ['val-total-semai', 'val-total-tanam', 'card-sudah-panen', 'card-gagal-panen'];
+    loadingCards.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.opacity = '0.5';
+    });
+
+    // Fetch period stats via AJAX
+    fetch(`/hydroponics/dashboard/period-stats?period=${period}`)
+        .then(r => r.json())
+        .then(data => {
+            // Update title
+            const titleEl = document.getElementById('summaryGlobalTitle');
+            if (titleEl) titleEl.textContent = 'Ringkasan: ' + data.period_label;
+
+            // Update stat card values
+            const elSemai = document.getElementById('val-total-semai');
+            if (elSemai) {
+                elSemai.textContent = Number(data.total_semai_benih).toLocaleString('id-ID') + ' Benih';
+                const sub = document.getElementById('val-total-semai-sub');
+                if (sub) sub.textContent = data.total_semai_jenis + ' Jenis Tanaman';
+            }
+
+            const elTanam = document.getElementById('val-total-tanam');
+            if (elTanam) elTanam.textContent = Number(data.total_tanam).toLocaleString('id-ID') + ' Lubang';
+
+            const elPanen = document.getElementById('card-sudah-panen');
+            if (elPanen) elPanen.textContent = Number(data.total_panen).toLocaleString('id-ID');
+
+            const elRusak = document.getElementById('card-gagal-panen');
+            if (elRusak) elRusak.textContent = Number(data.total_rusak).toLocaleString('id-ID');
+
+            // Restore opacity
+            loadingCards.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.opacity = '1';
+            });
+        })
+        .catch(err => {
+            console.error('Period filter error:', err);
+            loadingCards.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.opacity = '1';
+            });
+        });
+}
 </script>
 </div>
 @endsection

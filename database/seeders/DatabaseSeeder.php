@@ -31,6 +31,36 @@ class DatabaseSeeder extends Seeder
                 'email' => 'viewer@asrfarm.com',
                 'role' => 'viewer',
             ],
+            [
+                'name' => 'Kepala Produksi',
+                'email' => 'kepala_produksi@asrfarm.com',
+                'role' => 'admin',
+                'role_agri' => 'kepala_produksi',
+            ],
+            [
+                'name' => 'Atasan',
+                'email' => 'atasan@asrfarm.com',
+                'role' => 'admin',
+                'role_agri' => 'atasan',
+            ],
+            [
+                'name' => 'Staff',
+                'email' => 'staff@asrfarm.com',
+                'role' => 'admin',
+                'role_agri' => 'staff',
+            ],
+            [
+                'name' => 'Kepala Greenhouse',
+                'email' => 'kepala_greenhouse@asrfarm.com',
+                'role' => 'admin',
+                'role_agri' => 'kepala_greenhouse',
+            ],
+            [
+                'name' => 'Kepala Konven',
+                'email' => 'kepala_konven@asrfarm.com',
+                'role' => 'admin',
+                'role_agri' => 'kepala_konven',
+            ],
         ];
 
         foreach ($accounts as $account) {
@@ -39,6 +69,7 @@ class DatabaseSeeder extends Seeder
                 [
                     'name' => $account['name'],
                     'role' => $account['role'],
+                    'role_agri' => $account['role_agri'] ?? 'pegawai',
                     'password' => Hash::make('ASRFarm@2026'),
                     'email_verified_at' => now(),
                 ]

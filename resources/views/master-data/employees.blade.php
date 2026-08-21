@@ -40,7 +40,18 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td style="font-family: monospace; font-size: 0.85rem;">{{ $employee->nip }}</td>
-                    <td style="font-weight: 500;">{{ $employee->name }}</td>
+                    <td style="font-weight: 500;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            @if($employee->avatar)
+                                <img src="{{ asset('storage/' . $employee->avatar) }}" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                            @else
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--bg-main); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border-color);">
+                                    {{ strtoupper(substr($employee->name, 0, 2)) }}
+                                </div>
+                            @endif
+                            {{ $employee->name }}
+                        </div>
+                    </td>
                     <td>{{ $employee->position }}</td>
                     <td>{{ $employee->department }}</td>
                     <td>{{ $employee->email ?? '--' }}</td>
@@ -78,9 +89,9 @@
                 <h3>Tambah Pegawai</h3>
                 <i class="ph ph-x close-modal" onclick="document.getElementById('addModal').classList.remove('active')"></i>
             </div>
-            <form action="{{ route('master-data.employees.store') }}" method="POST">
+            <form action="{{ route('master-data.employees.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                     <div class="form-group">
                         <label>NIP</label>
                         <input type="text" name="nip" class="form-control" required placeholder="Contoh: 202401001">
@@ -92,6 +103,10 @@
                             <option value="Inactive">Inactive</option>
                         </select>
                     </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Foto Profil / Avatar <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(Opsional, Maks 2MB)</span></label>
+                    <input type="file" name="avatar" class="form-control" accept="image/jpeg,image/png,image/jpg" style="padding: 0.5rem; height: auto;">
                 </div>
                 <div class="form-group">
                     <label>Nama Lengkap</label>
@@ -109,8 +124,8 @@
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="form-group">
-                        <label>Email <span style="color:var(--text-muted); font-weight:400;">(Wajib untuk login)</span></label>
-                        <input type="email" name="email" class="form-control" required placeholder="nama@len.co.id">
+                        <label>Username <span style="color:var(--text-muted); font-weight:400;">(Wajib untuk login)</span></label>
+                        <input type="text" name="username" class="form-control" required placeholder="Contoh: sandi.p">
                     </div>
                     <div class="form-group">
                         <label>No. Telepon <span style="color:var(--text-muted); font-weight:400;">(Opsional)</span></label>
@@ -120,10 +135,16 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="form-group">
                         <label>Role Akun</label>
-                        <select name="role" class="form-control" required>
-                            <option value="viewer">Viewer</option>
-                            <option value="admin">Admin</option>
-                            <option value="super_admin">Super Admin</option>
+                        <select name="role_agri" class="form-control" required>
+                            <option value="admin">Tim IT / Super Admin</option>
+                            <option value="atasan">Atasan / Manajer</option>
+                            <option value="kepala_produksi">Kepala Produksi</option>
+                            <option value="kepala_greenhouse">Kepala Greenhouse</option>
+                            <option value="kepala_konven">Kepala Konven</option>
+                            <option value="staff">Staff Umum</option>
+                            <option value="keuangan">Tim Keuangan</option>
+                            <option value="pemasaran">Tim Pemasaran</option>
+                            <option value="packing">Tim Packing</option>
                         </select>
                     </div>
                     <div class="form-group">
