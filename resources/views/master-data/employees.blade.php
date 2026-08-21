@@ -20,6 +20,16 @@
         </div>
     @endif
 
+    @if($errors->any())
+        <div style="padding: 1rem; background: #ef4444; color: white; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+            <ul style="margin: 0; padding-left: 1.5rem;">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="table-container">
         <table class="table datatable" style="width: 100%;">
             <thead>
