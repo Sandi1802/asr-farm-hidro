@@ -32,13 +32,35 @@ class MaintenanceLogController extends Controller
 
     public function destroyAll(Request $request)
     {
-        $type = $request->query("type");
+        $type = $request->input("type");
+
         if ($type == "panen") {
             MaintenanceLog::where("action_type", "panen")->delete();
-            return back()->with("success", "Seluruh Log Panen berhasil dihapus.");
+            \App\Models\Hole::where('status', 'panen')->update([
+                'status' => 'ditanam',
+                'harvested_at' => null
+            ]);
+            \App\Models\TitikTanam::where('status', 'panen')->update([
+                'status' => 'ditanam',
+                'harvested_at' => null
+            ]);
+            return back()->with("success", "Seluruh Log Panen berhasil dihapus dan status dikembalikan ke 'ditanam'.");
         } elseif ($type == "tanam") {
-            MaintenanceLog::where("action_type", "tanam")->delete();
-            return back()->with("success", "Seluruh Log Tanam berhasil dihapus.");
+            MaintenanceLog::whereIn("action_type", ["tanam", "pindah_tanam"])->delete();
+            \App\Models\Hole::where('status', 'ditanam')->update([
+                'status' => 'kosong',
+                'plant_type_id' => null,
+                'planted_at' => null,
+                'harvested_at' => null
+            ]);
+            \App\Models\TitikTanam::where('status', 'ditanam')->update([
+                'status' => 'kosong',
+                'plant_type_id' => null,
+                'planted_at' => null
+            ]);
+            // Bersihkan juga jadwal di kalender jika ada
+            \App\Models\CalendarEvent::where('title', 'like', '%Penanaman%')->delete();
+            return back()->with("success", "Seluruh Log Tanam berhasil dihapus dan status lubang di-reset menjadi kosong.");
         }
         
         MaintenanceLog::truncate();
