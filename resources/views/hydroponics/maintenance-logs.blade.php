@@ -2,14 +2,36 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
             <h2 class="mb-0 text-white">
                 <i class="fas fa-clipboard-list me-2"></i> Laporan Pemeliharaan
             </h2>
-            <p class="text-white-50">Log aktivitas penyemprotan, pengisian nutrisi, panen, dan kerusakan.</p>
+            <p class="text-white-50 mb-0">Log aktivitas penyemprotan, pengisian nutrisi, panen, dan kerusakan.</p>
+        </div>
+        <div class="col-md-6 text-end">
+            <form action="{{ route('hydroponics.maintenance-logs.destroyAll') }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus SELURUH log Tanam? Data yang dihapus tidak dapat dikembalikan!');">
+                @csrf
+                <input type="hidden" name="type" value="tanam">
+                <button type="submit" class="btn btn-warning btn-sm me-2">
+                    <i class="fas fa-trash me-1"></i> Hapus Log Tanam
+                </button>
+            </form>
+            <form action="{{ route('hydroponics.maintenance-logs.destroyAll') }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus SELURUH log Panen? Data yang dihapus tidak dapat dikembalikan!');">
+                @csrf
+                <input type="hidden" name="type" value="panen">
+                <button type="submit" class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash-alt me-1"></i> Hapus Log Panen
+                </button>
+            </form>
         </div>
     </div>
+
+    @if(session('success'))
+    <div class="alert alert-success border-0 shadow-sm mb-4">
+        <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+    </div>
+    @endif
 
     <!-- Filter Card -->
     <div class="card mb-4 border-0 shadow-sm">
