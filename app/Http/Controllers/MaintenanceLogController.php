@@ -42,21 +42,21 @@ class MaintenanceLogController extends Controller
             ]);
             \App\Models\TitikTanam::where('status', 'panen')->update([
                 'status' => 'ditanam',
-                'harvested_at' => null
+                'tanggal_panen' => null
             ]);
             return back()->with("success", "Seluruh Log Panen berhasil dihapus dan status dikembalikan ke 'ditanam'.");
         } elseif ($type == "tanam") {
             MaintenanceLog::whereIn("action_type", ["tanam", "pindah_tanam"])->delete();
             \App\Models\Hole::where('status', 'ditanam')->update([
                 'status' => 'kosong',
-                'plant_type_id' => null,
+                'plant_name' => null,
                 'planted_at' => null,
                 'harvested_at' => null
             ]);
             \App\Models\TitikTanam::where('status', 'ditanam')->update([
                 'status' => 'kosong',
-                'plant_type_id' => null,
-                'planted_at' => null
+                'nama_tanaman' => null,
+                'tanggal_tanam' => null
             ]);
             // Bersihkan juga jadwal di kalender jika ada
             \App\Models\CalendarEvent::where('title', 'like', '%Penanaman%')->delete();
