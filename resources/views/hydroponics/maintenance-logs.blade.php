@@ -78,6 +78,7 @@
                             <th>Tipe Aktivitas</th>
                             <th>Lokasi (GH / Rak)</th>
                             <th>Catatan & Detail</th>
+                            <th class="pe-4 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -138,14 +139,22 @@
                                     @endif
                                 @endif
                             </td>
+                            <td class="pe-4 text-center">
+                                <form action="{{ route('hydroponics.maintenance-logs.destroy', $log->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus log ini? Perhatian: Menghapus log ini tidak akan merubah status lubang di rak secara otomatis (hanya menghapus riwayatnya saja).');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Log">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center py-5">
-                                <div class="text-muted">
-                                    <i class="fas fa-inbox fa-3x mb-3 opacity-25"></i>
-                                    <p class="mb-0">Belum ada riwayat pemeliharaan yang tercatat.</p>
-                                </div>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-inbox fa-3x mb-3 text-light"></i>
+                                <h5>Belum ada riwayat pemeliharaan</h5>
+                                <p class="mb-0">Belum ada riwayat pemeliharaan yang tercatat.</p>
                             </td>
                         </tr>
                         @endforelse

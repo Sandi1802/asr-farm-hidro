@@ -66,4 +66,11 @@ class MaintenanceLogController extends Controller
         MaintenanceLog::truncate();
         return back()->with("success", "Seluruh Log berhasil dihapus.");
     }
+
+    public function destroy($id)
+    {
+        $log = MaintenanceLog::findOrFail($id);
+        $log->delete();
+        return back()->with("success", "Log pemeliharaan (satu aktivitas) berhasil dihapus.");
+    }
 }
