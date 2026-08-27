@@ -87,8 +87,8 @@ $plantStageJson = json_encode($plantStageData ?? []);
             ['id' => 'card-siap-panen', 'label' => 'Siap Panen',    'value' => number_format($readyToHarvestCount,0,',','.'),    'icon' => 'ph-trophy',        'class' => 'sbc-gold',        'sub' => $readyTypesCount.' Jenis Tanaman', 'onClick' => 'showSiapPanenModal()'],
             
             // Baris 3: Laporan & Isu
-            ['id' => 'card-sudah-panen', 'label' => 'Sudah Panen',   'value' => number_format($harvestedHoles,0,',','.'),         'icon' => 'ph-basket',        'class' => 'sbc-teal-farm', 'sub' => $harvestedTypesCount.' Jenis Tanaman'],
-            ['id' => 'card-gagal-panen', 'label' => 'Gagal Panen',   'value' => number_format($damagedHoles,0,',','.'),           'icon' => 'ph-warning',       'class' => 'sbc-earth',       'sub' => $damagedTypesCount.' Jenis Rusak'],
+            ['id' => 'card-sudah-panen', 'label' => 'Sudah Panen',   'value' => number_format($harvestedHoles,0,',','.'),         'icon' => 'ph-basket',        'class' => 'sbc-teal-farm', 'sub' => $harvestedTypesCount.' Jenis Tanaman', 'onClick' => 'showSudahPanenModal()'],
+            ['id' => 'card-gagal-panen', 'label' => 'Gagal Panen',   'value' => number_format($damagedHoles,0,',','.'),           'icon' => 'ph-warning',       'class' => 'sbc-earth',       'sub' => $damagedTypesCount.' Jenis Rusak', 'onClick' => 'showGagalPanenModal()'],
             ['label' => 'Perbaikan Aset',   'value' => $totalDamage, 'icon' => 'ph-warning-octagon','class' => 'sbc-rust', 'link' => '/hydroponics/damage-notes', 'sub' => 'Kasus Menunggu'],
             ['label' => 'Pengajuan Kebutuhan', 'value' => $pendingProcurements, 'icon' => 'ph-clipboard-text', 'class' => 'sbc-olive', 'sub' => 'Kasus Pembelian Aktif', 'link' => '/hydroponics/inventory'],
         ];
@@ -408,6 +408,66 @@ $plantStageJson = json_encode($plantStageData ?? []);
         </div>
     </div>
 
+    <!-- Modal for Sudah Panen Details -->
+    <div id="sudahPanenModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); backdrop-filter: blur(2px);">
+        <div style="background:var(--card-bg, #ffffff); width:500px; max-width:95%; margin: 60px auto; border-radius:12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; max-height:85vh;">
+            <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+                <h3 style="margin:0; color:var(--text-main); font-size: 1.15rem; font-weight: 700;"><i class="ph ph-basket" style="color:#0f766e; margin-right:8px;"></i> Tanaman Sudah Panen</h3>
+                <button onclick="document.getElementById('sudahPanenModal').style.display='none'" style="border:none; background:transparent; font-size:1.2rem; cursor:pointer; color: var(--text-muted);"><i class="ph ph-x"></i></button>
+            </div>
+            <div style="padding: 1.5rem; overflow-y:auto;">
+                <ul id="sudahPanenModalList" style="list-style: none; padding: 0; margin: 0;">
+                    @if(empty($harvestedByPlant))
+                        <div style="text-align:center; padding:2rem; color:var(--text-muted);">
+                            Belum ada data panen bulan ini.
+                        </div>
+                    @else
+                        @foreach($harvestedByPlant as $plant => $qty)
+                            <li style="padding: 1rem; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="font-weight:600; color:var(--text-main);">{{ $plant }}</div>
+                                </div>
+                                <div style="background:var(--bg-hover); padding: 0.3rem 0.8rem; border-radius: 20px; font-weight:700; font-size:0.9rem; color:#0f766e;">
+                                    {{ $qty }} Lubang
+                                </div>
+                            </li>
+                        @endforeach
+                    @endif
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Gagal Panen Details -->
+    <div id="gagalPanenModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); backdrop-filter: blur(2px);">
+        <div style="background:var(--card-bg, #ffffff); width:500px; max-width:95%; margin: 60px auto; border-radius:12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; max-height:85vh;">
+            <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+                <h3 style="margin:0; color:var(--text-main); font-size: 1.15rem; font-weight: 700;"><i class="ph ph-warning" style="color:#b45309; margin-right:8px;"></i> Laporan Gagal Panen (Rusak)</h3>
+                <button onclick="document.getElementById('gagalPanenModal').style.display='none'" style="border:none; background:transparent; font-size:1.2rem; cursor:pointer; color: var(--text-muted);"><i class="ph ph-x"></i></button>
+            </div>
+            <div style="padding: 1.5rem; overflow-y:auto;">
+                <ul id="gagalPanenModalList" style="list-style: none; padding: 0; margin: 0;">
+                    @if(empty($damagedByReason))
+                        <div style="text-align:center; padding:2rem; color:var(--text-muted);">
+                            Tidak ada kerusakan tercatat bulan ini.
+                        </div>
+                    @else
+                        @foreach($damagedByReason as $reason => $qty)
+                            <li style="padding: 1rem; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="font-weight:600; color:var(--text-main);">{{ $reason }}</div>
+                                </div>
+                                <div style="background:#fef2f2; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight:700; font-size:0.9rem; color:#b91c1c;">
+                                    {{ $qty }} Lubang
+                                </div>
+                            </li>
+                        @endforeach
+                    @endif
+                </ul>
+            </div>
+        </div>
+    </div>
+
     {{-- INVENTORY SECTION --}}
     {{-- INVENTORY SECTION --}}
     <style>
@@ -682,6 +742,12 @@ document.addEventListener('click', function(e) {
 
 function showSiapPanenModal() {
     document.getElementById('siapPanenModal').style.display = 'block';
+}
+function showSudahPanenModal() {
+    document.getElementById('sudahPanenModal').style.display = 'block';
+}
+function showGagalPanenModal() {
+    document.getElementById('gagalPanenModal').style.display = 'block';
 }
 
 function renderCalendar() {

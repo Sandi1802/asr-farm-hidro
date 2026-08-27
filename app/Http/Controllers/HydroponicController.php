@@ -26,11 +26,35 @@ class HydroponicController extends Controller
         $plantedTypesCount = Hole::where('status', 'ditanam')->distinct('plant_name')->count('plant_name');
         
         $logs = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)->get();
-        $harvestedHoles = $logs->where('action_type', 'panen')->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
-        $harvestedTypesCount = 0; // Not easily computable from logs without parsing all
-        
-        $damagedHoles   = $logs->where('action_type', 'rusak')->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
-        $damagedTypesCount = 0;
+        // Panen details grouped by plant_name
+        $panenLogs = $logs->where('action_type', 'panen');
+        $harvestedHoles = $panenLogs->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
+        $harvestedByPlant = [];
+        foreach ($panenLogs as $l) {
+            $det = json_decode($l->details);
+            $pName = $det->plant_name ?? 'Tidak Diketahui';
+            $qty = $det->jumlah ?? 0;
+            if (!isset($harvestedByPlant[$pName])) {
+                $harvestedByPlant[$pName] = 0;
+            }
+            $harvestedByPlant[$pName] += $qty;
+        }
+        $harvestedTypesCount = count(array_filter(array_keys($harvestedByPlant), fn($k) => $k !== 'Tidak Diketahui')) ?: count($harvestedByPlant);
+
+        // Rusak details grouped by alasan
+        $rusakLogs = $logs->where('action_type', 'rusak');
+        $damagedHoles = $rusakLogs->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
+        $damagedByReason = [];
+        foreach ($rusakLogs as $l) {
+            $det = json_decode($l->details);
+            $reason = $det->alasan ?? 'Lainnya';
+            $qty = $det->jumlah ?? 0;
+            if (!isset($damagedByReason[$reason])) {
+                $damagedByReason[$reason] = 0;
+            }
+            $damagedByReason[$reason] += $qty;
+        }
+        $damagedTypesCount = count($damagedByReason);
 
         // Build a map of plant_name -> growth_days from plant_types
         $plantTypeMap = PlantType::pluck('growth_days', 'name');  // ['Pakcoy' => 20, ...]
@@ -217,7 +241,7 @@ class HydroponicController extends Controller
             'mostHarvestedLabels', 'mostHarvestedValues',
             'rotationData', 'produksiBulanIni', 'weeklyTrendData',
             'plantedTypesCount', 'harvestedTypesCount', 'damagedTypesCount', 'readyTypesCount',
-            'ghDistribution'
+            'ghDistribution', 'harvestedByPlant', 'damagedByReason'
         ));
     }
 
@@ -383,11 +407,36 @@ class HydroponicController extends Controller
             $plantedTypesCount = $plantedHolesGroup->count();
 
             $logs = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)->get();
-            $harvestedHoles = $logs->where('action_type', 'panen')->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
-            $harvestedTypesCount = 0;
+            
+            // Panen details grouped by plant_name
+            $panenLogs = $logs->where('action_type', 'panen');
+            $harvestedHoles = $panenLogs->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
+            $harvestedByPlant = [];
+            foreach ($panenLogs as $l) {
+                $det = json_decode($l->details);
+                $pName = $det->plant_name ?? 'Tidak Diketahui';
+                $qty = $det->jumlah ?? 0;
+                if (!isset($harvestedByPlant[$pName])) {
+                    $harvestedByPlant[$pName] = 0;
+                }
+                $harvestedByPlant[$pName] += $qty;
+            }
+            $harvestedTypesCount = count(array_filter(array_keys($harvestedByPlant), fn($k) => $k !== 'Tidak Diketahui')) ?: count($harvestedByPlant);
 
-            $damagedHoles = $logs->where('action_type', 'rusak')->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
-            $damagedTypesCount = 0;
+            // Rusak details grouped by alasan
+            $rusakLogs = $logs->where('action_type', 'rusak');
+            $damagedHoles = $rusakLogs->sum(function($l) { return json_decode($l->details)->jumlah ?? 0; });
+            $damagedByReason = [];
+            foreach ($rusakLogs as $l) {
+                $det = json_decode($l->details);
+                $reason = $det->alasan ?? 'Lainnya';
+                $qty = $det->jumlah ?? 0;
+                if (!isset($damagedByReason[$reason])) {
+                    $damagedByReason[$reason] = 0;
+                }
+                $damagedByReason[$reason] += $qty;
+            }
+            $damagedTypesCount = count($damagedByReason);
             
             // Siap panen logic
             $plantTypes = \App\Models\PlantType::all()->keyBy('name');
@@ -414,8 +463,10 @@ class HydroponicController extends Controller
                 'siap_panen_sub' => $readyTypesCount.' Jenis Tanaman',
                 'sudah_panen' => number_format($harvestedHoles,0,',','.'),
                 'sudah_panen_sub' => $harvestedTypesCount.' Jenis Tanaman',
+                'sudah_panen_detail' => $harvestedByPlant,
                 'gagal_panen' => number_format($damagedHoles,0,',','.'),
                 'gagal_panen_sub' => $damagedTypesCount.' Jenis Rusak',
+                'gagal_panen_detail' => $damagedByReason,
                 'total_tanam_bulan_ini' => number_format($tanamBulanIni,0,',','.'),
                 'total_panen_bulan_ini' => number_format($panenBulanIni,0,',','.'),
                 'total_semai_bulan_ini' => number_format($semaiBulanIni,0,',','.'),
