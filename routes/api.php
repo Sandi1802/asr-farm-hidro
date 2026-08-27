@@ -34,7 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/maintenance-logs', [MaintenanceLogController::class, 'index']);
 
     // Write endpoints (produksi roles only)
-    Route::middleware('api.role:produksi,produksi_gh')->group(function () {
+    Route::middleware('api.role:produksi,produksi_gh,kepala_produksi')->group(function () {
         // Greenhouse
         Route::post('/greenhouses/{id}/spray', [GreenhouseApiController::class, 'spray']);
         Route::post('/greenhouses/{id}/bulk-plant', [GreenhouseApiController::class, 'bulkPlant']);
@@ -47,7 +47,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/racks/{id}/plant', [RackApiController::class, 'plant']);
         Route::post('/racks/{id}/harvest', [RackApiController::class, 'harvest']);
         Route::post('/racks/{id}/damage', [RackApiController::class, 'damage']);
-        Route::post('/racks/{id}/update-age', [RackApiController::class, 'updateAge']);
         
         // Holes
         Route::post('/holes/{id}', [HoleApiController::class, 'update']);
@@ -67,3 +66,4 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/maintenance-logs', [MaintenanceLogController::class, 'store']);
     });
 });
+Route::post('/racks/{id}/update-age', [\App\Http\Controllers\Api\RackApiController::class, 'updateAge']);

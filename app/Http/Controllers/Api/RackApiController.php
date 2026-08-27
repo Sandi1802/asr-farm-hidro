@@ -443,6 +443,7 @@ class RackApiController extends Controller
 
     public function updateAge(Request $request, $id)
     {
+        \Log::info("updateAge called for rack $id", $request->all());
         try {
             $request->validate([
                 "plant_name" => "required|string",
@@ -471,6 +472,7 @@ class RackApiController extends Controller
                 "data" => ["updated_count" => $updatedCount]
             ]);
         } catch (\Exception $e) {
+            \Log::error("updateAge error: " . $e->getMessage() . " \n " . $e->getTraceAsString());
             return response()->json(["success" => false, "message" => $e->getMessage()], 500);
         }
     }
