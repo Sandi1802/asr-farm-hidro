@@ -320,16 +320,19 @@ class RackApiController extends Controller
             if (!$rack) return response()->json(['success' => false, 'message' => 'Rack not found'], 404);
 
             $request->validate([
-                'jumlah' => 'required|integer|min:1'
+                'jumlah' => 'required|integer|min:1',
+                'plant_name' => 'nullable|string'
             ]);
 
             $jumlah = $request->jumlah;
+            $plantNameFilter = $request->plant_name;
 
-            // Collect all planted holes
+            // Collect planted holes, optionally filtered by plant_name
             $plantedHoles = collect();
             foreach ($rack->rows as $row) {
                 foreach ($row->holes as $hole) {
-                    if ($hole->status === 'ditanam') {
+                    if ($hole->status === 'ditanam' &&
+                        (!$plantNameFilter || $hole->plant_name === $plantNameFilter)) {
                         $plantedHoles->push($hole);
                     }
                 }
@@ -353,13 +356,17 @@ class RackApiController extends Controller
                 'harvested_at' => now(),
             ]);
             
+            $logNote = $plantNameFilter 
+                ? "Panen $jumlah tanaman $plantNameFilter" 
+                : "Panen $jumlah tanaman";
+
             \App\Models\MaintenanceLog::create([
                 'loggable_type' => 'App\Models\Rack',
                 'loggable_id' => $rack->id,
                 'user_id' => auth()->id() ?? 1,
                 'action_type' => 'panen',
-                'notes' => 'Panen ' . $jumlah . ' tanaman',
-                'details' => json_encode(['jumlah' => $jumlah])
+                'notes' => $logNote,
+                'details' => json_encode(['jumlah' => $jumlah, 'plant_name' => $plantNameFilter])
             ]);
 
             return response()->json(['success' => true, 'message' => 'Berhasil memanen ' . $jumlah . ' tanaman.']);
