@@ -175,14 +175,35 @@ class HydroponicController extends Controller
         $mostPlantedValues = array_values($topPlantedQuery);
 
         // ─── CHART: Tanaman Paling Sering Dipanen ───
-        $topHarvestedQuery = \App\Models\Hole::whereNotNull('plant_name')
+        $harvestedTotals = [];
+        
+        // 1. Get from Hole table (historical/web approach)
+        $holeHarvested = \App\Models\Hole::whereNotNull('plant_name')
             ->whereNotNull('harvested_at')
             ->selectRaw('plant_name, count(*) as count')
             ->groupBy('plant_name')
-            ->orderByDesc('count')
-            ->take(8)
             ->pluck('count', 'plant_name')
             ->toArray();
+            
+        foreach ($holeHarvested as $pName => $qty) {
+            if ($pName !== 'Tidak Diketahui') {
+                $harvestedTotals[$pName] = ($harvestedTotals[$pName] ?? 0) + $qty;
+            }
+        }
+        
+        // 2. Get from MaintenanceLog (API/bulk approach)
+        $allPanenLogs = \App\Models\MaintenanceLog::where('action_type', 'panen')->get();
+        foreach ($allPanenLogs as $log) {
+            $det = json_decode($log->details);
+            $pName = $det->plant_name ?? 'Tidak Diketahui';
+            if ($pName !== 'Tidak Diketahui') {
+                $qty = $det->jumlah ?? 0;
+                $harvestedTotals[$pName] = ($harvestedTotals[$pName] ?? 0) + $qty;
+            }
+        }
+        
+        arsort($harvestedTotals);
+        $topHarvestedQuery = array_slice($harvestedTotals, 0, 8, true);
         $mostHarvestedLabels = array_keys($topHarvestedQuery);
         $mostHarvestedValues = array_values($topHarvestedQuery);
 
