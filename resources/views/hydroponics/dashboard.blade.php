@@ -1335,6 +1335,12 @@ function updateSummaryCards(month, year) {
                 let elTerisiSub = document.getElementById('card-lubang-terisi-sub'); if(elTerisiSub) elTerisiSub.textContent = data.lubang_terisi_sub;
                 let elSiap = document.getElementById('card-siap-panen'); if(elSiap) elSiap.textContent = data.siap_panen;
                 let elSiapSub = document.getElementById('card-siap-panen-sub'); if(elSiapSub) elSiapSub.textContent = data.siap_panen_sub;
+                
+                let modalBody = document.querySelector('#siapPanenModal > div > div:nth-child(2)');
+                if (modalBody && data.siap_panen_html) {
+                    modalBody.innerHTML = data.siap_panen_html;
+                }
+                
                 let elSudah = document.getElementById('card-sudah-panen'); if(elSudah) elSudah.textContent = data.sudah_panen;
                 let elSudahSub = document.getElementById('card-sudah-panen-sub'); if(elSudahSub) elSudahSub.textContent = data.sudah_panen_sub;
                 let elGagal = document.getElementById('card-gagal-panen'); if(elGagal) elGagal.textContent = data.gagal_panen;

@@ -459,18 +459,69 @@ class HydroponicController extends Controller
             }
             $damagedTypesCount = count($damagedByReason);
             
-            // Siap panen logic
+            // Siap panen logic (Proyeksi bulan ini)
             $plantTypes = \App\Models\PlantType::all()->keyBy('name');
             $defaultDays = 30;
-            $activePlanted = \App\Models\Hole::where('status', 'ditanam')->whereNotNull('planted_at')->get(['id', 'plant_name', 'planted_at']);
-            $readyIds = $activePlanted->filter(function ($hole) use ($plantTypes, $defaultDays, $month, $year) {
+            $activePlanted = \App\Models\Hole::with(['row.rack.greenhouse'])->where('status', 'ditanam')->whereNotNull('planted_at')->get();
+            
+            $readyHoles = $activePlanted->filter(function ($hole) use ($plantTypes, $defaultDays, $month, $year) {
                 $pt = $plantTypes->get($hole->plant_name);
                 $days = $pt ? ($pt->growth_days - $pt->semai_days) : $defaultDays;
                 $harvestDate = \Carbon\Carbon::parse($hole->planted_at)->addDays($days);
                 return $harvestDate->month == (int)$month && $harvestDate->year == (int)$year;
-            })->pluck('id');
+            });
+            
+            $readyIds = $readyHoles->pluck('id');
             $readyToHarvestCount = $readyIds->count();
-            $readyTypesCount = \App\Models\Hole::whereIn('id', $readyIds)->whereNotNull('plant_name')->get()->groupBy('plant_name')->count();
+            
+            $groupedHoles = $readyHoles->groupBy('plant_name');
+            $readyTypesCount = $groupedHoles->count();
+            
+            $siapPanenHtml = '';
+            if ($groupedHoles->isEmpty()) {
+                $siapPanenHtml = '<div style="text-align:center; padding:2rem; color:var(--text-muted);"><i class="ph ph-leaf" style="font-size:3rem; opacity:0.3; margin-bottom:1rem; display:block;"></i>Belum ada tanaman yang diproyeksikan panen bulan ini.</div>';
+            } else {
+                foreach ($groupedHoles as $plantName => $holes) {
+                    $totalHoles = $holes->count();
+                    $locations = [];
+                    foreach ($holes as $hole) {
+                        $gh = optional(optional(optional($hole->row)->rack)->greenhouse)->name ?? 'GH Unknown';
+                        $rack = optional(optional($hole->row)->rack)->name ?? 'Rak Unknown';
+                        $pt = $plantTypes->get($hole->plant_name);
+                        $days = $pt ? ($pt->growth_days - $pt->semai_days) : $defaultDays;
+                        $harvestDate = \Carbon\Carbon::parse($hole->planted_at)->addDays($days)->translatedFormat('d M Y');
+                        
+                        $locKey = $gh . ' - ' . $rack;
+                        if (!isset($locations[$locKey])) {
+                            $locations[$locKey] = ['count' => 0, 'dates' => []];
+                        }
+                        $locations[$locKey]['count']++;
+                        $locations[$locKey]['dates'][$harvestDate] = true;
+                    }
+                    
+                    $siapPanenHtml .= '<div style="margin-bottom:1.5rem; border:1px solid var(--border-color); border-radius:8px; overflow:hidden;">';
+                    $siapPanenHtml .= '<div style="background:var(--bg-light); padding:0.75rem 1rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">';
+                    $siapPanenHtml .= '<strong style="color:var(--text-main); font-size:1.05rem;">'.htmlspecialchars($plantName ?? 'Tanaman Tidak Diketahui').'</strong>';
+                    $siapPanenHtml .= '<span style="background:rgba(202, 138, 4, 0.15); color:#ca8a04; padding:3px 10px; border-radius:20px; font-weight:700; font-size:0.85rem;">'.$totalHoles.' Lubang</span>';
+                    $siapPanenHtml .= '</div>';
+                    $siapPanenHtml .= '<table style="width:100%; border-collapse:collapse; font-size:0.9rem;"><thead>';
+                    $siapPanenHtml .= '<tr style="background:var(--card-bg, #fff); border-bottom:1px solid var(--border-color); color:var(--text-muted);">';
+                    $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:left; font-weight:600;">Lokasi (GH / Rak)</th>';
+                    $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Jumlah</th>';
+                    $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Tgl Panen (Estimasi)</th>';
+                    $siapPanenHtml .= '</tr></thead><tbody>';
+                    
+                    foreach ($locations as $loc => $data) {
+                        $dates = implode(', ', array_keys($data['dates']));
+                        $siapPanenHtml .= '<tr style="border-bottom:1px solid var(--border-color);">';
+                        $siapPanenHtml .= '<td style="padding:0.75rem 1rem; color:var(--text-main);">'.htmlspecialchars($loc).'</td>';
+                        $siapPanenHtml .= '<td style="padding:0.75rem 1rem; text-align:center; font-weight:600; color:var(--text-main);">'.$data['count'].'</td>';
+                        $siapPanenHtml .= '<td style="padding:0.75rem 1rem; text-align:center; color:var(--text-muted);">'.htmlspecialchars($dates).'</td>';
+                        $siapPanenHtml .= '</tr>';
+                    }
+                    $siapPanenHtml .= '</tbody></table></div>';
+                }
+            }
             
             $panenBulanIni = \App\Models\Activity::where('type', 'panen')->whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
             $tanamBulanIni = \App\Models\Activity::where('type', 'tanam')->whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
@@ -482,6 +533,7 @@ class HydroponicController extends Controller
                 'lubang_terisi_sub' => $plantedTypesCount.' Jenis Tanaman',
                 'siap_panen' => number_format($readyToHarvestCount,0,',','.'),
                 'siap_panen_sub' => $readyTypesCount.' Jenis Tanaman',
+                'siap_panen_html' => $siapPanenHtml,
                 'sudah_panen' => number_format($harvestedHoles,0,',','.'),
                 'sudah_panen_sub' => $harvestedTypesCount.' Jenis Tanaman',
                 'sudah_panen_detail' => $harvestedByPlant,
