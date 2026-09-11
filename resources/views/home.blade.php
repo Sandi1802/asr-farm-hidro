@@ -107,8 +107,8 @@
 @media (max-width: 768px) {
     .hero-section { padding: 6rem 16px 4rem 16px !important; min-height: auto !important; }
     .hero-container-flex { gap: 1rem !important; }
-    .hero-title { font-size: 3rem !important; text-align: center; margin-bottom: 0 !important; }
-    .hero-subtitle { font-size: 1.1rem !important; text-align: center; }
+    .hero-title { font-size: 2.5rem !important; text-align: center; margin-bottom: 0 !important; }
+    .hero-subtitle { font-size: 1rem !important; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .hero-left-col { text-align: center; margin-bottom: 0; }
     .hero-text-box {
         padding: 1.25rem;
@@ -314,9 +314,9 @@
     document.addEventListener("DOMContentLoaded", function() {
         const texts = [
             "Bringing Nature Inside",
-            "Sayuran Hidroponik & Organik Segar",
-            "Dari Kebun Langsung ke Meja Makan",
-            "Pilihan Sehat untuk Keluarga Anda"
+            "Sayuran Segar Berkualitas",
+            "Dari Kebun ke Meja Anda",
+            "Pilihan Sehat Keluarga"
         ];
         
         let textIndex = 0;
