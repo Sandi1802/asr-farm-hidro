@@ -23,6 +23,10 @@
   padding: 0;
 }
 
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
 body {
   font-family: var(--font-sans);
   color: var(--color-text-dark);
@@ -227,9 +231,11 @@ html {
 .navbar {
   background-color: var(--color-primary-dark);
   padding: 0.8rem 0;
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 999;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
   box-shadow: 0 4px 20px rgba(0,0,0,0.15);
   transition: all 0.3s ease;
 }
@@ -398,3 +404,52 @@ html {
     padding: 0.5rem 0 !important;
   }
 }
+
+.social-icons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.social-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  text-decoration: none;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.social-icon:hover {
+  background: var(--color-accent);
+  transform: translateY(-3px);
+  color: white;
+}
+
+.footer-social {
+  background: white;
+  color: var(--color-primary-dark);
+}
+
+.footer-social:hover {
+  background: var(--color-accent) !important;
+  color: white !important;
+}
+
+/* Load Animations */
+@keyframes fadeUpLoad {
+    0% { opacity: 0; transform: translateY(30px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+.animate-load-up {
+    animation: fadeUpLoad 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+.delay-100 { animation-delay: 0.1s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-500 { animation-delay: 0.5s; }

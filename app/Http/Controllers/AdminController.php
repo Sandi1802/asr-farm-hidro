@@ -189,4 +189,74 @@ class AdminController extends Controller
         \App\Models\Testimonial::findOrFail($id)->delete();
         return back()->with('success', 'Testimonial deleted!');
     }
+
+    // --- Clients ---
+    public function clients()
+    {
+        $clients = \App\Models\Client::orderBy('order')->get();
+        return view('admin.clients', compact('clients'));
+    }
+    public function storeClient(\Illuminate\Http\Request $request)
+    {
+        $imageUrl = $request->image;
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('uploads', 'public');
+            $imageUrl = '/storage/' . $path;
+        }
+
+        \App\Models\Client::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'image' => $imageUrl,
+            'order' => $request->order ?? 0
+        ]);
+        return back()->with('success', 'Client added!');
+    }
+    public function editClient($id)
+    {
+        $client = \App\Models\Client::findOrFail($id);
+        return view('admin.clients_edit', compact('client'));
+    }
+    public function updateClient(\Illuminate\Http\Request $request, $id)
+    {
+        $imageUrl = $request->image;
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('uploads', 'public');
+            $imageUrl = '/storage/' . $path;
+        }
+
+        $client = \App\Models\Client::findOrFail($id);
+        $data = [
+            'name' => $request->name,
+            'description' => $request->description,
+            'order' => $request->order ?? 0
+        ];
+        if ($imageUrl || $request->hasFile('image_file')) {
+            $data['image'] = $imageUrl;
+        }
+        $client->update($data);
+        return redirect('/admin/clients')->with('success', 'Client updated!');
+    }
+    public function destroyClient($id)
+    {
+        \App\Models\Client::findOrFail($id)->delete();
+        return back()->with('success', 'Client deleted!');
+    }
+
+    // --- Messages ---
+    public function messages()
+    {
+        $messages = \App\Models\Message::latest()->get();
+        return view('admin.messages', compact('messages'));
+    }
+    public function markMessageRead($id)
+    {
+        \App\Models\Message::findOrFail($id)->update(['is_read' => true]);
+        return back()->with('success', 'Pesan ditandai sudah dibaca.');
+    }
+    public function destroyMessage($id)
+    {
+        \App\Models\Message::findOrFail($id)->delete();
+        return back()->with('success', 'Pesan dihapus.');
+    }
 }

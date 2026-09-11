@@ -78,6 +78,15 @@
                 <label style="display: block; font-weight: bold; margin-bottom: 0.5rem;">Link LinkedIn</label>
                 <input type="text" name="social_linkedin" value="{{ $settings['social_linkedin'] ?? '' }}" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
             </div>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-weight: bold; margin-bottom: 0.5rem;">Link YouTube</label>
+                <input type="text" name="social_youtube" value="{{ $settings['social_youtube'] ?? '' }}" placeholder="https://youtube.com/@asrfarm" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-weight: bold; margin-bottom: 0.5rem;">Nomor WhatsApp (Format: 628xxxxxxxxx)</label>
+                <input type="text" name="whatsapp_number" value="{{ $settings['whatsapp_number'] ?? '6282129589232' }}" placeholder="6282129589232" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+                <small style="color: #777;">Nomor ini digunakan untuk tombol WhatsApp mengambang di website.</small>
+            </div>
 
             <button type="submit" style="background: var(--color-primary); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 1rem;">Simpan Pengaturan</button>
         </form>

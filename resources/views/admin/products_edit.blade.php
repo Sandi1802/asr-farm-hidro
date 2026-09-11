@@ -15,10 +15,9 @@
             <div style="margin-bottom: 1rem;">
                 <label style="display: block; font-weight: bold; margin-bottom: 0.5rem;">Kategori</label>
                 <select name="category" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
-                    <option value="">Pilih Kategori</option>
-                    <option value="Hidroponik" {{ $product->category == 'Hidroponik' ? 'selected' : '' }}>Hidroponik</option>
-                    <option value="Organik" {{ $product->category == 'Organik' ? 'selected' : '' }}>Organik</option>
-                    <option value="Buah" {{ $product->category == 'Buah' ? 'selected' : '' }}>Buah</option>
+                    <option value="">-- Pilih Kategori --</option>
+                    <option value="konvensional" {{ $product->category == 'konvensional' ? 'selected' : '' }}>Konvensional</option>
+                    <option value="hidroponik" {{ $product->category == 'hidroponik' ? 'selected' : '' }}>Hidroponik</option>
                 </select>
             </div>
             

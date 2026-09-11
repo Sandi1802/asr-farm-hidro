@@ -105,35 +105,55 @@
 .hero-subtitle { font-size: 1.5rem; }
 
 @media (max-width: 768px) {
-    .hero-title { font-size: 3rem !important; }
-    .hero-subtitle { font-size: 1.1rem !important; }
+    .hero-section { padding: 6rem 16px 4rem 16px !important; min-height: auto !important; }
+    .hero-container-flex { gap: 1rem !important; }
+    .hero-title { font-size: 3rem !important; text-align: center; margin-bottom: 0 !important; }
+    .hero-subtitle { font-size: 1.1rem !important; text-align: center; }
+    .hero-left-col { text-align: center; margin-bottom: 0; }
+    .hero-text-box {
+        padding: 1.25rem;
+        margin: 0 auto;
+    }
+    .hero-text-box div {
+        text-align: center !important;
+        font-size: 1.05rem !important;
+    }
+    .hero-text-box a {
+        margin-right: 0 !important;
+        margin-bottom: 0.5rem;
+        display: inline-block;
+        width: calc(50% - 0.5rem);
+        text-align: center;
+        padding: 12px 0;
+    }
 }
 </style>
 
 <div>
     <!-- Hero Section -->
-    <section style="position: relative; padding: 10rem 16px 10rem 16px; background-image: url('{{ asset('images/bg-profile.jpg') }}'); background-size: cover; background-position: center 60%; min-height: 90vh; display: flex; align-items: center;">
-      <!-- Dark overlay -->
+    <section class="hero-section" style="position: relative; padding: 7rem 16px 8rem 16px; background-image: url('{{ asset('images/bg-profile.jpg') }}'); background-size: cover; background-position: center 60%; min-height: 85vh; display: flex; align-items: center;">
+        <!-- Dark overlay -->
       <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(30,59,34,0.85) 0%, rgba(30,59,34,0.3) 100%);"></div>
       
       <div class="container" style="position: relative; z-index: 10; width: 100%;">
-          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4rem;">
+          <div class="hero-container-flex" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 2rem;">
               <!-- Left Side -->
-              <div style="flex: 1; min-width: 300px;">
-                  <h4 style="color: var(--color-accent) !important; font-size: 1.2rem; margin-bottom: 0.5rem; font-weight: 600; letter-spacing: 2px;">SELAMAT DATANG DI</h4>
-                  <h1 class="hero-title" style="color: #ffffff !important; margin-bottom: 0.5rem; font-family: var(--font-serif); font-weight: bold; text-shadow: 2px 2px 10px rgba(0,0,0,0.5);">{{ $settings['home_hero_title'] ?? 'ASR Farm' }}</h1>
-                  <p class="hero-subtitle" style="color: #ffffff !important; letter-spacing: 1px; margin: 0; text-shadow: 1px 1px 5px rgba(0,0,0,0.5); min-height: 2.2rem; font-family: var(--font-sans); font-weight: 300; opacity: 0.9;">
+              <div class="hero-left-col" style="flex: 1; min-width: 300px;">
+                  <h4 class="animate-load-up" style="color: var(--color-accent) !important; font-size: 1.2rem; margin-bottom: 0.5rem; font-weight: 600; letter-spacing: 2px;">SELAMAT DATANG DI</h4>
+                  <h1 class="hero-title animate-load-up delay-100" style="color: #ffffff !important; margin-bottom: 0.5rem; font-family: var(--font-serif); font-weight: bold; text-shadow: 2px 2px 10px rgba(0,0,0,0.5);">{{ $settings['home_hero_title'] ?? 'ASR Farm' }}</h1>
+                  <p class="hero-subtitle animate-load-up delay-300" style="color: #ffffff !important; letter-spacing: 1px; margin: 0; text-shadow: 1px 1px 5px rgba(0,0,0,0.5); min-height: 2.2rem; font-family: var(--font-sans); font-weight: 300; opacity: 0.9;">
                       <span id="hero-rotating-text">bringing nature inside</span><span class="typing-cursor">|</span>
                   </p>
               </div>
               
               <!-- Right Side -->
               <div style="flex: 1; min-width: 300px; max-width: 500px;">
-                  <div class="hero-text-box">
-                      <div style="color: white; font-size: 1.15rem; line-height: 1.7; margin-bottom: 2rem;">
-                          {!! nl2br(e($settings['home_hero_text'] ?? "Dengan senang hati kami siap membantu.\n\nJangan ragu untuk menghubungi saya apabila Anda membutuhkan informasi atau memiliki keluhan mengenai ASR Farm.")) !!}
+                  <div class="hero-text-box animate-load-up delay-500">
+                      <div style="color: white; font-size: 1.15rem; line-height: 1.7; margin-bottom: 2rem; text-align: left;">
+                          {!! nl2br(e($settings['home_hero_text'] ?? "Hadirkan kesegaran langsung ke meja Anda.\n\nASR Farm berkomitmen menyediakan sayuran hidroponik dan konvensional premium. Dipanen setiap hari dengan standar kualitas yang tinggi untuk memastikan nutrisi dan rasa terbaik bagi bisnis dan keluarga Anda.")) !!}
                       </div>
-                      <a href="#about" class="btn-solid-green">Hubungi Kami</a>
+                      <a href="/contact" class="btn-solid-green" style="margin-right: 1rem;">Hubungi Kami</a>
+                      <a href="/products" class="btn-outline-green" style="color: white; border-color: white;">Lihat Produk</a>
                   </div>
               </div>
           </div>
@@ -141,8 +161,8 @@
 
       <!-- Wave Bottom -->
       <div class="wave-bottom">
-          <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,119.24,196.2,109.11,239.5,102.39,281.33,78.29,321.39,56.44Z" fill="#ffffff"></path>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none" style="display:block; width:100%; height:90px;">
+              <path fill="#ffffff" fill-opacity="1" d="M0,160L80,170.7C160,181,320,203,480,197.3C640,192,800,160,960,149.3C1120,139,1280,149,1360,154.7L1440,160L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z"></path>
           </svg>
       </div>
     </section>
@@ -157,7 +177,7 @@
                     <h2 class="text-green" style="font-size: 2.2rem; line-height: 1.3; margin-bottom: 2rem; font-family: var(--font-serif); font-weight: bold;">
                         {!! nl2br(e($settings['about_quote'] ?? "\"Menanam sayuran itu seperti merawat cinta. Harus dilakukan dengan sepenuh hati atau tidak sama sekali.\" \n— ASR Farm")) !!}
                     </h2>
-                    <div style="color: #666; line-height: 1.8; margin-bottom: 2.5rem; font-size: 1.05rem;">
+                    <div style="color: #666; line-height: 1.8; margin-bottom: 2.5rem; font-size: 1.05rem; text-align: justify;">
                         {!! nl2br(e($settings['about_story'] ?? "Ya, kami ingin membantu Anda menyediakan sayuran dan bahan alami yang segar untuk keluarga tercinta. Menikmati hidangan sehari-hari akan menjadi pengalaman yang sungguh menyenangkan manakala didukung oleh hasil panen yang berkualitas dan menyehatkan. Anda setuju?\n\nASR Farm adalah gagasan tentang membangun ekosistem perkebunan yang lebih baik bagi Anda, lingkungan, dan para petani lokal yang merawat sayuran-sayuran ini dengan sepenuh hati.\n\nMari mulai gaya hidup sehat dengan sayuran organik dan hidroponik terbaik untuk kebaikan keluarga kita saat ini dan masa depan.")) !!}
                     </div>
                     <a href="/about" class="btn-outline-green">Selanjutnya ➔</a>
@@ -181,8 +201,8 @@
             <h2 class="text-gold" style="font-size: 2.8rem; margin-bottom: 1.5rem; font-weight: bold;">Sayuran & Layanan Kami</h2>
             <div style="width: 50px; height: 3px; background-color: var(--color-accent); margin: 0 auto 2rem auto;"></div>
             
-            <p style="max-width: 850px; margin: 0 auto 3rem auto; color: #666; line-height: 1.8; font-size: 1.1rem;">
-                Seperti sayuran yang kita produksi, domba yang kami pelihara, sapi yang menghasilkan susu dan telor dari ayam; kami sangatlah beragam. Dan yang paling penting kami pribadi yang siap berkotor-kotor bersama petani dampingan kami untuk menyiapkan bahan makanan untuk anda.
+            <p style="max-width: 850px; margin: 0 auto 3rem auto; color: #666; line-height: 1.8; font-size: 1.1rem; text-align: justify;">
+                Seperti sayuran hidroponik dan konvensional segar yang kami panen setiap hari, dedikasi kami sangatlah mendalam. Dan yang paling penting, kami selalu siap bekerja langsung bersama para petani mitra kami untuk memastikan setiap sayuran yang sampai ke meja makan Anda adalah yang berkualitas terbaik.
             </p>
             <a href="/products" class="btn-outline-green" style="margin-bottom: 4rem;">Pelajari Lebih Lanjut ➔</a>
 
@@ -230,7 +250,7 @@
                     <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 2rem; z-index: 2; color: white;">
                         <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; font-weight: bold; color: white;">{{ $post->title }}</h3>
                         <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 1rem;">{{ \Carbon\Carbon::parse($post->created_at)->format('d/m/Y') }} · ASR Farm</p>
-                        <p style="color: #eee; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem;">{{ \Illuminate\Support\Str::limit($post->content, 120) }}</p>
+                        <p style="color: #eee; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem; text-align: justify;">{{ \Illuminate\Support\Str::limit($post->content, 120) }}</p>
                         <a href="/blog/{{ $post->id }}" style="color: white; font-weight: 600; text-decoration: none; font-size: 0.9rem;">Read More »</a>
                     </div>
                 </div>

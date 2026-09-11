@@ -15,7 +15,15 @@
                 <a href="/admin" style="color: white; padding: 0.5rem; border-radius: 4px; background: {{ request()->is('admin') ? 'rgba(255,255,255,0.1)' : 'transparent' }};">Dashboard</a>
                 <a href="/admin/products" style="color: white; padding: 0.5rem; border-radius: 4px; background: {{ request()->is('admin/products') ? 'rgba(255,255,255,0.1)' : 'transparent' }};">Kelola Produk</a>
                 <a href="/admin/blog" style="color: white; padding: 0.5rem; border-radius: 4px; background: {{ request()->is('admin/blog') ? 'rgba(255,255,255,0.1)' : 'transparent' }};">Kelola Blog</a>
+                <a href="/admin/clients" style="color: white; padding: 0.5rem; border-radius: 4px; background: {{ request()->is('admin/clients') ? 'rgba(255,255,255,0.1)' : 'transparent' }};">Segmen Pelanggan</a>
                 <a href="/admin/testimonials" style="color: white; padding: 0.5rem; border-radius: 4px; background: {{ request()->is('admin/testimonials') ? 'rgba(255,255,255,0.1)' : 'transparent' }};">Testimoni</a>
+                <a href="/admin/messages" style="color: white; padding: 0.5rem; border-radius: 4px; background: {{ request()->is('admin/messages') ? 'rgba(255,255,255,0.1)' : 'transparent' }};">
+                    Kotak Pesan
+                    @php $unreadCount = \App\Models\Message::where('is_read', false)->count(); @endphp
+                    @if($unreadCount > 0)
+                        <span style="background: #e74c3c; color: white; border-radius: 10px; padding: 1px 7px; font-size: 0.75rem; margin-left: 4px;">{{ $unreadCount }}</span>
+                    @endif
+                </a>
                 <a href="/admin/settings" style="color: white; padding: 0.5rem; border-radius: 4px; background: {{ request()->is('admin/settings') ? 'rgba(255,255,255,0.1)' : 'transparent' }};">Pengaturan Teks</a>
                 <a href="/" target="_blank" style="color: var(--color-accent); padding: 0.5rem; border-radius: 4px;">Lihat Website &rarr;</a>
                 <a href="/admin/logout" style="color: #ffaaaa; padding: 0.5rem; border-radius: 4px; margin-top: 2rem;">Logout</a>

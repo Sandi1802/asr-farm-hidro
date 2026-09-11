@@ -9,7 +9,11 @@
         <form method="POST" action="/admin/products" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 1rem;">
             @csrf
             <input type="text" name="name" placeholder="Nama Produk" required style="padding: 0.5rem; width: 100%; border: 1px solid #ccc; border-radius: 4px;" />
-            <input type="text" name="category" placeholder="Kategori (Misal: Organic Food, Vegetables)" style="padding: 0.5rem; width: 100%; border: 1px solid #ccc; border-radius: 4px;" />
+            <select name="category" style="padding: 0.5rem; width: 100%; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="">-- Pilih Kategori --</option>
+                <option value="konvensional">Konvensional</option>
+                <option value="hidroponik">Hidroponik</option>
+            </select>
             <input type="text" name="tags" placeholder="Tags (Pisahkan dengan koma, misal: Citrus, Green)" style="padding: 0.5rem; width: 100%; border: 1px solid #ccc; border-radius: 4px;" />
             <input type="text" name="price" placeholder="Harga (Kosongkan jika tidak ada)" style="padding: 0.5rem; width: 100%; border: 1px solid #ccc; border-radius: 4px;" />
             <div>

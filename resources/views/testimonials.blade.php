@@ -129,7 +129,7 @@
                 <h1>Testimoni</h1>
             </div>
             <div class="testi-banner-right">
-                <p>{{ $settings['about_banner_text'] ?? 'Seperti sayuran yang kita produksi, domba yang kami pelihara, sapi yang menghasilkan susu dan telor dari ayam; kami sangatlah beragam. Dan yang paling penting kami pribadi yang siap berkotor-kotor bersama petani dampingan kami untuk menyiapkan bahan makanan untuk anda.' }}</p>
+                <p>{{ $settings['about_banner_text'] ?? 'Seperti sayuran hidroponik dan konvensional segar yang kami panen setiap hari, dedikasi kami sangatlah mendalam. Dan yang paling penting, kami selalu siap bekerja langsung bersama para petani mitra kami untuk memastikan setiap sayuran yang sampai ke meja makan Anda adalah yang berkualitas terbaik.' }}</p>
             </div>
         </div>
     </div>

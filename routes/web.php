@@ -11,7 +11,8 @@ Route::get('/', [HomeController::class, 'index']);
 Route::get('/about', [PageController::class, 'about']);
 Route::get('/testimonials', [PageController::class, 'testimonials']);
 Route::get('/contact', [PageController::class, 'contact']);
-Route::get('/products', [ProductController::class, 'index']);
+Route::post('/contact', [PageController::class, 'submitContact']);
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/blog', [BlogController::class, 'index']);
 Route::get('/blog/{id}', [BlogController::class, 'show']);
 
@@ -30,6 +31,18 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/testimonials', [AdminController::class, 'testimonials']);
     Route::post('/testimonials', [AdminController::class, 'storeTestimonial']);
     Route::post('/testimonials/{id}/delete', [AdminController::class, 'destroyTestimonial']);
+
+    // Clients
+    Route::get('/clients', [AdminController::class, 'clients']);
+    Route::post('/clients', [AdminController::class, 'storeClient']);
+    Route::get('/clients/{id}/edit', [AdminController::class, 'editClient']);
+    Route::post('/clients/{id}/edit', [AdminController::class, 'updateClient']);
+    Route::post('/clients/{id}/delete', [AdminController::class, 'destroyClient']);
+
+    // Messages
+    Route::get('/messages', [AdminController::class, 'messages']);
+    Route::post('/messages/{id}/read', [AdminController::class, 'markMessageRead']);
+    Route::post('/messages/{id}/delete', [AdminController::class, 'destroyMessage']);
     
     // Products
     Route::get('/products', [AdminController::class, 'products']);

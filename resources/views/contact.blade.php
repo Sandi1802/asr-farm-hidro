@@ -241,7 +241,7 @@ textarea.form-input {
                 <h1>Hubungi Kami</h1>
             </div>
             <div class="contact-banner-right">
-                <p>Seperti sayuran yang kita produksi, domba yang kami pelihara, sapi yang menghasilkan susu dan telor dari ayam; kami sangatlah beragam. Dan yang paling penting kami pribadi yang siap berkotor-kotor bersama petani dampingan kami untuk menyiapkan bahan makanan untuk anda.</p>
+                <p>Seperti sayuran hidroponik dan konvensional segar yang kami panen setiap hari, dedikasi kami sangatlah mendalam. Dan yang paling penting, kami selalu siap bekerja langsung bersama para petani mitra kami untuk memastikan setiap sayuran yang sampai ke meja makan Anda adalah yang berkualitas terbaik.</p>
             </div>
         </div>
     </div>
@@ -266,6 +266,9 @@ textarea.form-input {
                     <a href="{{ $settings['social_linkedin'] ?? '#' }}" class="social-icon" title="LinkedIn">
                         <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/></svg>
                     </a>
+                    <a href="{{ $settings['social_youtube'] ?? 'https://youtube.com/@asrfarm' }}" class="social-icon" title="YouTube" target="_blank" rel="noopener noreferrer">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.5 12 3.5 12 3.5s-7.505 0-9.377.55a3.016 3.016 0 0 0-2.122 2.136C0 8.086 0 12 0 12s0 3.914.501 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.55 9.377.55 9.377.55s7.505 0 9.377-.55a3.016 3.016 0 0 0 2.122-2.136C24 15.914 24 12 24 12s0-3.914-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                    </a>
                 </div>
             </div>
             
@@ -274,27 +277,46 @@ textarea.form-input {
                 <h2>Kontak</h2>
                 
                 <div class="kontak-item">
-                    <div class="kontak-icon">📍</div>
+                    <div class="kontak-icon">
+                        <svg width="20" height="20" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    </div>
                     <div>
                         <div class="kontak-label">Alamat</div>
-                        <div class="kontak-value">{{ $settings['contact_address'] ?? 'Jl. Setro Raya, Desa Gondoriyo, Kecamatan Bergas, Kabupaten Semarang' }}</div>
+                        <div class="kontak-value">Cimerta Tengah, Tugumukti, Kec. Cisarua, Kabupaten Bandung Barat, Jawa Barat 40551</div>
                     </div>
                 </div>
                 
                 <div class="kontak-item">
-                    <div class="kontak-icon">📞</div>
+                    <div class="kontak-icon">
+                        <svg width="20" height="20" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    </div>
                     <div>
-                        <div class="kontak-label">Telepon</div>
-                        <div class="kontak-value">{{ $settings['contact_phone'] ?? '+62 812 3456 7890' }}</div>
+                        <div class="kontak-label">Telepon / WhatsApp</div>
+                        <div class="kontak-value">+62 821-2958-9232</div>
                     </div>
                 </div>
                 
                 <div class="kontak-item">
-                    <div class="kontak-icon">✉️</div>
+                    <div class="kontak-icon">
+                        <svg width="20" height="20" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    </div>
                     <div>
                         <div class="kontak-label">Email</div>
-                        <div class="kontak-value">customerrelation@asrfarm.com</div>
+                        <div class="kontak-value">{{ $settings['contact_email'] ?? 'asrfarm.id@gmail.com' }}</div>
                     </div>
+                </div>
+
+                {{-- WhatsApp Button --}}
+                <div style="margin-top: 1.5rem;">
+                    <a href="https://wa.me/6282129589232?text=Halo%20ASR%20Farm%2C%0A%0APerkenalkan%2C%20saya%20%5BNama%20Anda%5D%20dari%20%5BPerusahaan%2FPersonal%5D.%0A%0ASaya%20ingin%20menanyakan%20informasi%20mengenai%3A%0A%E2%80%A2%20%5BTulis%20keperluan%20Anda%2C%20misal%3A%20produk%2C%20harga%2C%20kerjasama%2C%20dll%5D%0A%0ATerima%20kasih."
+                       target="_blank"
+                       rel="noopener"
+                       style="display: inline-flex; align-items: center; gap: 10px; background: #25D366; color: white; padding: 14px 28px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 15px rgba(37,211,102,0.35); transition: all 0.3s; font-family: inherit;">
+                        <svg width="22" height="22" fill="white" viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                        Chat via WhatsApp
+                    </a>
                 </div>
             </div>
         </div>
@@ -307,33 +329,49 @@ textarea.form-input {
             <div class="contact-form">
                 <h2>Kirim Kami Pesan</h2>
                 <p class="subtitle">Hubungi kami, lebih lanjut untuk mengetahui seputar produk dan kerjasama.</p>
-                
-                <form action="#" method="POST">
+
+                @if(session('success'))
+                    <div style="background: #d4edda; color: #155724; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-weight: 500;">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div style="background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <ul style="margin: 0; padding-left: 1.2rem;">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form action="/contact" method="POST">
                     @csrf
                     <div class="form-group">
                         <label>Name <span>*</span></label>
-                        <input type="text" class="form-input" placeholder="Masukkan nama Anda" required>
+                        <input type="text" name="name" class="form-input" placeholder="Masukkan nama Anda" value="{{ old('name') }}" required>
                     </div>
                     <div class="form-group">
                         <label>Email <span>*</span></label>
-                        <input type="email" class="form-input" placeholder="Masukkan email Anda" required>
+                        <input type="email" name="email" class="form-input" placeholder="Masukkan email Anda" value="{{ old('email') }}" required>
                     </div>
                     <div class="form-group">
                         <label>Subject <span>*</span></label>
-                        <input type="text" class="form-input" placeholder="Subjek pesan" required>
+                        <input type="text" name="subject" class="form-input" placeholder="Subjek pesan" value="{{ old('subject') }}" required>
                     </div>
                     <div class="form-group">
                         <label>Message <span>*</span></label>
-                        <textarea class="form-input" placeholder="Tulis pesan Anda di sini..." required></textarea>
+                        <textarea name="message" class="form-input" placeholder="Tulis pesan Anda di sini..." required>{{ old('message') }}</textarea>
                     </div>
-                    <button type="submit" class="btn-submit">Submit</button>
+                    <button type="submit" class="btn-submit">Kirim Pesan</button>
                 </form>
             </div>
             
             <!-- Google Map -->
             <div class="map-container">
                 <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3958.5!2d110.4!3d-7.2!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zN8KwMTInMDAuMCJTIDExMMKwMjQnMDAuMCJF!5e0!3m2!1sen!2sid!4v1"
+                    src="https://www.google.com/maps?q=ASR+Farm+Hidroponik+Cimerta+Tengah+Tugumukti+Cisarua+Kabupaten+Bandung+Barat+Jawa+Barat+40551&output=embed"
                     allowfullscreen="" 
                     loading="lazy" 
                     referrerpolicy="no-referrer-when-downgrade">
