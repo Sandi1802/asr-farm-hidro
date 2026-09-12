@@ -29,17 +29,21 @@
     </div>
 </div>
 
-<!-- TinyMCE Editor -->
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<!-- Summernote Editor (No API Key Required) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 <script>
-  tinymce.init({
-    selector: 'textarea[name="content"]',
-    menubar: false,
-    plugins: 'lists link image',
-    toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link',
-    height: 400,
-    branding: false,
-    promotion: false
+  $(document).ready(function() {
+      $('textarea[name="content"]').summernote({
+          height: 400,
+          toolbar: [
+              ['font', ['bold', 'italic', 'underline', 'clear']],
+              ['para', ['ul', 'ol', 'paragraph']],
+              ['insert', ['link']],
+              ['view', ['fullscreen', 'codeview']]
+          ]
+      });
   });
 </script>
 @endsection
