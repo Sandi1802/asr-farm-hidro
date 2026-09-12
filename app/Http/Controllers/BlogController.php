@@ -29,8 +29,18 @@ class BlogController extends Controller
 
     public function like($id)
     {
+        // Check if this session has already liked this post
+        if (session()->has('liked_post_' . $id)) {
+            $post = Post::findOrFail($id);
+            return response()->json(['success' => false, 'likes' => $post->likes, 'message' => 'Already liked']);
+        }
+
         $post = Post::findOrFail($id);
         $post->increment('likes');
+        
+        // Save to session so they can't like again
+        session()->put('liked_post_' . $id, true);
+
         return response()->json(['success' => true, 'likes' => $post->likes]);
     }
 

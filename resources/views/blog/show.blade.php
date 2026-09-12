@@ -76,7 +76,7 @@
             <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                 <div style="display: flex; gap: 1.5rem; color: #555; font-size: 1.1rem; align-items: center;">
                     <span title="Dilihat"><i class="fas fa-eye"></i> {{ $post->views }}x</span>
-                    <button id="likeBtn" onclick="likePost({{ $post->id }})" style="background: none; border: none; cursor: pointer; color: #e74c3c; font-size: 1.1rem; display: flex; gap: 0.5rem; align-items: center; transition: transform 0.2s;">
+                    <button id="likeBtn" onclick="likePost({{ $post->id }})" style="background: none; border: none; cursor: pointer; color: {{ session()->has('liked_post_' . $post->id) ? '#c0392b' : '#999' }}; font-size: 1.1rem; display: flex; gap: 0.5rem; align-items: center; transition: transform 0.2s, color 0.3s;">
                         <i class="fas fa-heart"></i> <span id="likeCount">{{ $post->likes }}</span> Suka
                     </button>
                     <span><i class="fas fa-comment"></i> {{ $post->comments->count() }} Komentar</span>
@@ -132,8 +132,6 @@
 <script>
 function likePost(id) {
     let btn = document.getElementById('likeBtn');
-    btn.style.transform = 'scale(1.2)';
-    setTimeout(() => btn.style.transform = 'scale(1)', 200);
     
     fetch(`/blog/${id}/like`, {
         method: 'POST',
@@ -145,8 +143,12 @@ function likePost(id) {
     .then(res => res.json())
     .then(data => {
         if(data.success) {
+            btn.style.transform = 'scale(1.2)';
+            setTimeout(() => btn.style.transform = 'scale(1)', 200);
             document.getElementById('likeCount').innerText = data.likes;
             btn.style.color = '#c0392b';
+        } else {
+            alert('Anda sudah menyukai artikel ini!');
         }
     });
 }
