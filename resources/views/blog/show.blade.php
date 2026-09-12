@@ -69,7 +69,7 @@
             @endif
 
             <div class="article-body">
-                {!! nl2br(e($post->content)) !!}
+                {!! $post->content !!}
             </div>
             
             <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #eee; text-align: center;">

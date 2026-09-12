@@ -61,4 +61,18 @@
         @endif
     </div>
 </div>
+
+<!-- TinyMCE Editor -->
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+  tinymce.init({
+    selector: 'textarea[name="content"]',
+    menubar: false,
+    plugins: 'lists link image',
+    toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link',
+    height: 300,
+    branding: false,
+    promotion: false
+  });
+</script>
 @endsection
