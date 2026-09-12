@@ -29,6 +29,7 @@
                     <tr style="border-bottom: 2px solid #eee;">
                         <th style="padding: 1rem;">Gambar</th>
                         <th style="padding: 1rem;">Judul</th>
+                        <th style="padding: 1rem;">Statistik</th>
                         <th style="padding: 1rem;">Tanggal</th>
                         <th style="padding: 1rem;">Aksi</th>
                     </tr>
@@ -44,6 +45,12 @@
                             @endif
                         </td>
                         <td style="padding: 1rem;"><b>{{ $post->title }}</b></td>
+                        <td style="padding: 1rem; font-size: 0.9rem; color: #555;">
+                            👁️ {{ $post->views }} &nbsp; 
+                            ❤️ {{ $post->likes }} &nbsp; 
+                            💬 {{ $post->comments()->count() }} &nbsp; 
+                            🔗 {{ $post->shares }}
+                        </td>
                         <td style="padding: 1rem;">{{ \Carbon\Carbon::parse($post->created_at)->format('d/m/Y') }}</td>
                         <td style="padding: 1rem;">
                             <div style="display: flex; gap: 0.5rem;">

@@ -15,6 +15,9 @@ Route::post('/contact', [PageController::class, 'submitContact']);
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/blog', [BlogController::class, 'index']);
 Route::get('/blog/{id}', [BlogController::class, 'show']);
+Route::post('/blog/{id}/like', [BlogController::class, 'like']);
+Route::post('/blog/{id}/share', [BlogController::class, 'share']);
+Route::post('/blog/{id}/comment', [BlogController::class, 'comment']);
 
 Route::get('/admin/login', [AdminController::class, 'login'])->name('login');
 Route::post('/admin/login', [AdminController::class, 'authenticate']);
