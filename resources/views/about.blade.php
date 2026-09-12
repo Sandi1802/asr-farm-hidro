@@ -506,35 +506,34 @@
         </div>
     </section>
 
-    {{-- ===== 8. CLIENT MARQUEE (Target Market) ===== --}}
-    <section class="asr-section" style="background:#FAF8F5; padding-bottom: 0;">
-        <div class="asr-container">
-            <div class="marquee-box reveal delay-1">
-                <p class="marquee-label">Melayani Berbagai Segmen Pelanggan</p>
-                <div class="marquee-track-wrap">
-                    <div class="marquee-track">
-                        @php
-                        $dbClients = \App\Models\Client::orderBy('order')->get();
-                        // For a smooth infinite marquee, duplicate the items if there are too few
-                        $clientsToRender = $dbClients->concat($dbClients)->concat($dbClients);
-                        @endphp
-                        @foreach($clientsToRender as $client)
-                        <div class="marquee-item">
-                            <div class="marquee-item-icon" style="padding: 4px;">
-                                @if($client->image)
-                                    <img src="{{ $client->image }}" alt="{{ $client->name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                                @else
-                                    <svg width="20" height="20" fill="var(--color-accent)" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
-                                @endif
-                            </div>
-                            <div class="marquee-item-text">
-                                <strong>{{ $client->name }}</strong>
-                                <span>{{ $client->description }}</span>
-                            </div>
+    {{-- ===== 8. OUR CLIENTS (STATIC GRID) ===== --}}
+    <section class="asr-section" style="position: relative; background: #fff; padding-top: 3rem; padding-bottom: 5rem; overflow: hidden;">
+        <div class="asr-container" style="position: relative;">
+            <!-- Title Badge (Mirip Gambar 1) -->
+            <div class="reveal delay-1" style="background: var(--color-primary-dark); color: white; display: inline-block; padding: 12px 36px 12px 24px; border-radius: 0 30px 30px 0; font-family: var(--font-serif); font-size: 2.2rem; font-weight: bold; position: relative; left: -20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 4rem;">
+                Our Clients
+            </div>
+
+            <!-- World map background watermark -->
+            <div style="position: absolute; top: 5%; left: 0; right: 0; bottom: 5%; background: url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg') no-repeat center center; background-size: contain; opacity: 0.05; z-index: 0; pointer-events: none;"></div>
+
+            <!-- Static Logos Grid -->
+            <div class="reveal delay-2" style="display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center; position: relative; z-index: 1;">
+                @php
+                $dbClients = \App\Models\Client::orderBy('order')->get();
+                @endphp
+                @foreach($dbClients as $client)
+                <div style="background: white; border-radius: 12px; padding: 1.5rem; width: 170px; height: 130px; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; box-shadow: 0 5px 25px rgba(0,0,0,0.05); transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                    @if($client->image)
+                        <img src="{{ $client->image }}" alt="{{ $client->name }}" style="max-width: 100%; max-height: 70px; object-fit: contain; margin-bottom: 0.5rem;">
+                    @else
+                        <div style="width: 50px; height: 50px; background: rgba(39, 174, 96, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 0.8rem; color: var(--color-primary); font-size: 1.5rem;">
+                            <i class="fas fa-building"></i>
                         </div>
-                        @endforeach
-                    </div>
+                    @endif
+                    <strong style="font-size: 0.85rem; color: #444; line-height: 1.2;">{{ $client->name }}</strong>
                 </div>
+                @endforeach
             </div>
         </div>
     </section>
