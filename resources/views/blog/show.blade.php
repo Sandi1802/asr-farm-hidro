@@ -100,7 +100,7 @@
                     </div>
                 @endif
 
-                <form action="/blog/{{ $post->id }}/comment" method="POST" style="margin-bottom: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+                <form action="{{ url('/blog/' . $post->id . '/comment') }}" method="POST" style="margin-bottom: 2rem; display: flex; flex-direction: column; gap: 1rem;">
                     @csrf
                     <input type="text" name="name" placeholder="Nama Anda" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px; font-family: var(--font-sans);">
                     <textarea name="content" placeholder="Tulis komentar Anda di sini..." rows="3" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px; font-family: var(--font-sans);"></textarea>

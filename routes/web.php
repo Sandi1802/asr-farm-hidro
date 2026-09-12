@@ -18,6 +18,7 @@ Route::get('/blog/{id}', [BlogController::class, 'show']);
 Route::post('/blog/{id}/like', [BlogController::class, 'like']);
 Route::post('/blog/{id}/share', [BlogController::class, 'share']);
 Route::post('/blog/{id}/comment', [BlogController::class, 'comment']);
+Route::get('/blog/{id}/comment', function($id) { return redirect('/blog/'.$id); });
 
 Route::get('/admin/login', [AdminController::class, 'login'])->name('login');
 Route::post('/admin/login', [AdminController::class, 'authenticate']);
