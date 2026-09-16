@@ -119,6 +119,9 @@ Route::middleware('auth')->group(function () {
 
             Route::get('/notifications', [\App\Http\Controllers\HydroponicController::class, 'getNotifications'])->name('hydroponics.notifications');
             Route::post('/notifications/read', [\App\Http\Controllers\HydroponicController::class, 'markNotificationsRead']);
+
+            // Daily Tasks
+            Route::get('/daily-tasks', [\App\Http\Controllers\DailyTaskController::class, 'webIndex'])->name('hydroponics.daily-tasks');
         });
 
         // Inventory - Produksi, Produksi GH, Produksi Konven, Keuangan, Pemasaran, Packing

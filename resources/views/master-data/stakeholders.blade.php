@@ -25,7 +25,7 @@
         <table class="table datatable" style="width: 100%;">
             <thead>
                 <tr>
-                    <th>No.</th>
+                    <th class="dt-no">NO</th>
                     <th>Name</th>
                     <th>Role</th>
                     <th>Contact Person</th>

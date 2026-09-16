@@ -19,7 +19,7 @@
         </div>
         <nav class="sidebar-nav">
             @php 
-                $isDashboardActive = request()->is('hydroponics/dashboard') || request()->is('konvensional/dashboard'); 
+                $isDashboardActive = request()->is('hydroponics/dashboard') || request()->is('konvensional/dashboard') || request()->is('paprika/dashboard'); 
             @endphp
             <a href="/hydroponics/dashboard" class="nav-item {{ $isDashboardActive ? 'active' : '' }}" style="margin-bottom: 0; display: flex; align-items: center; text-decoration: none;">
                 <i class="ph ph-house"></i>
@@ -32,10 +32,13 @@
                 <a href="/konvensional/dashboard" class="submenu-item {{ request()->is('konvensional/dashboard') ? 'active' : '' }}">
                     <i class="ph ph-chart-pie-slice" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Konvensional
                 </a>
+                <a href="/paprika/dashboard" class="submenu-item {{ request()->is('paprika/dashboard') ? 'active' : '' }}">
+                    <i class="ph ph-plant" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Paprika
+                </a>
             </div>
             
             @php 
-                $hidroponikActive = request()->is('hydroponics/greenhouses*') || request()->is('hydroponics/semai*') || request()->is('hydroponics/damage-notes*'); 
+                $hidroponikActive = request()->is('hydroponics/greenhouses*') || request()->is('hydroponics/semai*') || request()->is('hydroponics/maintenance-logs*') || request()->is('hydroponics/damage-notes*'); 
             @endphp
             {{-- Hidroponik Dropdown --}}
             @if(in_array(Auth::user()?->role_agri, ['it_admin', 'atasan', 'produksi', 'produksi_gh', 'packing']))
@@ -59,7 +62,10 @@
                     <span style="margin-left:auto; background:#16a34a; color:white; font-size:0.65rem; font-weight:800; padding:0.1rem 0.45rem; border-radius:50px; min-width:18px; text-align:center;">{{ $semaiCount }}</span>
                     @endif
                 </a>
-                <a href="{{ route('hydroponics.maintenance-logs') }}" class="submenu-item {{ request()->is('maintenance-logs*') ? 'active' : '' }}">
+                <a href="{{ route('hydroponics.daily-tasks') }}" class="submenu-item {{ request()->is('hydroponics/daily-tasks*') ? 'active' : '' }}">
+                    <i class="ph ph-calendar-check" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Daily Hidroponik
+                </a>
+                <a href="{{ route('hydroponics.maintenance-logs') }}" class="submenu-item {{ request()->is('hydroponics/maintenance-logs*') ? 'active' : '' }}">
                     <i class="ph ph-clipboard-text" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Laporan Pemeliharaan
                 </a>
                 
@@ -70,7 +76,7 @@
             @endif
 
             @php 
-                $konvensionalActive = request()->is('konvensional*');
+                $konvensionalActive = request()->is('konvensional/*') && !request()->is('konvensional/dashboard');
             @endphp
             {{-- Konvensional Dropdown --}}
             @if(in_array(Auth::user()?->role_agri, ['it_admin', 'atasan', 'produksi', 'produksi_konven', 'packing']))
@@ -94,6 +100,32 @@
                 </a>
                 <a href="{{ route('konvensional.bibit') }}" class="submenu-item {{ request()->is('konvensional/bibit*') ? 'active' : '' }}">
                     <i class="ph ph-leaf" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Bibit Konvensional
+                </a>
+            </div>
+            @endif
+
+            @php 
+                $paprikaActive = request()->is('paprika/*') && !request()->is('paprika/dashboard');
+            @endphp
+            {{-- Paprika Dropdown --}}
+            @if(in_array(Auth::user()?->role_agri, ['it_admin', 'atasan', 'produksi', 'produksi_paprika', 'packing']))
+            <div class="nav-item nav-dropdown {{ $paprikaActive ? 'active' : '' }}" onclick="toggleDropdown(this)" style="margin-top: 1rem;">
+                <div style="display: flex; align-items: center;">
+                    <i class="ph ph-tree"></i>
+                    <span class="nav-text">Paprika</span>
+                </div>
+                <i class="{{ $paprikaActive ? 'ph ph-caret-down' : 'ph ph-caret-left' }}" style="margin-right: 0; font-size: 0.9rem; transition: transform 0.2s;"></i>
+            </div>
+            
+            <div class="nav-submenu {{ $paprikaActive ? 'open' : '' }}">
+                <a href="/paprika/greenhouses" class="submenu-item {{ request()->is('paprika/greenhouses*') ? 'active' : '' }}">
+                    <i class="ph ph-house-line" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Greenhouse Paprika
+                </a>
+                <a href="/paprika/pemupukan" class="submenu-item {{ request()->is('paprika/pemupukan*') ? 'active' : '' }}">
+                    <i class="ph ph-flask" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Pemupukan
+                </a>
+                <a href="/paprika/penyemprotan" class="submenu-item {{ request()->is('paprika/penyemprotan*') ? 'active' : '' }}">
+                    <i class="ph ph-drop" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Penyemprotan
                 </a>
             </div>
             @endif

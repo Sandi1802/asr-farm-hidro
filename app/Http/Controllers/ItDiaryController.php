@@ -17,7 +17,7 @@ class ItDiaryController extends Controller
             abort(403, 'Unauthorized access.');
         }
 
-        $logs = \App\Models\LoginLog::with('user')->latest()->paginate(50);
+        $logs = \App\Models\LoginLog::with('user')->latest()->get();
         return view('it.diary', compact('logs'));
     }
 

@@ -33,7 +33,9 @@ class ProfileController extends Controller
         }
 
         $user->name = $request->name;
-        $user->nip = $request->nip;
+        if ($request->filled('nip')) {
+            $user->nip = $request->nip;
+        }
         $user->username = $request->username;
 
         if ($request->filled('password')) {
@@ -46,7 +48,9 @@ class ProfileController extends Controller
         $employee = \App\Models\Employee::where('email', $user->email)->first();
         if ($employee) {
             $employee->name = $request->name;
-            $employee->nip = $request->nip;
+            if ($request->filled('nip')) {
+                $employee->nip = $request->nip;
+            }
             if (isset($avatarPath)) {
                 $employee->avatar = $avatarPath;
             }

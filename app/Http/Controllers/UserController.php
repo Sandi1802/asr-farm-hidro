@@ -51,33 +51,15 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-            'name'      => 'required|string|max:255',
-            'username'  => 'required|string|max:255|unique:users,username,' . $user->id,
-            'email'     => 'required|email|unique:users,email,' . $user->id,
-            'role_agri' => 'required|in:it_admin,atasan,produksi,produksi_gh,produksi_konven,keuangan,pemasaran,packing',
+            'role_agri' => 'required',
         ]);
 
         if ($validator->fails()) {
             return redirect()->route('hydroponics.users')->withErrors($validator)->withInput();
         }
 
-        $user->name = $request->name;
-        $user->username = $request->username;
-        $user->email = $request->email;
         $user->role = $request->role_agri === 'it_admin' ? 'super_admin' : 'viewer';
         $user->role_agri = $request->role_agri;
-
-        if ($request->filled('password')) {
-            $passValidator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-                'password' => 'min:6',
-            ]);
-            
-            if ($passValidator->fails()) {
-                return redirect()->route('hydroponics.users')->withErrors($passValidator)->withInput();
-            }
-            
-            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
-        }
 
         $user->save();
 

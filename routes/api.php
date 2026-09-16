@@ -62,6 +62,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/damage-notes', [DamageApiController::class, 'store']);
         Route::put('/damage-notes/{id}', [DamageApiController::class, 'update']);
         
+        // Daily Tasks API
+    Route::get('/daily-tasks', [\App\Http\Controllers\DailyTaskController::class, 'apiIndex']);
+    Route::post('/daily-tasks', [\App\Http\Controllers\DailyTaskController::class, 'apiStore']);
+    Route::post('/daily-tasks/{id}/complete', [\App\Http\Controllers\DailyTaskController::class, 'apiToggleComplete']);
+    Route::post('/daily-tasks/{id}/note', [\App\Http\Controllers\DailyTaskController::class, 'apiUpdateNote']);
+    Route::delete('/daily-tasks/{id}', [\App\Http\Controllers\DailyTaskController::class, 'apiDelete']);
+
         // Maintenance Logs
         Route::post('/maintenance-logs', [MaintenanceLogController::class, 'store']);
     });

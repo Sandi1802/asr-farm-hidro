@@ -14,71 +14,82 @@
 </div>
 
 <!-- Global Stats -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card p-4" style="border:none; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-left: 5px solid var(--asr-green);">
-            <p style="color: #6b7280; margin: 0; font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">Total Sisa Stok</p>
-            <h3 style="margin: 0; margin-top: 0.5rem; font-weight: bold; color: #111827;">{{ $totalStock }}</h3>
+<div class="dashboard-stats" style="margin-bottom: 2rem;">
+    <div class="stat-big-card sbc-dark-green" style="cursor: default;">
+        <div>
+            <div class="sbc-value">{{ $totalStock }}</div>
+            <div class="sbc-label">Total Sisa Stok</div>
+            <div style="font-size:0.75rem; color: rgba(255,255,255,0.85); font-weight:600; margin-top:0.35rem; letter-spacing:0.3px;">Stok di Gudang</div>
         </div>
+        <i class="ph ph-package sbc-icon"></i>
     </div>
-    <div class="col-md-3">
-        <div class="card p-4" style="border:none; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-left: 5px solid #3b82f6;">
-            <p style="color: #6b7280; margin: 0; font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">Total Masuk</p>
-            <h3 style="margin: 0; margin-top: 0.5rem; font-weight: bold; color: #111827;">{{ $totalInQty }}</h3>
+    
+    <div class="stat-big-card sbc-teal-farm" style="cursor: default;">
+        <div>
+            <div class="sbc-value">{{ $totalInQty }}</div>
+            <div class="sbc-label">Total Masuk</div>
+            <div style="font-size:0.75rem; color: rgba(255,255,255,0.85); font-weight:600; margin-top:0.35rem; letter-spacing:0.3px;">Dari Petani/Mitra</div>
         </div>
+        <i class="ph ph-trend-up sbc-icon"></i>
     </div>
-    <div class="col-md-3">
-        <div class="card p-4" style="border:none; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-left: 5px solid #f59e0b;">
-            <p style="color: #6b7280; margin: 0; font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">Total Keluar</p>
-            <h3 style="margin: 0; margin-top: 0.5rem; font-weight: bold; color: #111827;">{{ $totalOutQty }}</h3>
+    
+    <div class="stat-big-card sbc-gold" style="cursor: default;">
+        <div>
+            <div class="sbc-value">{{ $totalOutQty }}</div>
+            <div class="sbc-label">Total Keluar</div>
+            <div style="font-size:0.75rem; color: rgba(255,255,255,0.85); font-weight:600; margin-top:0.35rem; letter-spacing:0.3px;">Ke Pasar/Pembeli</div>
         </div>
+        <i class="ph ph-trend-down sbc-icon"></i>
     </div>
-    <div class="col-md-3">
-        <div class="card p-4" style="border:none; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-left: 5px solid #ef4444;">
-            <p style="color: #6b7280; margin: 0; font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">Total Terbuang</p>
-            <h3 style="margin: 0; margin-top: 0.5rem; font-weight: bold; color: #111827;">{{ $totalWastedQty }}</h3>
+    
+    <div class="stat-big-card sbc-rust" style="cursor: default;">
+        <div>
+            <div class="sbc-value">{{ $totalWastedQty }}</div>
+            <div class="sbc-label">Total Terbuang</div>
+            <div style="font-size:0.75rem; color: rgba(255,255,255,0.85); font-weight:600; margin-top:0.35rem; letter-spacing:0.3px;">Rusak/Kadet</div>
         </div>
+        <i class="ph ph-trash sbc-icon"></i>
     </div>
 </div>
 
 <!-- Per Product Stats Table -->
-<div class="card p-0" style="border:none; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden;">
+<div class="card" style="border:none; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden;">
     <div class="card-header bg-white" style="padding: 1.5rem; border-bottom: 1px solid #f3f4f6;">
         <h3 style="margin: 0; font-size: 1.1rem; font-weight: bold; color: #111827;">Rincian Stok Per Sayuran</h3>
     </div>
-    <div class="table-responsive">
-        <table class="table datatable mb-0" style="width: 100%; border-collapse: collapse;">
-            <thead style="background: #f9fafb;">
+    <div class="table-responsive" style="padding: 1.5rem;">
+        <table class="table datatable" style="width: 100%;">
+            <thead>
                 <tr>
-                    <th style="padding: 1rem 1.5rem; color: #4b5563; font-weight: 600; border-bottom: 1px solid #e5e7eb;">Sayuran / Komoditas</th>
-                    <th style="padding: 1rem 1.5rem; color: #4b5563; font-weight: 600; border-bottom: 1px solid #e5e7eb; text-align: center;">Total Masuk</th>
-                    <th style="padding: 1rem 1.5rem; color: #4b5563; font-weight: 600; border-bottom: 1px solid #e5e7eb; text-align: center;">Total Keluar</th>
-                    <th style="padding: 1rem 1.5rem; color: #4b5563; font-weight: 600; border-bottom: 1px solid #e5e7eb; text-align: center;">Terbuang / Rusak</th>
-                    <th style="padding: 1rem 1.5rem; color: #4b5563; font-weight: 600; border-bottom: 1px solid #e5e7eb; text-align: right;">Sisa Stok Gudang</th>
+                    <th class="dt-no">NO</th>
+                    <th>Sayuran / Komoditas</th>
+                    <th style="text-align: center;">Total Masuk</th>
+                    <th style="text-align: center;">Total Keluar</th>
+                    <th style="text-align: center;">Terbuang / Rusak</th>
+                    <th style="text-align: center;">Sisa Stok Gudang</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($productStats as $stat)
-                <tr style="border-bottom: 1px solid #f3f4f6;">
-                    <td style="padding: 1rem 1.5rem; font-weight: 500; color: #111827;">
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td style="font-weight: 600;">
                         {{ $stat['name'] }}
                     </td>
-                    <td style="padding: 1rem 1.5rem; text-align: center; color: #3b82f6;">{{ $stat['inQty'] }} {{ $stat['unit'] }}</td>
-                    <td style="padding: 1rem 1.5rem; text-align: center; color: #f59e0b;">{{ $stat['outQty'] }} {{ $stat['unit'] }}</td>
-                    <td style="padding: 1rem 1.5rem; text-align: center; color: #ef4444;">{{ $stat['wastedQty'] }} {{ $stat['unit'] }}</td>
-                    <td style="padding: 1rem 1.5rem; text-align: right;">
-                        <span style="display: inline-block; padding: 0.35rem 0.75rem; border-radius: 6px; font-weight: 600; background: {{ $stat['stock'] > 0 ? '#dcfce7' : '#fee2e2' }}; color: {{ $stat['stock'] > 0 ? '#166534' : '#991b1b' }};">
+                    <td style="text-align: center; color: #3b82f6; font-weight: 600;">{{ $stat['inQty'] }} {{ $stat['unit'] }}</td>
+                    <td style="text-align: center; color: #f59e0b; font-weight: 600;">{{ $stat['outQty'] }} {{ $stat['unit'] }}</td>
+                    <td style="text-align: center; color: #ef4444; font-weight: 600;">{{ $stat['wastedQty'] }} {{ $stat['unit'] }}</td>
+                    <td style="text-align: center;">
+                        <span class="badge" style="background: {{ $stat['stock'] > 0 ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)' }}; color: {{ $stat['stock'] > 0 ? '#16a34a' : '#ef4444' }}; padding: 0.35rem 0.75rem; border-radius: 6px; font-weight: 600;">
                             {{ $stat['stock'] }} {{ $stat['unit'] }}
                         </span>
                     </td>
                 </tr>
                 @empty
-                <tr>
-                    <td colspan="5" class="text-center text-muted" style="padding: 2rem;">Belum ada data komoditas sayuran.</td>
-                </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 </div>
 @endsection
+

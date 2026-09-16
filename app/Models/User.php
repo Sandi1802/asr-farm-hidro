@@ -79,6 +79,7 @@ class User extends Authenticatable
             'produksi'        => 'Produksi (Global)',
             'produksi_gh'     => 'Produksi GH',
             'produksi_konven' => 'Produksi Konvensional',
+            'produksi_paprika'=> 'Produksi Paprika',
             'keuangan'        => 'Keuangan',
             'pemasaran'       => 'Pemasaran',
             'packing'         => 'Packing',
@@ -92,12 +93,13 @@ class User extends Authenticatable
             'it_admin'        => '#ef4444', // red
             'atasan'          => '#f59e0b', // amber
             'produksi'        => '#16a34a', // green
-            'produksi_gh'     => '#22c55e', // green light
-            'produksi_konven' => '#15803d', // green dark
-            'keuangan'        => '#3b82f6', // blue
+            'produksi_gh'     => '#059669', // emerald
+            'produksi_konven' => '#65a30d', // lime
+            'produksi_paprika'=> '#d97706', // orange
+            'keuangan'        => '#0284c7', // light blue
             'pemasaran'       => '#8b5cf6', // violet
-            'packing'         => '#f97316', // orange
-            default           => '#64748B', // gray
+            'packing'         => '#64748b', // slate
+            default           => '#9ca3af', // gray
         };
     }
 }

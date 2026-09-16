@@ -15,10 +15,10 @@
 
 <div class="card" style="background: var(--bg-card); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm);">
     <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
+        <table class="table datatable" style="width: 100%;">
             <thead>
                 <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
-                    <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">No</th>
+                    <th class="dt-no" style="padding: 1rem; color: var(--text-muted); font-weight: 600;">NO</th>
                     <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Tanggal & Waktu</th>
                     <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Pengguna</th>
                     <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Divisi / Role</th>
@@ -26,9 +26,9 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($logs as $index => $log)
+                @foreach($logs as $index => $log)
                 <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.2s;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
-                    <td style="padding: 1rem; color: var(--text-main);">{{ $logs->firstItem() + $index }}</td>
+                    <td style="padding: 1rem; color: var(--text-main); text-align: center;">{{ $index + 1 }}</td>
                     <td style="padding: 1rem; color: var(--text-main);">
                         <div style="font-weight: 500;">{{ $log->created_at->format('d M Y') }}</div>
                         <div style="font-size: 0.85rem; color: var(--text-muted);">{{ $log->created_at->format('H:i:s') }}</div>
@@ -61,20 +61,9 @@
                         </div>
                     </td>
                 </tr>
-                @empty
-                <tr>
-                    <td colspan="5" style="padding: 3rem; text-align: center; color: var(--text-muted);">
-                        <i class="ph ph-book-open-text" style="font-size: 3rem; color: var(--border-color); margin-bottom: 1rem; display: block;"></i>
-                        Belum ada riwayat login.
-                    </td>
-                </tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
-    </div>
-    
-    <div style="margin-top: 1.5rem;">
-        {{ $logs->links('pagination::bootstrap-5') }}
     </div>
 </div>
 

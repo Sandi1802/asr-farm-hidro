@@ -25,7 +25,7 @@
         <table class="table datatable" style="width: 100%;">
             <thead>
                 <tr>
-                    <th>No.</th>
+                    <th class="dt-no">NO</th>
                     <th>System Name</th>
                     <th>Category</th>
                     <th>Principal</th>

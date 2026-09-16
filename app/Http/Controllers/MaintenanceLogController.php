@@ -25,7 +25,7 @@ class MaintenanceLogController extends Controller
             $query->whereDate('created_at', '<=', $request->date_to);
         }
 
-        $logs = $query->paginate(50);
+        $logs = $query->get();
 
         return view('hydroponics.maintenance-logs', compact('logs'));
     }
@@ -72,5 +72,19 @@ class MaintenanceLogController extends Controller
         $log = MaintenanceLog::findOrFail($id);
         $log->delete();
         return back()->with("success", "Log pemeliharaan (satu aktivitas) berhasil dihapus.");
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'notes' => 'required|string|max:1000'
+        ]);
+
+        $log = MaintenanceLog::findOrFail($id);
+        $log->update([
+            'notes' => $request->notes
+        ]);
+
+        return back()->with("success", "Log pemeliharaan berhasil diupdate.");
     }
 }

@@ -169,16 +169,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         </span>
     </div>
     <div style="overflow-x:auto;">
-        @if($notes->isEmpty())
-        <div class="empty-state">
-            <i class="ph ph-check-circle" style="color:#16a34a;"></i>
-            <p>Tidak ada catatan kerusakan{{ request()->anyFilled(['search','status','severity','damage_type']) ? ' yang sesuai filter' : '' }}.</p>
-        </div>
-        @else
         <table class="table datatable" style="width: 100%;">
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th class="dt-no">NO</th>
                     <th>Waktu</th>
                     <th>Tanaman</th>
                     <th>Lokasi</th>
@@ -274,7 +268,6 @@ textarea.form-control { resize: vertical; min-height: 80px; }
                 @endforeach
             </tbody>
         </table>
-        @endif
     </div>
 </div>
 

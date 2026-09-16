@@ -48,7 +48,7 @@
 
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:-0.75rem; flex-wrap: wrap; gap: 0.75rem;">
         <h2 style="font-size:1.15rem;font-weight:800;color:var(--text-main);display:flex;align-items:center;gap:0.5rem;margin:0; letter-spacing:-0.3px;">
-            <i class="ph ph-squares-four" style="color:var(--asr-green);"></i> <span id="summaryKonvTitle">Ringkasan Global Konvensional</span>
+            <i class="ph ph-squares-four" style="color:var(--asr-green);"></i> <span id="summaryKonvTitle">Ringkasan Global Konvensional(Fitur Sedang Dalam Pengerjaan)</span>
         </h2>
         <div style="display: flex; gap: 0.25rem; background: var(--bg-main); border-radius: 10px; padding: 4px; border: 1px solid var(--border-color);">
             <button onclick="switchPeriodKonv('year', this)" class="period-tab-k" style="border:none; background:transparent; padding:0.4rem 0.85rem; border-radius:7px; font-size:0.78rem; font-weight:700; color:var(--text-muted); cursor:pointer; transition:all 0.2s; font-family:inherit;">Tahun Ini</button>

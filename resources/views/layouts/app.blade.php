@@ -41,6 +41,62 @@
         .global-marquee-content { display: inline-flex; align-items: center; white-space: nowrap; padding-left: 100%; animation: global-marquee-anim 25s linear infinite; }
         .global-marquee-content:hover { animation-play-state: paused; }
         @keyframes global-marquee-anim { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+        
+        /* Core DataTables overriding */
+        table.dataTable thead th, table.dataTable thead td {
+            padding: 1rem; border-bottom: none; background-color: var(--asr-green); color: white; font-weight: 600;
+        }
+        table.dataTable thead th:first-child {
+            border-top-left-radius: 6px;
+        }
+        table.dataTable thead th:last-child {
+            border-top-right-radius: 6px;
+        }
+        table.dataTable.no-footer {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Global DataTables Styling */
+        .dt-buttons .dt-button {
+            background: white; border: 1px solid var(--border-color); color: var(--text-main);
+            padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.85rem; margin-right: 0.25rem; cursor: pointer;
+        }
+        .dt-buttons .dt-button:hover { background: var(--bg-main); }
+        .dataTables_wrapper .dataTables_length select {
+            padding: 0.3rem 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);
+        }
+        .dataTables_wrapper .dataTables_filter input {
+            padding: 0.3rem 0.5rem; border-radius: 4px; border: 1px solid var(--border-color); margin-left: 0.5rem;
+        }
+        .dt-buttons-wrapper {
+            display: flex; justify-content: flex-end; margin-bottom: 0.5rem;
+        }
+        .dt-controls-wrapper {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;
+        }
+        .dt-bottom-container {
+            display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;
+            padding-top: 1rem; border-top: 1px solid var(--border-color);
+        }
+        .dataTables_wrapper .dataTables_paginate {
+            display: flex; border-radius: 4px; overflow: hidden; border: 1px solid var(--border-color);
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 0.375rem 0.75rem; border: none; border-right: 1px solid var(--border-color);
+            cursor: pointer; background: white; color: var(--text-main) !important; text-decoration: none; margin: 0 !important; border-radius: 0 !important;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button:last-child {
+            border-right: none;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #0d6efd; color: white !important; font-weight: bold;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.current):not(.disabled) {
+            background: #f8f9fa;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+            background: #f3f4f6; color: #9ca3af !important; cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -195,8 +251,17 @@
             if ($('.datatable').length) {
                 $('.datatable').each(function() {
                     var lastCol = $(this).find('thead th').length - 1;
-                    $(this).DataTable({
-                        dom: '<"dt-row-buttons"B><"dt-row-controls"lf>rt<"dt-bottom"ip><"clear">',
+                    var noColIndex = -1;
+                    
+                    // Cari indeks kolom yang memiliki class 'dt-no' (untuk nomor urut)
+                    $(this).find('thead th').each(function(idx) {
+                        if ($(this).hasClass('dt-no')) {
+                            noColIndex = idx;
+                        }
+                    });
+
+                    var t = $(this).DataTable({
+                        dom: '<"dt-buttons-wrapper"B><"dt-controls-wrapper"lf>rt<"dt-bottom-container"<"dt-info"i><"dt-pagination"p>><"clear">',
                         buttons: [
                             { extend: 'copy', text: '<i class="ph ph-copy"></i> Copy', className: 'dt-btn dt-btn-copy' },
                             { extend: 'excel', text: '<i class="ph ph-file-xls"></i> Excel', className: 'dt-btn dt-btn-excel' },
@@ -204,23 +269,37 @@
                             { extend: 'pdf', text: '<i class="ph ph-file-pdf"></i> PDF', className: 'dt-btn dt-btn-pdf' }
                         ],
                         columnDefs: [
-                            { orderable: false, targets: lastCol }
-                        ],
+                            { orderable: false, targets: lastCol },
+                            { searchable: false, orderable: false, targets: noColIndex > -1 ? noColIndex : null }
+                        ].filter(def => def.targets !== null),
+                        pagingType: "simple_numbers",
+                        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
                         language: {
                             search: "Cari:",
                             lengthMenu: "Tampilkan _MENU_ data",
                             info: "Menampilkan _START_–_END_ dari _TOTAL_ data",
-                            infoEmpty: "Menampilkan 0 data",
-                            emptyTable: "Belum ada data tersedia.",
-                            zeroRecords: "Tidak ditemukan data yang cocok.",
+                            infoEmpty: "Tidak ada data",
+                            infoFiltered: "(difilter dari _MAX_ total data)",
+                            emptyTable: "Belum ada data",
+                            zeroRecords: "Belum ada data",
                             paginate: {
-                                first: "«",
-                                last: "»",
-                                next: "›",
-                                previous: "‹"
+                                first: "Pertama",
+                                last: "Terakhir",
+                                next: "»",
+                                previous: "«"
                             }
                         }
                     });
+
+                    // Dynamic numbering for the 'dt-no' column
+                    if (noColIndex > -1) {
+                        t.on('order.dt search.dt', function () {
+                            let i = 1;
+                            t.cells(null, noColIndex, {search: 'applied', order: 'applied'}).every(function (cell) {
+                                this.data(i++);
+                            });
+                        }).draw();
+                    }
                 });
             }
         });
@@ -462,6 +541,7 @@
             });
         });
     </script>
+    @yield('scripts')
     @stack('scripts')
 </body>
 </html>

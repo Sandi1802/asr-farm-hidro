@@ -1,6 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', 'Master Data — Pegawai')
+@section('title', 'Master Data â€” Pegawai')
 
 @section('content')
     <div class="flex-between" style="margin-bottom: 1.5rem;">
@@ -73,17 +73,12 @@
                     </td>
                     <td>
                         <div class="action-buttons">
-                            <button type="button" class="dt-action-btn dt-btn-edit" title="Edit">
+                            <button type="button" class="dt-action-btn dt-btn-edit" title="Edit" onclick="openEditModal({{ htmlspecialchars(json_encode($employee)) }})">
                                 <i class="ph ph-pencil-simple"></i>
                             </button>
-                            <form action="{{ route('master-data.employees.delete', $employee->id) }}" method="POST"
-                                  onsubmit="return confirm('Hapus pegawai ini?');" style="margin: 0;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="dt-action-btn dt-btn-delete" title="Delete">
-                                    <i class="ph ph-trash"></i>
-                                </button>
-                            </form>
+                            <button type="button" class="dt-action-btn dt-btn-delete" title="Delete" onclick="confirmAction('Hapus Pegawai', 'Apakah Anda yakin ingin menghapus pegawai ini? Data yang dihapus tidak dapat dikembalikan.', '{{ route('master-data.employees.delete', $employee->id) }}', 'DELETE')">
+                                <i class="ph ph-trash"></i>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -169,4 +164,115 @@
             </form>
         </div>
     </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Pegawai</h3>
+                <i class="ph ph-x close-modal" onclick="document.getElementById('editModal').classList.remove('active')"></i>
+            </div>
+            <form action="" id="editForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label>NIP</label>
+                        <input type="text" name="nip" id="edit_nip" class="form-control" required placeholder="Contoh: 202401001">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" id="edit_status" class="form-control" required>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Foto Profil / Avatar <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(Opsional, Maks 2MB)</span></label>
+                    <input type="file" name="avatar" class="form-control" accept="image/jpeg,image/png,image/jpg" style="padding: 0.5rem; height: auto;">
+                </div>
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" name="name" id="edit_name" class="form-control" required placeholder="Nama pegawai">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Jabatan</label>
+                        <input type="text" name="position" id="edit_position" class="form-control" required placeholder="Contoh: Project Manager">
+                    </div>
+                    <div class="form-group">
+                        <label>Departemen</label>
+                        <input type="text" name="department" id="edit_department" class="form-control" required placeholder="Contoh: Engineering">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Username <span style="color:var(--text-muted); font-weight:400;">(Wajib untuk login)</span></label>
+                        <input type="text" name="username" id="edit_username" class="form-control" required placeholder="Contoh: sandi.p">
+                    </div>
+                    <div class="form-group">
+                        <label>No. Telepon <span style="color:var(--text-muted); font-weight:400;">(Opsional)</span></label>
+                        <input type="text" name="phone" id="edit_phone" class="form-control" placeholder="08xx-xxxx-xxxx">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Role Akun</label>
+                        <select name="role_agri" id="edit_role_agri" class="form-control" required>
+                            <option value="admin">Tim IT / Super Admin</option>
+                            <option value="atasan">Atasan / Manajer</option>
+                            <option value="kepala_produksi">Kepala Produksi</option>
+                            <option value="kepala_greenhouse">Kepala Greenhouse</option>
+                            <option value="kepala_konven">Kepala Konven</option>
+                            <option value="staff">Staff Umum</option>
+                            <option value="keuangan">Tim Keuangan</option>
+                            <option value="pemasaran">Tim Pemasaran</option>
+                            <option value="packing">Tim Packing</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Password Akun</label>
+                        <input type="password" name="password" id="edit_password" class="form-control" required placeholder="Minimal 6 karakter">
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+                    <button type="button" class="btn btn-outline" onclick="document.getElementById('editModal').classList.remove('active')">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+@section('scripts')
+<script>
+    function openEditModal(employee) {
+        let modal = document.getElementById('editModal');
+        let form = document.getElementById('editForm');
+        
+        form.action = '/hydroponics/master-data/employees/' + employee.id;
+        
+        document.getElementById('edit_nip').value = employee.nip;
+        document.getElementById('edit_name').value = employee.name;
+        document.getElementById('edit_position').value = employee.position;
+        document.getElementById('edit_department').value = employee.department;
+        document.getElementById('edit_email').value = employee.email || '';
+        document.getElementById('edit_phone').value = employee.phone || '';
+        document.getElementById('edit_status').value = employee.status;
+        
+        if (employee.user) {
+            document.getElementById('edit_username').value = employee.user.username || '';
+            document.getElementById('edit_role_agri').value = employee.user.role_agri || '';
+        } else {
+            document.getElementById('edit_username').value = '';
+            document.getElementById('edit_role_agri').value = '';
+        }
+        
+        modal.classList.add('active');
+    }
+</script>
 @endsection
+
+@endsection
+
+
+

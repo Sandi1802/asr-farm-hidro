@@ -28,12 +28,12 @@
     </div>
     @endif
 
-    <div class="card" style="padding: 0; overflow: hidden;">
-        <div style="overflow-x: auto;">
-            <table id="labelsTable" class="data-table" style="width: 100%;">
+    <div class="card" style="padding: 1.5rem; overflow: hidden; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color);">
+        <div class="table-responsive">
+            <table class="table datatable" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th style="width: 50px;">No.</th>
+                        <th class="dt-no" style="width: 50px;">NO</th>
                         <th>Label</th>
                         <th>Color</th>
                         <th>Parent</th>
@@ -46,7 +46,7 @@
                 <tbody>
                     @foreach($labels as $index => $label)
                     <tr>
-                        <td>{{ $index + 1 }}</td>
+                        <td style="text-align: center;">{{ $index + 1 }}</td>
                         <td>
                             <span class="label-badge" style="background-color: {{ $label->color }}22; color: {{ $label->color }};">
                                 {{ $label->name }}

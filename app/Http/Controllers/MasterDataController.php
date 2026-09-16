@@ -144,10 +144,81 @@ class MasterDataController extends Controller
 
         return back()->with('success', 'Pegawai & Akun berhasil ditambahkan.');
     }
-
-    public function deleteEmployee($id)
+    public function updateEmployee(Request $request, $id)
     {
-        Employee::findOrFail($id)->delete();
-        return back()->with('success', 'Pegawai berhasil dihapus.');
+        $employee = Employee::findOrFail($id);
+
+        $request->validate([
+            'nip'        => 'required|unique:employees,nip,' . $id,
+            'name'       => 'required',
+            'position'   => 'required',
+            'department' => 'required',
+            'status'     => 'required',
+            'avatar'     => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+            $employee->avatar = $avatarPath;
+        }
+
+        $employee->nip = $request->nip;
+        $employee->name = $request->name;
+        $employee->position = $request->position;
+        $employee->department = $request->department;
+        $employee->email = $request->email;
+        $employee->phone = $request->phone;
+        $employee->status = $request->status;
+        $employee->save();
+
+        // Sync with user if email is linked
+        if ($employee->email) {
+            $user = \App\Models\User::where('email', $employee->email)->first();
+            if ($user) {
+                $user->name = $request->name;
+                $user->nip = $request->nip;
+                if (isset($avatarPath)) {
+                    $user->avatar = $avatarPath;
+                }
+                
+                // If username is provided, update it
+                if ($request->filled('username')) {
+                    $request->validate(['username' => 'unique:users,username,' . $user->id]);
+                    $user->username = $request->username;
+                }
+
+                // If password is provided, update it
+                if ($request->filled('password')) {
+                    $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+                }
+
+                if ($request->filled('role_agri')) {
+                    $user->role_agri = $request->role_agri;
+                    $user->role = $request->role_agri === 'it_admin' ? 'super_admin' : 'viewer';
+                }
+
+                $user->save();
+            }
+        }
+
+        return back()->with('success', 'Pegawai berhasil diperbarui.');
+    }
+
+
+    public function destroyEmployee($id)
+    {
+        $employee = Employee::findOrFail($id);
+        
+        // Find and delete associated user if exists
+        if ($employee->email) {
+            $user = \App\Models\User::where('email', $employee->email)->first();
+            if ($user) {
+                $user->delete();
+            }
+        }
+        
+        $employee->delete();
+        return back()->with('success', 'Pegawai (dan akunnya) berhasil dihapus.');
     }
 }
+
