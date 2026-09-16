@@ -73,6 +73,8 @@ body {
     display: flex;
     min-height: 100vh;
     overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
 }
 
 /* Sidebar */
@@ -214,6 +216,7 @@ body {
     flex-direction: column;
     transition: margin-left 0.3s ease;
     min-width: 0;
+    max-width: 100%;
 }
 
 .main-content.collapsed {
