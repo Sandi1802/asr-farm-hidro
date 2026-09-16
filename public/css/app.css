@@ -213,6 +213,7 @@ body {
     display: flex;
     flex-direction: column;
     transition: margin-left 0.3s ease;
+    min-width: 0;
 }
 
 .main-content.collapsed {
@@ -1460,6 +1461,7 @@ table.dataTable thead .sorting_desc::after {
     justify-content: space-between;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     text-decoration: none;
+    min-width: 0;
     cursor: default;
 }
 
