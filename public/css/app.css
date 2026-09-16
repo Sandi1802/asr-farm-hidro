@@ -1816,13 +1816,19 @@ a .stat-big-card {
 }
 
 /* === RESPONSIVE OVERRIDES (ADDED) === */
+@media (max-width: 1400px) {
+    .dashboard-stats { grid-template-columns: repeat(3, 1fr) !important; }
+}
+
 @media (max-width: 1200px) {
     .responsive-grid-cal { grid-template-columns: 1fr !important; }
-    .dashboard-stats { grid-template-columns: repeat(3, 1fr) !important; }
+    .responsive-grid-2 { grid-template-columns: 1fr !important; }
+    .dashboard-stats { grid-template-columns: repeat(2, 1fr) !important; }
 }
 
 @media (max-width: 992px) {
     .dashboard-stats { grid-template-columns: repeat(2, 1fr) !important; }
+    .responsive-grid-2 { grid-template-columns: 1fr !important; }
 }
 
 @media (max-width: 768px) {
