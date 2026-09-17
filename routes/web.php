@@ -115,6 +115,22 @@ Route::middleware('auth')->group(function () {
             Route::post('/master-data/labels/{id}', [\App\Http\Controllers\LabelController::class, 'update'])->name('master-data.labels.update');
             Route::delete('/master-data/labels/{id}', [\App\Http\Controllers\LabelController::class, 'destroy'])->name('master-data.labels.destroy');
 
+            
+            Route::get('/master-data/fix-db-sequences', function () {
+                if (DB::connection()->getDriverName() === 'pgsql') {
+                    try {
+                        $maxTemplateId = DB::table('daily_task_templates')->max('id') ?? 1;
+                        DB::statement("SELECT setval('daily_task_templates_id_seq', $maxTemplateId)");
+                        $maxTaskId = DB::table('daily_tasks')->max('id') ?? 1;
+                        DB::statement("SELECT setval('daily_tasks_id_seq', $maxTaskId)");
+                        return 'Done resetting Postgres sequences!';
+                    } catch (\Exception $e) {
+                        return 'Error: ' . $e->getMessage();
+                    }
+                }
+                return 'Not using Postgres, skipping sequence reset.';
+            });
+
             // Daily Task Templates
             Route::get('/master-data/daily-tasks', [\App\Http\Controllers\DailyTaskTemplateController::class, 'index'])->name('master-data.daily-tasks');
             Route::post('/master-data/daily-tasks', [\App\Http\Controllers\DailyTaskTemplateController::class, 'store'])->name('master-data.daily-tasks.store');
