@@ -5,7 +5,7 @@ use App\Http\Controllers\AuthController;
 
 // Auth Routes (no middleware)
 Route::get('/login',  [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+Route::post('/login', [AuthController::class, 'login'])->name('auth.login')->middleware('throttle:5,1');
 Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
 // Protected Routes (requires login)

@@ -98,10 +98,10 @@ $plantStageJson = json_encode($plantStageData ?? []);
         <a @if(isset($s['link'])) href="{{ $s['link'] }}" @elseif(isset($s['onClick'])) onclick="{{ $s['onClick'] }}" style="cursor:pointer;" @endif style="text-decoration:none; @if(!isset($s['link']) && !isset($s['onClick'])) cursor:default; @endif">
             <div class="stat-big-card {{ $s['class'] }}">
                 <div>
-                    <div class="sbc-value" {!! isset($s['id']) ? 'id="'.$s['id'].'"' : '' !!}>{{ $s['value'] }}</div>
+                    <div class="sbc-value" @if(isset($s['id'])) id="{{ $s['id'] }}" @endif>{{ $s['value'] }}</div>
                     <div class="sbc-label">{{ $s['label'] }}</div>
                     @if(isset($s['sub']))
-                    <div style="font-size:0.75rem; color: rgba(255,255,255,0.85); font-weight:600; margin-top:0.35rem; letter-spacing:0.3px;" {!! isset($s['id']) ? 'id="'.$s['id'].'-sub"' : '' !!}>{{ $s['sub'] }}</div>
+                    <div style="font-size:0.75rem; color: rgba(255,255,255,0.85); font-weight:600; margin-top:0.35rem; letter-spacing:0.3px;" @if(isset($s['id'])) id="{{ $s['id'] }}-sub" @endif>{{ $s['sub'] }}</div>
                     @endif
                 </div>
                 @if(isset($s['link']) || isset($s['onClick']))
