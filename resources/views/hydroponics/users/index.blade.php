@@ -44,7 +44,7 @@
                         <tr>
                             <td style="text-align: center;">{{ $index + 1 }}</td>
                             <td style="font-weight: 500; color: var(--text-main);">{{ $user->name }}</td>
-                            <td>{{ $user->username }}</td>
+                            <td><div title="{{ $user->username }}" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $user->username }}</div></td>
                             <td>
                                 <span style="padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; 
                                     background: {{ $user->roleBadgeColor() }}1A; 

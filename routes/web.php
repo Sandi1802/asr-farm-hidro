@@ -58,11 +58,31 @@ Route::middleware('auth')->group(function () {
             Route::get('/master-data/employees', [\App\Http\Controllers\MasterDataController::class, 'employees'])->name('master-data.employees');
 
             Route::get('/master-data/sync-employees', function () {
+                // 1. Fix existing names
+                $users = \App\Models\User::all();
+                foreach ($users as $user) {
+                    if (str_contains($user->name, '@')) {
+                        $newName = explode('@', $user->name)[0];
+                        $newName = ucwords(str_replace('.', ' ', $newName));
+                        $user->name = $newName;
+                        $user->save();
+                    }
+                }
+                
+                $employees = \App\Models\Employee::all();
+                foreach ($employees as $employee) {
+                    if (str_contains($employee->name, '@')) {
+                        $newName = explode('@', $employee->name)[0];
+                        $newName = ucwords(str_replace('.', ' ', $newName));
+                        $employee->name = $newName;
+                        $employee->save();
+                    }
+                }
+
                 $users = \App\Models\User::all();
                 $count = 0;
                 foreach ($users as $user) {
                     if (!\App\Models\Employee::where('email', $user->email)->exists()) {
-                        // Cari NIP yang belum dipakai
                         $baseNip = 'EMP-' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
                         $nip = $baseNip;
                         $counter = 1;
@@ -82,7 +102,7 @@ Route::middleware('auth')->group(function () {
                         $count++;
                     }
                 }
-                return redirect()->route('master-data.employees')->with('success', "Berhasil mensinkronisasi $count data pengguna ke karyawan.");
+                return redirect()->route('master-data.employees')->with('success', "Berhasil mensinkronisasi $count data pengguna baru & merapikan nama.");
             });
 
             Route::post('/master-data/employees', [\App\Http\Controllers\MasterDataController::class, 'storeEmployee'])->name('master-data.employees.store');
