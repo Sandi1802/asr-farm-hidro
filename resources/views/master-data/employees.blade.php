@@ -35,6 +35,7 @@
                     <th>Nama</th>
                     <th>Jabatan</th>
                     <th>Departemen</th>
+                    <th>Username</th>
                     <th>Email</th>
                     <th>Telepon</th>
                     <th>Status</th>
@@ -60,6 +61,13 @@
                     </td>
                     <td>{{ $employee->position }}</td>
                     <td>{{ $employee->department }}</td>
+                    <td>
+                        @if($employee->user && $employee->user->username)
+                            <span style="font-family: monospace; font-size: 0.85rem; background: var(--asr-green-light); color: var(--asr-green); padding: 0.15rem 0.5rem; border-radius: 4px;">{{ $employee->user->username }}</span>
+                        @else
+                            <span style="color: var(--text-muted);">--</span>
+                        @endif
+                    </td>
                     <td>{{ $employee->email ?? '--' }}</td>
                     <td>{{ $employee->phone ?? '--' }}</td>
                     <td>

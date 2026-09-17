@@ -19,4 +19,10 @@ class Employee extends Model
         'status',
         'avatar',
     ];
+
+    // Relasi ke User berdasarkan email yang sama
+    public function user()
+    {
+        return $this->hasOne(User::class, 'email', 'email');
+    }
 }

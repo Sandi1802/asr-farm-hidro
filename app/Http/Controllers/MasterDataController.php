@@ -93,7 +93,7 @@ class MasterDataController extends Controller
     // EMPLOYEES
     public function employees()
     {
-        $employees = Employee::all();
+        $employees = Employee::with('user')->get();
         return view('master-data.employees', compact('employees'));
     }
 
