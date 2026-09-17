@@ -38,7 +38,7 @@
             </div>
             
             @php 
-                $hidroponikActive = request()->is('hydroponics/greenhouses*') || request()->is('hydroponics/semai*') || request()->is('hydroponics/maintenance-logs*') || request()->is('hydroponics/damage-notes*'); 
+                $hidroponikActive = request()->is('hydroponics/greenhouses*') || request()->is('hydroponics/semai*') || request()->is('hydroponics/daily-tasks*') || request()->is('hydroponics/maintenance-logs*') || request()->is('hydroponics/damage-notes*'); 
             @endphp
             {{-- Hidroponik Dropdown --}}
             @if(in_array(Auth::user()?->role_agri, ['it_admin', 'atasan', 'produksi', 'produksi_gh', 'packing']))
