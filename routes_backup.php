@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -57,7 +57,6 @@ Route::middleware('auth')->group(function () {
             
             Route::get('/master-data/employees', [\App\Http\Controllers\MasterDataController::class, 'employees'])->name('master-data.employees');
             Route::post('/master-data/employees', [\App\Http\Controllers\MasterDataController::class, 'storeEmployee'])->name('master-data.employees.store');
-            Route::put('/master-data/employees/{id}', [\App\Http\Controllers\MasterDataController::class, 'updateEmployee'])->name('master-data.employees.update');
             Route::delete('/master-data/employees/{id}', [\App\Http\Controllers\MasterDataController::class, 'destroyEmployee'])->name('master-data.employees.delete');
             
             Route::get('/master-data/labels', [\App\Http\Controllers\LabelController::class, 'index'])->name('master-data.labels');
@@ -65,12 +64,6 @@ Route::middleware('auth')->group(function () {
             Route::post('/master-data/labels', [\App\Http\Controllers\LabelController::class, 'store'])->name('master-data.labels.store');
             Route::post('/master-data/labels/{id}', [\App\Http\Controllers\LabelController::class, 'update'])->name('master-data.labels.update');
             Route::delete('/master-data/labels/{id}', [\App\Http\Controllers\LabelController::class, 'destroy'])->name('master-data.labels.destroy');
-
-            // Daily Task Templates
-            Route::get('/master-data/daily-tasks', [\App\Http\Controllers\DailyTaskTemplateController::class, 'index'])->name('master-data.daily-tasks');
-            Route::post('/master-data/daily-tasks', [\App\Http\Controllers\DailyTaskTemplateController::class, 'store'])->name('master-data.daily-tasks.store');
-            Route::put('/master-data/daily-tasks/{id}', [\App\Http\Controllers\DailyTaskTemplateController::class, 'update'])->name('master-data.daily-tasks.update');
-            Route::delete('/master-data/daily-tasks/{id}', [\App\Http\Controllers\DailyTaskTemplateController::class, 'destroy'])->name('master-data.daily-tasks.destroy');
         });
 
         // Hydroponic Module - Produksi, Produksi GH, Packing
@@ -132,11 +125,6 @@ Route::middleware('auth')->group(function () {
 
             // Daily Tasks
             Route::get('/daily-tasks', [\App\Http\Controllers\DailyTaskController::class, 'webIndex'])->name('hydroponics.daily-tasks');
-            Route::get('/daily-tasks-api', [\App\Http\Controllers\DailyTaskController::class, 'apiIndex']);
-            Route::post('/daily-tasks-api', [\App\Http\Controllers\DailyTaskController::class, 'apiStore']);
-            Route::post('/daily-tasks-api/{id}/complete', [\App\Http\Controllers\DailyTaskController::class, 'apiToggleComplete']);
-            Route::post('/daily-tasks-api/{id}/note', [\App\Http\Controllers\DailyTaskController::class, 'apiUpdateNote']);
-            Route::delete('/daily-tasks-api/{id}', [\App\Http\Controllers\DailyTaskController::class, 'apiDelete']);
         });
 
         // Inventory - Produksi, Produksi GH, Produksi Konven, Keuangan, Pemasaran, Packing
@@ -223,4 +211,3 @@ Route::middleware('auth')->group(function () {
         Route::post('/penyemprotan', [\App\Http\Controllers\PaprikaController::class, 'storePenyemprotan'])->name('paprika.penyemprotan.store');
     });
 });
-

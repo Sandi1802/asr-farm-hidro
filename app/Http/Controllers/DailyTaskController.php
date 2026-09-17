@@ -8,50 +8,6 @@ use Carbon\Carbon;
 
 class DailyTaskController extends Controller
 {
-    private $template = [
-        'opening' => [
-            'Pintu/akses kebun aman',
-            'Area umum tidak banjir/genangan',
-            'Pompa utama menyala normal',
-            'Aliran air semua jalur aktif',
-            'Volume tandon cukup',
-            'pH larutan dicatat',
-            'EC/PPM larutan dicatat',
-            'Alat ukur siap pakai',
-            'Tanaman layu/abnormal dicek',
-            'Tanda hama dicek',
-            'Area semai dicek',
-            'Order hari ini dicek',
-            'Stok kemasan dicek',
-            'Area packing bersih',
-            'Briefing singkat dilakukan'
-        ],
-        'siang' => [
-            'Tanaman tidak stres panas berlebihan',
-            'Aliran air tetap rata',
-            'Area kerja tetap bersih',
-            'Panen sesuai order',
-            'Sortasi dilakukan',
-            'Packing tidak telat',
-            'Komunikasi pelanggan aktif'
-        ],
-        'closing' => [
-            'Sisa panen ditangani',
-            'Area packing dibersihkan',
-            'Sampah organik dibuang/diolah',
-            'Pompa dan aliran akhir dicek',
-            'Volume tandon cukup untuk malam',
-            'Panel listrik/stop kontak aman',
-            'Alat dikembalikan',
-            'Alat ukur dibersihkan',
-            'Stok kritis dicatat',
-            'Kas kecil/struk hari ini aman',
-            'Foto closing diambil',
-            'Pintu/gembok ditutup',
-            'Serah terima shift dibuat'
-        ]
-    ];
-
     private function generateTemplateIfNeeded($dateStr)
     {
         $date = Carbon::parse($dateStr)->format('Y-m-d');
@@ -59,17 +15,16 @@ class DailyTaskController extends Controller
         $count = DailyTask::whereDate('date', $date)->where('is_pr', false)->count();
         
         if ($count == 0) {
-            foreach ($this->template as $shift => $tasks) {
-                foreach ($tasks as $taskName) {
-                    DailyTask::create([
-                        'date' => $date,
-                        'shift' => $shift,
-                        'task_name' => $taskName,
-                        'status' => 'pending',
-                        'is_pr' => false,
-                        'created_by' => auth()->id() ?? 1
-                    ]);
-                }
+            $templates = \App\Models\DailyTaskTemplate::all();
+            foreach ($templates as $t) {
+                DailyTask::create([
+                    'date' => $date,
+                    'shift' => $t->shift,
+                    'task_name' => $t->task_name,
+                    'status' => 'pending',
+                    'is_pr' => false,
+                    'created_by' => auth()->id() ?? 1
+                ]);
             }
         }
     }

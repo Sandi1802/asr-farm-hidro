@@ -210,6 +210,9 @@
                 <a href="/hydroponics/master-data/labels" class="submenu-item {{ request()->is('hydroponics/master-data/labels') ? 'active' : '' }}">
                     <i class="ph ph-tag" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Labels
                 </a>
+                <a href="/hydroponics/master-data/daily-tasks" class="submenu-item {{ request()->is('hydroponics/master-data/daily-tasks') ? 'active' : '' }}">
+                    <i class="ph ph-check-square" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Daily Tasks
+                </a>
                 <a href="/hydroponics/master-data/plants" class="submenu-item {{ request()->is('hydroponics/master-data/plants') ? 'active' : '' }}">
                     <i class="ph ph-list-bullets" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Jenis Tanaman
                 </a>
