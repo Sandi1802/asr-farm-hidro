@@ -105,10 +105,10 @@ class MasterDataController extends Controller
             'position'   => 'required',
             'department' => 'required',
             'status'     => 'required',
-            'username'   => 'required|unique:users,username',
-            'email'      => 'required|email|unique:users,email',
+            'username'   => 'required',
+            'email'      => 'required|email',
             'role_agri'  => 'required',
-            'password'   => 'required|min:6',
+            'password'   => 'nullable|min:6',
             'avatar'     => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -117,19 +117,37 @@ class MasterDataController extends Controller
             $avatarPath = $request->file('avatar')->store('avatars', 'public');
         }
 
-        // 1. Buat User Account
         $email = $request->email;
 
-        $user = \App\Models\User::create([
-            'name'      => $request->name,
-            'nip'       => $request->nip,
-            'username'  => $request->username,
-            'email'     => $email,
-            'password'  => \Illuminate\Support\Facades\Hash::make($request->password),
-            'role'      => $request->role_agri === 'it_admin' ? 'super_admin' : 'viewer',
-            'role_agri' => $request->role_agri,
-            'avatar'    => $avatarPath,
-        ]);
+        // 1. Cek apakah User sudah ada
+        $user = \App\Models\User::where('email', $email)->orWhere('username', $request->username)->first();
+        
+        if ($user) {
+            // Update User yang sudah ada
+            $user->name = $request->name;
+            $user->nip = $request->nip;
+            if ($request->filled('password')) {
+                $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+            }
+            $user->role = $request->role_agri === 'it_admin' ? 'super_admin' : 'viewer';
+            $user->role_agri = $request->role_agri;
+            if ($avatarPath) {
+                $user->avatar = $avatarPath;
+            }
+            $user->save();
+        } else {
+            // Buat User baru
+            $user = \App\Models\User::create([
+                'name'      => $request->name,
+                'nip'       => $request->nip,
+                'username'  => $request->username,
+                'email'     => $email,
+                'password'  => \Illuminate\Support\Facades\Hash::make($request->filled('password') ? $request->password : 'password123'),
+                'role'      => $request->role_agri === 'it_admin' ? 'super_admin' : 'viewer',
+                'role_agri' => $request->role_agri,
+                'avatar'    => $avatarPath,
+            ]);
+        }
 
         // 2. Buat Employee Record
         Employee::create([
