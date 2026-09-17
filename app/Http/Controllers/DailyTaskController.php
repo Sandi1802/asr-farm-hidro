@@ -10,20 +10,34 @@ class DailyTaskController extends Controller
 {
     private function generateTemplateIfNeeded($dateStr)
     {
-        $date = Carbon::parse($dateStr)->format('Y-m-d');
+        $date = Carbon\Carbon::parse($dateStr)->format("Y-m-d");
         
-        $count = DailyTask::whereDate('date', $date)->where('is_pr', false)->count();
-        
-        if ($count == 0) {
-            $templates = \App\Models\DailyTaskTemplate::all();
-            foreach ($templates as $t) {
-                DailyTask::create([
-                    'date' => $date,
-                    'shift' => $t->shift,
-                    'task_name' => $t->task_name,
-                    'status' => 'pending',
-                    'is_pr' => false,
-                    'created_by' => auth()->id() ?? 1
+        $templates = \App\Models\DailyTaskTemplate::all();
+        $templateNames = $templates->pluck("task_name")->toArray();
+
+        // Hapus tugas pending hari ini yang sudah tidak ada di master template
+        App\Models\DailyTask::whereDate("date", $date)
+            ->where("is_pr", false)
+            ->where("status", "pending")
+            ->where("shift", "!=", "catatan")
+            ->whereNotIn("task_name", $templateNames)
+            ->delete();
+
+        // Tambahkan tugas dari template yang belum ada di hari ini
+        $existingTasks = App\Models\DailyTask::whereDate("date", $date)
+            ->where("is_pr", false)
+            ->pluck("task_name")
+            ->toArray();
+
+        foreach ($templates as $t) {
+            if (!in_array($t->task_name, $existingTasks)) {
+                App\Models\DailyTask::create([
+                    "date" => $date,
+                    "shift" => $t->shift,
+                    "task_name" => $t->task_name,
+                    "status" => "pending",
+                    "is_pr" => false,
+                    "created_by" => auth()->id() ?? 1
                 ]);
             }
         }
