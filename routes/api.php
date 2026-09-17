@@ -14,6 +14,16 @@ use App\Http\Controllers\Api\MaintenanceLogController;
 // Public
 Route::post('/login', [MobileApiController::class, 'login']);
 
+// App Updater API (No auth required)
+Route::get('/app-version', function () {
+    return response()->json([
+        'version' => '1.0.1',
+        'url' => 'https://asrfarm.tech/download/asr_green_mobile.apk',
+        'is_required' => false,
+    ]);
+});
+
+
 // Authenticated routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [MobileApiController::class, 'logout']);
