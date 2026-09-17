@@ -70,12 +70,12 @@
                     <td>{{ $employee->department }}</td>
                     <td>
                         @if($employee->user && $employee->user->username)
-                            <span style="font-family: monospace; font-size: 0.85rem; background: var(--asr-green-light); color: var(--asr-green); padding: 0.15rem 0.5rem; border-radius: 4px; display: inline-block; word-break: break-all; white-space: normal; max-width: 150px;">{{ $employee->user->username }}</span>
+                            <span style="font-family: monospace; font-size: 0.85rem; background: var(--asr-green-light); color: var(--asr-green); padding: 0.15rem 0.5rem; border-radius: 4px; display: inline-block; word-break: break-word; white-space: normal;">{{ $employee->user->username }}</span>
                         @else
                             <span style="color: var(--text-muted);">--</span>
                         @endif
                     </td>
-                    <td><div style="word-break: break-all; white-space: normal; max-width: 180px;">{{ $employee->email ?? '--' }}</div></td>
+                    <td><div style="word-break: break-word; white-space: normal;">{{ $employee->email ?? '--' }}</div></td>
                     <td>{{ $employee->phone ?? '--' }}</td>
                     <td>
                         <span class="badge {{ $employee->status === 'Active' ? 'badge-success' : 'badge-negative' }}">
