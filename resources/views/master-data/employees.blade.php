@@ -3,10 +3,7 @@
 @section('title', 'Master Data – Pegawai')
 
 @section('content')
-    <div class="flex-between" style="margin-bottom: 1.5rem;">
-        <div>
-            <!-- DataTables will inject search and length menu here -->
-        </div>
+    <div class="flex-between" style="margin-bottom: 1.5rem; justify-content: flex-end;">
         <div style="display: flex; gap: 0.75rem;">
             <button class="btn btn-primary" type="button" onclick="document.getElementById('addModal').classList.add('active')">
                 <i class="ph ph-plus"></i> Tambah Pegawai
@@ -36,17 +33,17 @@
         </div>
     @endif
 
-    <div class="table-responsive">
-        <table id="employeesTable" class="data-table">
+    <div class="table-responsive" style="padding-bottom: 1rem;">
+        <table class="table datatable" style="width: 100%; table-layout: fixed;">
             <thead>
                 <tr>
-                    <th>No.</th>
+                    <th class="dt-no" style="width: 5%;">NO</th>
                     <th>NIP</th>
-                    <th>Nama</th>
+                    <th style="width: 15%;">Nama</th>
                     <th>Jabatan</th>
                     <th>Departemen</th>
-                    <th>Username</th>
-                    <th>Email</th>
+                    <th style="width: 15%;">Username</th>
+                    <th style="width: 20%;">Email</th>
                     <th>Telepon</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -78,7 +75,7 @@
                             <span style="color: var(--text-muted);">--</span>
                         @endif
                     </td>
-                    <td>{{ $employee->email ?? '--' }}</td>
+                    <td><div style="word-break: break-all; white-space: normal;">{{ $employee->email ?? '--' }}</div></td>
                     <td>{{ $employee->phone ?? '--' }}</td>
                     <td>
                         <span class="badge {{ $employee->status === 'Active' ? 'badge-success' : 'badge-negative' }}">
@@ -260,22 +257,7 @@
 
 @section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof $.fn.DataTable !== 'undefined') {
-        $('#employeesTable').DataTable({
-            responsive: true,
-            pageLength: 10,
-            dom: "<'flex-between' l <'dt-search' f>>rt<'flex-between' ip>",
-            language: {
-                search: '',
-                searchPlaceholder: 'Cari...',
-                lengthMenu: 'Tampilkan _MENU_ data',
-                info: 'Menampilkan _START_–_END_ dari _TOTAL_ data',
-                paginate: { previous: '‹', next: '›' },
-                zeroRecords: 'Tidak ada data ditemukan'
-            }
-        });
-    }
+}
 });
 
 function openEditModal(btn) {
@@ -300,6 +282,8 @@ function openEditModal(btn) {
         document.getElementById('edit_username').value = '';
         document.getElementById('edit_role_agri').value = '';
     }
+    
+    document.getElementById('edit_email').value = employee.email || employee.user?.email || '';
 
     modal.classList.add('active');
 }

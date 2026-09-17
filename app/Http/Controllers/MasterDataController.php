@@ -106,6 +106,7 @@ class MasterDataController extends Controller
             'department' => 'required',
             'status'     => 'required',
             'username'   => 'required|unique:users,username',
+            'email'      => 'required|email|unique:users,email',
             'role_agri'  => 'required',
             'password'   => 'required|min:6',
             'avatar'     => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -117,7 +118,7 @@ class MasterDataController extends Controller
         }
 
         // 1. Buat User Account
-        $email = strtolower(str_replace(' ', '', $request->username)) . '@asrfarm.local';
+        $email = $request->email;
 
         $user = \App\Models\User::create([
             'name'      => $request->name,
@@ -182,6 +183,11 @@ class MasterDataController extends Controller
                     $user->avatar = $avatarPath;
                 }
                 
+                if ($request->filled('email')) {
+                    $request->validate(['email' => 'email|unique:users,email,' . $user->id]);
+                    $user->email = $request->email;
+                }
+
                 // If username is provided, update it
                 if ($request->filled('username')) {
                     $request->validate(['username' => 'unique:users,username,' . $user->id]);
