@@ -70,7 +70,7 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($productStats as $stat)
+                @foreach($productStats as $stat)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td style="font-weight: 600;">

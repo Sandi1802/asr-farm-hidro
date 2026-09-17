@@ -231,7 +231,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($ghMaintenanceLogs as $log)
+                    @foreach($ghMaintenanceLogs as $log)
                     @php
                         $details = is_string($log->details) ? json_decode($log->details, true) : $log->details;
                         $jobs = [];
@@ -256,11 +256,7 @@
                         </td>
                         <td style="padding: 1rem; color: #64748b;">{{ $log->notes ?? '-' }}</td>
                     </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4" style="padding: 2rem; text-align: center; color: #94a3b8;">Belum ada riwayat perawatan.</td>
-                    </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>

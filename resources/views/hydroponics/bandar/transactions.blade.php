@@ -71,7 +71,7 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($transactions as $t)
+            @foreach($transactions as $t)
             <tr>
                 <td>{{ $t->date }}</td>
                 <td>
@@ -94,9 +94,7 @@
                     </form>
                 </td>
             </tr>
-            @empty
-            <tr><td colspan="8" class="text-center">Belum ada transaksi.</td></tr>
-            @endforelse
+            @endforeach
         </tbody>
     </table>
 </div>

@@ -51,7 +51,7 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($partners as $p)
+            @foreach($partners as $p)
             <tr>
                 <td>{{ $p->name }}</td>
                 <td>
@@ -70,9 +70,7 @@
                     </form>
                 </td>
             </tr>
-            @empty
-            <tr><td colspan="5" class="text-center">Belum ada data mitra.</td></tr>
-            @endforelse
+            @endforeach
         </tbody>
     </table>
 </div>

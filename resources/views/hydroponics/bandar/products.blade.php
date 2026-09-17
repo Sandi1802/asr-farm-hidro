@@ -39,7 +39,7 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($products as $p)
+            @foreach($products as $p)
             <tr>
                 <td>{{ $p->name }}</td>
                 <td>{{ $p->unit }}</td>
@@ -51,9 +51,7 @@
                     </form>
                 </td>
             </tr>
-            @empty
-            <tr><td colspan="4" class="text-center">Belum ada data komoditas.</td></tr>
-            @endforelse
+            @endforeach
         </tbody>
     </table>
 </div>

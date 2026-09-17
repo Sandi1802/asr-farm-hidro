@@ -47,7 +47,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($recentActivities as $activity)
+                        @foreach($recentActivities as $activity)
                         <tr style="border-bottom: 1px solid var(--border-color);">
                             <td style="padding: 1rem 0;">{{ $activity->created_at->format('d M Y H:i') }}</td>
                             <td style="padding: 1rem 0;">{{ $activity->user->name ?? 'User' }}</td>
@@ -76,11 +76,7 @@
                                 @endif
                             </td>
                         </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" style="padding: 2rem 0; text-align: center; color: var(--text-muted);">Belum ada log aktivitas.</td>
-                        </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>
