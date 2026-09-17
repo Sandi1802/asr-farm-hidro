@@ -56,6 +56,26 @@ Route::middleware('auth')->group(function () {
             Route::delete('/master-data/users/{id}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('hydroponics.users.destroy');
             
             Route::get('/master-data/employees', [\App\Http\Controllers\MasterDataController::class, 'employees'])->name('master-data.employees');
+
+            Route::get('/master-data/sync-employees', function () {
+                $users = \App\Models\User::all();
+                $count = 0;
+                foreach ($users as $user) {
+                    if (!\App\Models\Employee::where('email', $user->email)->exists()) {
+                        \App\Models\Employee::create([
+                            'nip' => 'EMP-' . str_pad($user->id, 4, '0', STR_PAD_LEFT),
+                            'name' => $user->name ?: 'Unknown',
+                            'position' => 'Staff',
+                            'department' => 'Umum',
+                            'email' => $user->email,
+                            'status' => 'Active'
+                        ]);
+                        $count++;
+                    }
+                }
+                return redirect()->route('master-data.employees')->with('success', "Berhasil mensinkronisasi $count data pengguna ke karyawan.");
+            });
+
             Route::post('/master-data/employees', [\App\Http\Controllers\MasterDataController::class, 'storeEmployee'])->name('master-data.employees.store');
             Route::put('/master-data/employees/{id}', [\App\Http\Controllers\MasterDataController::class, 'updateEmployee'])->name('master-data.employees.update');
             Route::delete('/master-data/employees/{id}', [\App\Http\Controllers\MasterDataController::class, 'destroyEmployee'])->name('master-data.employees.delete');
