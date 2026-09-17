@@ -19,7 +19,7 @@ Route::get('/app-version', function () {
     return response()->json([
         'version' => '1.0.1',
         'url' => 'https://asrfarm.tech/download/asr_green_mobile.apk',
-        'is_required' => false,
+        'is_required' => true,
     ]);
 });
 
