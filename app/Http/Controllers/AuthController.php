@@ -22,15 +22,18 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $login_type = filter_var($request->input('login'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $loginInput = $request->input('login');
+        $password = $request->input('password');
+        $remember = $request->boolean('remember');
 
-        $request->merge([
-            $login_type => $request->input('login')
-        ]);
+        // Coba login menggunakan email
+        if (Auth::attempt(['email' => $loginInput, 'password' => $password], $remember)) {
+            $request->session()->regenerate();
+            return redirect()->intended('/overview');
+        }
 
-        $credentials = $request->only($login_type, 'password');
-
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        // Coba login menggunakan username (apapun formatnya, termasuk format email)
+        if (Auth::attempt(['username' => $loginInput, 'password' => $password], $remember)) {
             $request->session()->regenerate();
             return redirect()->intended('/overview');
         }

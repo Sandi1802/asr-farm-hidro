@@ -166,17 +166,18 @@ class MasterDataController extends Controller
         $employee->name = $request->name;
         $employee->position = $request->position;
         $employee->department = $request->department;
-        $employee->email = $request->email;
+        if ($request->has('email')) {
+            $employee->email = $request->email;
+        }
         $employee->phone = $request->phone;
         $employee->status = $request->status;
         $employee->save();
 
-        // Sync with user if email is linked
-        if ($employee->email) {
-            $user = \App\Models\User::where('email', $employee->email)->first();
-            if ($user) {
-                $user->name = $request->name;
-                $user->nip = $request->nip;
+        // Sync with user
+        $user = $employee->user;
+        if ($user) {
+            $user->name = $request->name;
+            $user->nip = $request->nip;
                 if (isset($avatarPath)) {
                     $user->avatar = $avatarPath;
                 }
