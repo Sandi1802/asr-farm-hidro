@@ -256,7 +256,7 @@
         document.getElementById('edit_name').value = employee.name;
         document.getElementById('edit_position').value = employee.position;
         document.getElementById('edit_department').value = employee.department;
-        document.getElementById('edit_email').value = employee.email || '';
+
         document.getElementById('edit_phone').value = employee.phone || '';
         document.getElementById('edit_status').value = employee.status;
         
