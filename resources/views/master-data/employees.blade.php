@@ -73,7 +73,7 @@
                     </td>
                     <td>
                         <div class="action-buttons">
-                            <button type="button" class="dt-action-btn dt-btn-edit" title="Edit" onclick="openEditModal({{ htmlspecialchars(json_encode($employee)) }})">
+                            <button type="button" class="dt-action-btn dt-btn-edit" title="Edit" onclick="openEditModal(this)" data-employee="{{ htmlspecialchars(json_encode($employee), ENT_QUOTES, 'UTF-8') }}">
                                 <i class="ph ph-pencil-simple"></i>
                             </button>
                             <button type="button" class="dt-action-btn dt-btn-delete" title="Delete" onclick="confirmAction('Hapus Pegawai', 'Apakah Anda yakin ingin menghapus pegawai ini? Data yang dihapus tidak dapat dikembalikan.', '{{ route('master-data.employees.delete', $employee->id) }}', 'DELETE')">
@@ -245,7 +245,8 @@
     </div>
 @section('scripts')
 <script>
-    function openEditModal(employee) {
+    function openEditModal(btn) {
+        let employee = JSON.parse(btn.getAttribute('data-employee'));
         let modal = document.getElementById('editModal');
         let form = document.getElementById('editForm');
         
