@@ -199,7 +199,6 @@ class MasterDataController extends Controller
                 }
 
                 $user->save();
-            }
         }
 
         return back()->with('success', 'Pegawai berhasil diperbarui.');
