@@ -41,7 +41,7 @@
                 $hidroponikActive = request()->is('hydroponics/greenhouses*') || request()->is('hydroponics/semai*') || request()->is('hydroponics/daily-tasks*') || request()->is('hydroponics/maintenance-logs*') || request()->is('hydroponics/damage-notes*'); 
             @endphp
             {{-- Hidroponik Dropdown --}}
-            @if(in_array(Auth::user()?->role_agri, ['it_admin', 'atasan', 'produksi', 'produksi_gh', 'packing']))
+            @if(in_array(Auth::user()?->role_agri, ['it_admin', 'atasan', 'produksi', 'produksi_gh', 'packing', 'keuangan', 'pemasaran']))
             <div class="nav-item nav-dropdown {{ $hidroponikActive ? 'active' : '' }}" onclick="toggleDropdown(this)" style="margin-top: 1rem;">
                 <div style="display: flex; align-items: center;">
                     <i class="ph ph-drop"></i>
@@ -79,7 +79,7 @@
                 $konvensionalActive = request()->is('konvensional/*') && !request()->is('konvensional/dashboard');
             @endphp
             {{-- Konvensional Dropdown --}}
-            @if(in_array(Auth::user()?->role_agri, ['it_admin', 'atasan', 'produksi', 'produksi_konven', 'packing']))
+            @if(in_array(Auth::user()?->role_agri, ['it_admin', 'atasan', 'produksi', 'produksi_konvensional', 'packing', 'keuangan', 'pemasaran']))
             <div class="nav-item nav-dropdown {{ $konvensionalActive ? 'active' : '' }}" onclick="toggleDropdown(this)" style="margin-top: 1rem;">
                 <div style="display: flex; align-items: center;">
                     <i class="ph ph-tree"></i>
@@ -108,7 +108,7 @@
                 $paprikaActive = request()->is('paprika/*') && !request()->is('paprika/dashboard');
             @endphp
             {{-- Paprika Dropdown --}}
-            @if(in_array(Auth::user()?->role_agri, ['it_admin', 'atasan', 'produksi', 'produksi_paprika', 'packing']))
+            @if(in_array(Auth::user()?->role_agri, ['it_admin', 'atasan', 'produksi', 'produksi_paprika', 'packing', 'keuangan', 'pemasaran']))
             <div class="nav-item nav-dropdown {{ $paprikaActive ? 'active' : '' }}" onclick="toggleDropdown(this)" style="margin-top: 1rem;">
                 <div style="display: flex; align-items: center;">
                     <i class="ph ph-tree"></i>
@@ -162,7 +162,7 @@
                 $inventarisActive = request()->is('hydroponics/inventory*');
             @endphp
             {{-- Inventaris Dropdown --}}
-            @if(in_array(Auth::user()?->role_agri, ['it_admin', 'atasan', 'produksi', 'produksi_gh', 'produksi_konven', 'keuangan', 'pemasaran', 'packing']))
+            @if(in_array(Auth::user()?->role_agri, ['it_admin', 'atasan', 'produksi', 'produksi_gh', 'produksi_konvensional', 'produksi_paprika', 'keuangan', 'pemasaran', 'packing']))
             <div class="nav-item nav-dropdown {{ $inventarisActive ? 'active' : '' }}" onclick="toggleDropdown(this)" style="margin-top: 1rem;">
                 <div style="display: flex; align-items: center;">
                     <i class="ph ph-package"></i>

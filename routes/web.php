@@ -139,7 +139,7 @@ Route::middleware('auth')->group(function () {
         });
 
         // Hydroponic Module - Produksi, Produksi GH, Packing
-        Route::middleware('role:produksi,produksi_gh,packing')->group(function () {
+        Route::middleware('role:produksi,produksi_gh,packing,keuangan,pemasaran')->group(function () {
             Route::get('/greenhouses', [\App\Http\Controllers\HydroponicController::class, 'greenhouses'])->name('hydroponics.greenhouses');
             Route::post('/greenhouses', [\App\Http\Controllers\HydroponicController::class, 'storeGreenhouse'])->name('hydroponics.greenhouses.store');
             Route::get('/greenhouses/{id}', [\App\Http\Controllers\HydroponicController::class, 'showGreenhouse'])->name('hydroponics.greenhouses.show');
@@ -206,7 +206,7 @@ Route::middleware('auth')->group(function () {
         });
 
         // Inventory - Produksi, Produksi GH, Produksi Konven, Keuangan, Pemasaran, Packing
-        Route::middleware('role:produksi,produksi_gh,produksi_konven,keuangan,pemasaran,packing')->group(function () {
+        Route::middleware('role:produksi,produksi_gh,produksi_konvensional,produksi_paprika,keuangan,pemasaran,packing')->group(function () {
             Route::get('/inventory', [\App\Http\Controllers\InventoryController::class, 'index'])->name('hydroponics.inventory');
             Route::post('/inventory', [\App\Http\Controllers\InventoryController::class, 'store'])->name('hydroponics.inventory.store');
             Route::post('/inventory/{id}', [\App\Http\Controllers\InventoryController::class, 'update'])->name('hydroponics.inventory.update');
@@ -236,7 +236,7 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-    Route::prefix('konvensional')->middleware('role:produksi,produksi_konven,packing')->group(function () {
+    Route::prefix('konvensional')->middleware('role:produksi,produksi_konvensional,packing,keuangan,pemasaran')->group(function () {
         // Dashboard
         Route::get('/dashboard', [\App\Http\Controllers\KonvensionalController::class, 'dashboard'])->name('konvensional.dashboard');
         Route::get('/dashboard/period-stats', [\App\Http\Controllers\KonvensionalController::class, 'getDashboardPeriodStats']);
@@ -278,7 +278,7 @@ Route::middleware('auth')->group(function () {
 
 
     // Paprika Routes
-    Route::prefix('paprika')->group(function () {
+    Route::prefix('paprika')->middleware('role:produksi,produksi_paprika,packing,keuangan,pemasaran')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\PaprikaController::class, 'dashboard'])->name('paprika.dashboard');
         Route::get('/greenhouses', [\App\Http\Controllers\PaprikaController::class, 'greenhouses'])->name('paprika.greenhouses');
         Route::get('/greenhouses/{id}', [\App\Http\Controllers\PaprikaController::class, 'greenhouseDetail'])->name('paprika.greenhouses.detail');
