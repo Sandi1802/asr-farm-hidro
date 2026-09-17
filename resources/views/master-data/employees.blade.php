@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Master Data – Pegawai')
 
@@ -242,31 +242,49 @@
 
 @section('scripts')
 <script>
-    function openEditModal(btn) {
-        var employee = JSON.parse(btn.getAttribute('data-employee'));
-        var modal = document.getElementById('editModal');
-        var form = document.getElementById('editForm');
-
-        form.action = '/hydroponics/master-data/employees/' + employee.id;
-
-        document.getElementById('edit_nip').value = employee.nip || '';
-        document.getElementById('edit_name').value = employee.name || '';
-        document.getElementById('edit_position').value = employee.position || '';
-        document.getElementById('edit_department').value = employee.department || '';
-        document.getElementById('edit_phone').value = employee.phone || '';
-        document.getElementById('edit_status').value = employee.status || 'Active';
-        document.getElementById('edit_password').value = '';
-
-        if (employee.user) {
-            document.getElementById('edit_username').value = employee.user.username || '';
-            document.getElementById('edit_role_agri').value = employee.user.role_agri || '';
-        } else {
-            document.getElementById('edit_username').value = '';
-            document.getElementById('edit_role_agri').value = '';
-        }
-
-        modal.classList.add('active');
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof $.fn.DataTable !== 'undefined') {
+        $('#employeesTable').DataTable({
+            responsive: true,
+            pageLength: 10,
+            dom: "<'flex-between' l <'dt-search' f>>rt<'flex-between' ip>",
+            language: {
+                search: '',
+                searchPlaceholder: 'Cari...',
+                lengthMenu: 'Tampilkan _MENU_ data',
+                info: 'Menampilkan _START_–_END_ dari _TOTAL_ data',
+                paginate: { previous: '‹', next: '›' },
+                zeroRecords: 'Tidak ada data ditemukan'
+            }
+        });
     }
+});
+
+function openEditModal(btn) {
+    var employee = JSON.parse(btn.getAttribute('data-employee'));
+    var modal = document.getElementById('editModal');
+    var form = document.getElementById('editForm');
+
+    form.action = '/hydroponics/master-data/employees/' + employee.id;
+
+    document.getElementById('edit_nip').value = employee.nip || '';
+    document.getElementById('edit_name').value = employee.name || '';
+    document.getElementById('edit_position').value = employee.position || '';
+    document.getElementById('edit_department').value = employee.department || '';
+    document.getElementById('edit_phone').value = employee.phone || '';
+    document.getElementById('edit_status').value = employee.status || 'Active';
+    document.getElementById('edit_password').value = '';
+
+    if (employee.user) {
+        document.getElementById('edit_username').value = employee.user.username || '';
+        document.getElementById('edit_role_agri').value = employee.user.role_agri || '';
+    } else {
+        document.getElementById('edit_username').value = '';
+        document.getElementById('edit_role_agri').value = '';
+    }
+
+    modal.classList.add('active');
+}
 </script>
 @endsection
 
