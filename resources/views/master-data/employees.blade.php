@@ -49,7 +49,7 @@
                     <td style="font-weight: 500;">
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             @if($employee->avatar)
-                                <img src="{{ asset('storage/' . $employee->avatar) }}" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                                <img src="{{ url('storage/' . $employee->avatar) }}" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
                             @else
                                 <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--bg-main); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border-color);">
                                     {{ strtoupper(substr($employee->name, 0, 2)) }}
