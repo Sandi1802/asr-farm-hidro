@@ -30,7 +30,7 @@
         </div>
         <div style="background:white; padding:1.5rem; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.05); display:flex; flex-direction:column; align-items:center;">
             <div style="font-size:3rem; font-weight:800; color:#f43f5e;" id="statPR">0</div>
-            <div style="color:var(--text-muted); font-weight:600;">Pekerjaan Rumah (PR)</div>
+            <div style="color:var(--text-muted); font-weight:600;"> Task Kepala Produksi</div>
         </div>
     </div>
 
@@ -53,7 +53,7 @@
         </div>
         <!-- PR -->
         <div class="task-column">
-            <h3 style="border-bottom:3px solid #f43f5e; padding-bottom:0.5rem;"><i class="ph ph-push-pin" style="color:#f43f5e;"></i> Pekerjaan Rumah</h3>
+            <h3 style="border-bottom:3px solid #f43f5e; padding-bottom:0.5rem;"><i class="ph ph-push-pin" style="color:#f43f5e;"></i> Tugas Khusus Dede</h3>
             <div id="list-pr" class="task-list"></div>
         </div>
     </div>
@@ -75,7 +75,7 @@
 <!-- Modal Tambah PR -->
 <div id="prModal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
     <div style="background:white; border-radius:12px; padding:1.5rem; width:100%; max-width:400px;">
-        <h4 style="margin-top:0;">Tambah Pekerjaan Rumah</h4>
+        <h4 style="margin-top:0;">Tambah Tugas Untuk Kepala GreenHouse</h4>
         <div style="margin-bottom:1rem;">
             <label style="font-weight:600; display:block; margin-bottom:0.3rem;">Nama Pekerjaan</label>
             <input type="text" id="prTitle" style="width:100%; border:1px solid #ccc; border-radius:8px; padding:0.5rem;">
@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function loadTasks() {
     const date = document.getElementById('taskDate').value;
-    fetch(`/api/daily-tasks?date=${date}`)
+    fetch(`/hydroponics/daily-tasks-api?date=${date}`)
         .then(res => res.json())
         .then(data => {
             allTasks = data;
@@ -247,7 +247,7 @@ function renderTasks() {
 }
 
 function toggleTask(id) {
-    fetch(`/api/daily-tasks/${id}/complete`, {
+    fetch(`/hydroponics/daily-tasks-api/${id}/complete`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -278,7 +278,7 @@ function saveNote() {
     const id = document.getElementById('noteTaskId').value;
     const notes = document.getElementById('noteContent').value;
     
-    fetch(`/api/daily-tasks/${id}/note`, {
+    fetch(`/hydroponics/daily-tasks-api/${id}/note`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -300,11 +300,11 @@ function saveNote() {
 function showAddPRModal() {
     document.getElementById('prTitle').value = '';
     document.getElementById('prNotes').value = '';
-    document.getElementById('prModal').classList.add('open');
+    document.getElementById('prModal').style.display = 'flex';
 }
 
 function closePRModal() {
-    document.getElementById('prModal').classList.remove('open');
+    document.getElementById('prModal').style.display = 'none';
 }
 
 function savePR() {
@@ -314,7 +314,7 @@ function savePR() {
     
     if(!title) return alert('Nama pekerjaan harus diisi');
     
-    fetch(`/api/daily-tasks`, {
+    fetch(`/hydroponics/daily-tasks-api`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
