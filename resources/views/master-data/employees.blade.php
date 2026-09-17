@@ -34,16 +34,16 @@
     @endif
 
     <div class="table-responsive" style="padding-bottom: 1rem;">
-        <table class="table datatable" style="width: 100%; table-layout: fixed;">
+        <table class="table datatable" style="width: 100%;">
             <thead>
                 <tr>
-                    <th class="dt-no" style="width: 5%;">NO</th>
+                    <th class="dt-no">NO</th>
                     <th>NIP</th>
-                    <th style="width: 15%;">Nama</th>
+                    <th>Nama</th>
                     <th>Jabatan</th>
                     <th>Departemen</th>
-                    <th style="width: 15%;">Username</th>
-                    <th style="width: 20%;">Email</th>
+                    <th>Username</th>
+                    <th>Email</th>
                     <th>Telepon</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -70,12 +70,12 @@
                     <td>{{ $employee->department }}</td>
                     <td>
                         @if($employee->user && $employee->user->username)
-                            <span style="font-family: monospace; font-size: 0.85rem; background: var(--asr-green-light); color: var(--asr-green); padding: 0.15rem 0.5rem; border-radius: 4px;">{{ $employee->user->username }}</span>
+                            <span style="font-family: monospace; font-size: 0.85rem; background: var(--asr-green-light); color: var(--asr-green); padding: 0.15rem 0.5rem; border-radius: 4px; display: inline-block; word-break: break-all; white-space: normal; max-width: 150px;">{{ $employee->user->username }}</span>
                         @else
                             <span style="color: var(--text-muted);">--</span>
                         @endif
                     </td>
-                    <td><div style="word-break: break-all; white-space: normal;">{{ $employee->email ?? '--' }}</div></td>
+                    <td><div style="word-break: break-all; white-space: normal; max-width: 180px;">{{ $employee->email ?? '--' }}</div></td>
                     <td>{{ $employee->phone ?? '--' }}</td>
                     <td>
                         <span class="badge {{ $employee->status === 'Active' ? 'badge-success' : 'badge-negative' }}">
