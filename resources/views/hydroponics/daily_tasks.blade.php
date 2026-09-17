@@ -35,26 +35,46 @@
     </div>
 
     <!-- Task Lists -->
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem;">
+    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:1.5rem;">
         <!-- Opening -->
         <div class="task-column">
             <h3 style="border-bottom:3px solid #ca8a04; padding-bottom:0.5rem;"><i class="ph ph-sun" style="color:#ca8a04;"></i> Opening</h3>
-            <div id="list-opening" class="task-list"></div>
+            <div class="table-responsive">
+                <table id="dt-opening" class="table" style="width:100%">
+                    <thead><tr><th style="width:30px;">Aksi</th><th>Pekerjaan</th><th style="width:50px;">Notes</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
         <!-- Siang -->
         <div class="task-column">
             <h3 style="border-bottom:3px solid #0ea5e9; padding-bottom:0.5rem;"><i class="ph ph-cloud-sun" style="color:#0ea5e9;"></i> Operasional Siang</h3>
-            <div id="list-siang" class="task-list"></div>
+            <div class="table-responsive">
+                <table id="dt-siang" class="table" style="width:100%">
+                    <thead><tr><th style="width:30px;">Aksi</th><th>Pekerjaan</th><th style="width:50px;">Notes</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
         <!-- Closing -->
         <div class="task-column">
             <h3 style="border-bottom:3px solid #10b981; padding-bottom:0.5rem;"><i class="ph ph-moon" style="color:#10b981;"></i> Closing</h3>
-            <div id="list-closing" class="task-list"></div>
+            <div class="table-responsive">
+                <table id="dt-closing" class="table" style="width:100%">
+                    <thead><tr><th style="width:30px;">Aksi</th><th>Pekerjaan</th><th style="width:50px;">Notes</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
         <!-- PR -->
         <div class="task-column">
             <h3 style="border-bottom:3px solid #f43f5e; padding-bottom:0.5rem;"><i class="ph ph-push-pin" style="color:#f43f5e;"></i> Tugas Khusus Dede</h3>
-            <div id="list-pr" class="task-list"></div>
+            <div class="table-responsive">
+                <table id="dt-pr" class="table" style="width:100%">
+                    <thead><tr><th style="width:30px;">Aksi</th><th>Pekerjaan</th><th style="width:50px;">Notes</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -173,8 +193,18 @@
 
 <script>
 let allTasks = [];
+let dtTables = {};
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", function() {
+    ["opening", "siang", "closing", "pr"].forEach(type => {
+        dtTables[type] = $("#dt-" + type).DataTable({
+            pageLength: 5,
+            lengthMenu: [5, 10, 25, 50],
+            language: { search: "", searchPlaceholder: "Cari..." },
+            ordering: false,
+            dom: "<'flex-between' l <'dt-search' f>>rt<'flex-between' ip>"
+        });
+    });
     loadTasks();
 });
 
@@ -206,37 +236,49 @@ function renderTasks() {
     });
 
     ['opening', 'siang', 'closing', 'pr'].forEach(type => {
-        const el = document.getElementById(`list-${type}`);
-        el.innerHTML = '';
+        if(!dtTables[type]) return;
+        const table = dtTables[type];
+        table.clear();
         
         lists[type].forEach(t => {
             const isCompleted = t.status === 'completed';
             
             let noteHtml = '';
             if(t.notes) {
-                noteHtml = `<div class="task-note-text">${t.notes}</div>`;
+                noteHtml = `<div class="task-note-text" style="font-size:0.85rem; color:#666; margin-top:4px;">${t.notes}</div>`;
             }
             
             let metaHtml = '';
             if(isCompleted && t.completer) {
-                metaHtml = `✓ Selesai oleh ${t.completer.name}`;
+                const time = t.completed_at ? new Date(t.completed_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+                metaHtml = `
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;">
+                        Oleh ${t.completer.name} ${time}
+                    </div>
+                `;
             }
 
-            const html = `
-                <div class="task-item ${isCompleted ? 'completed' : ''}">
-                    <input type="checkbox" class="task-check" ${isCompleted ? 'checked' : ''} onchange="toggleTask(${t.id})">
-                    <div class="task-content">
-                        <div class="task-title">${t.task_name}</div>
-                        ${noteHtml}
-                        <div class="task-meta">
-                            <span>${metaHtml}</span>
-                            <button class="btn-note" onclick="openNoteModal(${t.id}, '${t.notes || ''}')" title="Catatan"><i class="ph ph-chat-text"></i></button>
-                        </div>
-                    </div>
+            const checkboxHtml = `<div style="display:flex; align-items:center; justify-content:center;">
+                <input type="checkbox" class="task-check" style="width:20px; height:20px; cursor:pointer;" ${isCompleted ? 'checked' : ''} onchange="toggleTask(${t.id})">
+            </div>`;
+            
+            const taskContent = `
+                <div class="task-title" style="font-weight:600; color:var(--text-main); font-size:0.95rem; ${isCompleted ? 'text-decoration:line-through; color:#999;' : ''}">
+                    ${t.task_name}
                 </div>
+                ${noteHtml}
+                ${metaHtml}
             `;
-            el.insertAdjacentHTML('beforeend', html);
+
+            let n = t.notes || '';
+            n = n.replace(/'/g, "\\'");
+            const btnHtml = `<button onclick="openNoteModal(${t.id}, '${n}')" class="btn-icon" title="Catatan" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; padding:0.3rem;">
+                                <i class="ph ph-chat-text" style="font-size:1.2rem;"></i>
+                            </button>`;
+
+            table.row.add([checkboxHtml, taskContent, btnHtml]);
         });
+        table.draw(false);
     });
 
     // Update Stats
