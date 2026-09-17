@@ -27,8 +27,8 @@ class HydroponicController extends Controller
         
         $harvestedByPlantData = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)
             ->where('action_type', 'panen')
-            ->selectRaw("IFNULL(JSON_UNQUOTE(JSON_EXTRACT(details, '$.plant_name')), 'Tidak Diketahui') as plant_name")
-            ->selectRaw("SUM(CAST(JSON_UNQUOTE(JSON_EXTRACT(details, '$.jumlah')) AS UNSIGNED)) as total_jumlah")
+            ->selectRaw("COALESCE(details->>'plant_name', 'Tidak Diketahui') as plant_name")
+            ->selectRaw("SUM(CAST(details->>'jumlah' AS INTEGER)) as total_jumlah")
             ->groupBy('plant_name')
             ->pluck('total_jumlah', 'plant_name')
             ->toArray();
@@ -38,8 +38,8 @@ class HydroponicController extends Controller
 
         $damagedByReasonData = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)
             ->where('action_type', 'rusak')
-            ->selectRaw("IFNULL(JSON_UNQUOTE(JSON_EXTRACT(details, '$.alasan')), 'Lainnya') as alasan")
-            ->selectRaw("SUM(CAST(JSON_UNQUOTE(JSON_EXTRACT(details, '$.jumlah')) AS UNSIGNED)) as total_jumlah")
+            ->selectRaw("COALESCE(details->>'alasan', 'Lainnya') as alasan")
+            ->selectRaw("SUM(CAST(details->>'jumlah' AS INTEGER)) as total_jumlah")
             ->groupBy('alasan')
             ->pluck('total_jumlah', 'alasan')
             ->toArray();
@@ -54,7 +54,7 @@ class HydroponicController extends Controller
         // Siap Panen — per-plant dynamic threshold
         $readyIds = \App\Models\Hole::leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
             ->where('holes.status', 'ditanam')
-            ->whereRaw("holes.planted_at <= DATE_SUB(NOW(), INTERVAL COALESCE(plant_types.growth_days, ?) DAY)", [$defaultDays])
+            ->whereRaw("holes.planted_at <= NOW() - (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day')", [$defaultDays])
             ->pluck('holes.id');
 
         $readyToHarvestCount = $readyIds->count();
@@ -190,7 +190,7 @@ class HydroponicController extends Controller
         
         $holesStats = \App\Models\Hole::select('racks.greenhouse_id')
             ->selectRaw('COUNT(holes.id) as total')
-            ->selectRaw('SUM(CASE WHEN holes.status = "ditanam" THEN 1 ELSE 0 END) as planted')
+            ->selectRaw("SUM(CASE WHEN holes.status = 'ditanam' THEN 1 ELSE 0 END) as planted")
             ->join('rows', 'holes.row_id', '=', 'rows.id')
             ->join('racks', 'rows.rack_id', '=', 'racks.id')
             ->groupBy('racks.greenhouse_id')
@@ -207,7 +207,7 @@ class HydroponicController extends Controller
             ->keyBy('greenhouse_id');
 
         $harvestedStats = \App\Models\MaintenanceLog::select('racks.greenhouse_id')
-            ->selectRaw('SUM(CAST(JSON_UNQUOTE(JSON_EXTRACT(details, "$.jumlah")) AS UNSIGNED)) as harvested')
+            ->selectRaw("SUM(CAST(details->>'jumlah' AS INTEGER)) as harvested")
             ->join('racks', 'maintenance_logs.loggable_id', '=', 'racks.id')
             ->where('maintenance_logs.loggable_type', 'App\Models\Rack')
             ->whereMonth('maintenance_logs.created_at', now()->month)
@@ -338,12 +338,12 @@ class HydroponicController extends Controller
         // Panen in period
         $totalPanen = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])
             ->where('action_type', 'panen')
-            ->sum(\Illuminate\Support\Facades\DB::raw("CAST(JSON_UNQUOTE(JSON_EXTRACT(details, '$.jumlah')) AS UNSIGNED)"));
+            ->sum(\Illuminate\Support\Facades\DB::raw("CAST(details->>'jumlah' AS INTEGER)"));
 
         // Rusak in period
         $totalRusak = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])
             ->where('action_type', 'rusak')
-            ->sum(\Illuminate\Support\Facades\DB::raw("CAST(JSON_UNQUOTE(JSON_EXTRACT(details, '$.jumlah')) AS UNSIGNED)"));
+            ->sum(\Illuminate\Support\Facades\DB::raw("CAST(details->>'jumlah' AS INTEGER)"));
 
         return response()->json([
             'period_label' => $periodLabel,
@@ -373,29 +373,28 @@ class HydroponicController extends Controller
                 $labels[] = (string)$year;
                 $semai[] = \App\Models\Semai::whereYear('semai_date', $year)->sum('quantity');
                 $tanam[] = \App\Models\Hole::whereYear('planted_at', $year)->count();
-                $panen[] = \App\Models\MaintenanceLog::whereYear('created_at', $year)->where('action_type', 'panen')->sum(\Illuminate\Support\Facades\DB::raw("CAST(JSON_UNQUOTE(JSON_EXTRACT(details, '$.jumlah')) AS UNSIGNED)"));
-                $rusak[] = \App\Models\MaintenanceLog::whereYear('created_at', $year)->where('action_type', 'rusak')->sum(\Illuminate\Support\Facades\DB::raw("CAST(JSON_UNQUOTE(JSON_EXTRACT(details, '$.jumlah')) AS UNSIGNED)"));
+                $panen[] = \App\Models\MaintenanceLog::whereYear('created_at', $year)->where('action_type', 'panen')->sum(\Illuminate\Support\Facades\DB::raw("CAST(details->>'jumlah' AS INTEGER)"));
+                $rusak[] = \App\Models\MaintenanceLog::whereYear('created_at', $year)->where('action_type', 'rusak')->sum(\Illuminate\Support\Facades\DB::raw("CAST(details->>'jumlah' AS INTEGER)"));
             }
         } elseif ($period === 'bulanan') {
             for ($i = 5; $i >= 0; $i--) {
                 $start = now()->subMonths($i)->startOfMonth();
-                $end   = now()->subMonths($i)->endOfMonth();
+                $end = now()->subMonths($i)->endOfMonth();
                 $labels[] = $start->translatedFormat('M Y');
                 $semai[] = \App\Models\Semai::whereBetween('semai_date', [$start, $end])->sum('quantity');
                 $tanam[] = \App\Models\Hole::whereBetween('planted_at', [$start, $end])->count();
-                $panen[] = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])->where('action_type', 'panen')->sum(\Illuminate\Support\Facades\DB::raw("CAST(JSON_UNQUOTE(JSON_EXTRACT(details, '$.jumlah')) AS UNSIGNED)"));
-                $rusak[] = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])->where('action_type', 'rusak')->sum(\Illuminate\Support\Facades\DB::raw("CAST(JSON_UNQUOTE(JSON_EXTRACT(details, '$.jumlah')) AS UNSIGNED)"));
+                $panen[] = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])->where('action_type', 'panen')->sum(\Illuminate\Support\Facades\DB::raw("CAST(details->>'jumlah' AS INTEGER)"));
+                $rusak[] = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])->where('action_type', 'rusak')->sum(\Illuminate\Support\Facades\DB::raw("CAST(details->>'jumlah' AS INTEGER)"));
             }
         } else {
-            // mingguan
-            for ($i = 3; $i >= 0; $i--) {
+            for ($i = 5; $i >= 0; $i--) {
                 $start = now()->subWeeks($i)->startOfWeek();
-                $end   = now()->subWeeks($i)->endOfWeek();
+                $end = now()->subWeeks($i)->endOfWeek();
                 $labels[] = "Mg " . $start->format('d/m');
                 $semai[] = \App\Models\Semai::whereBetween('semai_date', [$start, $end])->sum('quantity');
                 $tanam[] = \App\Models\Hole::whereBetween('planted_at', [$start, $end])->count();
-                $panen[] = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])->where('action_type', 'panen')->sum(\Illuminate\Support\Facades\DB::raw("CAST(JSON_UNQUOTE(JSON_EXTRACT(details, '$.jumlah')) AS UNSIGNED)"));
-                $rusak[] = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])->where('action_type', 'rusak')->sum(\Illuminate\Support\Facades\DB::raw("CAST(JSON_UNQUOTE(JSON_EXTRACT(details, '$.jumlah')) AS UNSIGNED)"));
+                $panen[] = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])->where('action_type', 'panen')->sum(\Illuminate\Support\Facades\DB::raw("CAST(details->>'jumlah' AS INTEGER)"));
+                $rusak[] = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])->where('action_type', 'rusak')->sum(\Illuminate\Support\Facades\DB::raw("CAST(details->>'jumlah' AS INTEGER)"));
             }
         }
 
@@ -431,8 +430,8 @@ class HydroponicController extends Controller
             // Panen details grouped by plant_name
             $harvestedByPlantData = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)
                 ->where('action_type', 'panen')
-                ->selectRaw("IFNULL(JSON_UNQUOTE(JSON_EXTRACT(details, '$.plant_name')), 'Tidak Diketahui') as plant_name")
-                ->selectRaw("SUM(CAST(JSON_UNQUOTE(JSON_EXTRACT(details, '$.jumlah')) AS UNSIGNED)) as total_jumlah")
+                ->selectRaw("COALESCE(details->>'plant_name', 'Tidak Diketahui') as plant_name")
+                ->selectRaw("SUM(CAST(details->>'jumlah' AS INTEGER)) as total_jumlah")
                 ->groupBy('plant_name')
                 ->pluck('total_jumlah', 'plant_name')
                 ->toArray();
@@ -443,8 +442,8 @@ class HydroponicController extends Controller
             // Rusak details grouped by alasan
             $damagedByReasonData = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)
                 ->where('action_type', 'rusak')
-                ->selectRaw("IFNULL(JSON_UNQUOTE(JSON_EXTRACT(details, '$.alasan')), 'Lainnya') as alasan")
-                ->selectRaw("SUM(CAST(JSON_UNQUOTE(JSON_EXTRACT(details, '$.jumlah')) AS UNSIGNED)) as total_jumlah")
+                ->selectRaw("COALESCE(details->>'alasan', 'Lainnya') as alasan")
+                ->selectRaw("SUM(CAST(details->>'jumlah' AS INTEGER)) as total_jumlah")
                 ->groupBy('alasan')
                 ->pluck('total_jumlah', 'alasan')
                 ->toArray();
@@ -459,8 +458,8 @@ class HydroponicController extends Controller
                 ->leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
                 ->where('holes.status', 'ditanam')
                 ->whereNotNull('holes.planted_at')
-                ->whereRaw("MONTH(DATE_ADD(holes.planted_at, INTERVAL COALESCE(plant_types.growth_days, ?) DAY)) = ?", [$defaultDays, $month])
-                ->whereRaw("YEAR(DATE_ADD(holes.planted_at, INTERVAL COALESCE(plant_types.growth_days, ?) DAY)) = ?", [$defaultDays, $year])
+                ->whereRaw("EXTRACT(MONTH FROM (holes.planted_at + (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day'))) = ?", [$defaultDays, $month])
+                ->whereRaw("EXTRACT(YEAR FROM (holes.planted_at + (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day'))) = ?", [$defaultDays, $year])
                 ->select('holes.*')
                 ->get();
             
@@ -553,8 +552,8 @@ class HydroponicController extends Controller
             $readyIds = \App\Models\Hole::leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
                 ->where('holes.status', 'ditanam')
                 ->whereNotNull('holes.planted_at')
-                ->whereRaw("MONTH(DATE_ADD(holes.planted_at, INTERVAL COALESCE(plant_types.growth_days, ?) DAY)) = ?", [$defaultDays, $month])
-                ->whereRaw("YEAR(DATE_ADD(holes.planted_at, INTERVAL COALESCE(plant_types.growth_days, ?) DAY)) = ?", [$defaultDays, $year])
+                ->whereRaw("EXTRACT(MONTH FROM (holes.planted_at + (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day'))) = ?", [$defaultDays, $month])
+                ->whereRaw("EXTRACT(YEAR FROM (holes.planted_at + (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day'))) = ?", [$defaultDays, $year])
                 ->pluck('holes.id');
             
             $readyToHarvestCount = $readyIds->count();
@@ -800,7 +799,7 @@ class HydroponicController extends Controller
         })->leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
           ->where('holes.status', 'ditanam')
           ->whereNotNull('holes.planted_at')
-          ->whereRaw("holes.planted_at <= DATE_SUB(NOW(), INTERVAL COALESCE(plant_types.growth_days, ?) DAY)", [$defaultDays])
+          ->whereRaw("holes.planted_at <= NOW() - (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day')", [$defaultDays])
           ->count();
 
         return view('hydroponics.greenhouse-detail', compact('greenhouse', 'totalHoles', 'harvestedHoles', 'damagedHoles', 'readyToHarvestCount'));
@@ -1204,7 +1203,7 @@ class HydroponicController extends Controller
             ->leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
             ->where('holes.status', 'ditanam')
             ->whereNotNull('holes.planted_at')
-            ->whereRaw("holes.planted_at <= DATE_SUB(NOW(), INTERVAL COALESCE(plant_types.growth_days, ?) DAY)", [$defaultDays])
+            ->whereRaw("holes.planted_at <= NOW() - (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day')", [$defaultDays])
             ->select('holes.*')
             ->get();
 
@@ -1246,7 +1245,7 @@ class HydroponicController extends Controller
         $count = \App\Models\Hole::leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
             ->where('holes.status', 'ditanam')
             ->whereNotNull('holes.planted_at')
-            ->whereRaw("holes.planted_at <= DATE_SUB(NOW(), INTERVAL COALESCE(plant_types.growth_days, ?) DAY)", [$defaultDays])
+            ->whereRaw("holes.planted_at <= NOW() - (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day')", [$defaultDays])
             ->count();
 
         session(['harvest_notif_read_count' => $count]);
