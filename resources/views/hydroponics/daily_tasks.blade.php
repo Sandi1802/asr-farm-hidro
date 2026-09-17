@@ -251,6 +251,7 @@ function toggleTask(id) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         }
     })
@@ -282,6 +283,7 @@ function saveNote() {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         body: JSON.stringify({ notes: notes })
@@ -318,6 +320,7 @@ function savePR() {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         body: JSON.stringify({
@@ -328,13 +331,24 @@ function savePR() {
             is_pr: true
         })
     })
-    .then(res => res.json())
+    .then(async res => {
+        if(!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.message || 'Gagal menyimpan data (HTTP ' + res.status + ')');
+        }
+        return res.json();
+    })
     .then(data => {
         if(data.success) {
             allTasks.push(data.task);
             renderTasks();
             closePRModal();
+        } else {
+            alert('Gagal: ' + (data.message || 'Unknown error'));
         }
+    })
+    .catch(err => {
+        alert('Terjadi kesalahan: ' + err.message);
     });
 }
 </script>
