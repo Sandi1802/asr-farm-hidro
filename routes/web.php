@@ -43,12 +43,29 @@ Route::middleware('auth')->group(function () {
         Route::post('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 
         // Master Data - IT Admin only
-        Route::middleware('role:it_admin')->group(function () {
+                // Master Data - IT Admin & Produksi Global
+        Route::middleware('role:it_admin,produksi')->group(function () {
             Route::get('/master-data/plants', [\App\Http\Controllers\PlantTypeController::class, 'index'])->name('hydroponics.plants');
             Route::get('/master-data/plants/api', [\App\Http\Controllers\PlantTypeController::class, 'api'])->name('hydroponics.plants.api');
             Route::post('/master-data/plants', [\App\Http\Controllers\PlantTypeController::class, 'store'])->name('hydroponics.plants.store');
             Route::post('/master-data/plants/{id}', [\App\Http\Controllers\PlantTypeController::class, 'update'])->name('hydroponics.plants.update');
             Route::delete('/master-data/plants/{id}', [\App\Http\Controllers\PlantTypeController::class, 'destroy'])->name('hydroponics.plants.destroy');
+
+            Route::get('/master-data/labels', [\App\Http\Controllers\LabelController::class, 'index'])->name('master-data.labels');
+            Route::get('/master-data/labels/api', [\App\Http\Controllers\LabelController::class, 'api'])->name('master-data.labels.api');
+            Route::post('/master-data/labels', [\App\Http\Controllers\LabelController::class, 'store'])->name('master-data.labels.store');
+            Route::post('/master-data/labels/{id}', [\App\Http\Controllers\LabelController::class, 'update'])->name('master-data.labels.update');
+            Route::delete('/master-data/labels/{id}', [\App\Http\Controllers\LabelController::class, 'destroy'])->name('master-data.labels.destroy');
+
+            Route::get('/master-data/daily-tasks', [\App\Http\Controllers\DailyTaskTemplateController::class, 'index'])->name('master-data.daily-tasks');
+            Route::post('/master-data/daily-tasks', [\App\Http\Controllers\DailyTaskTemplateController::class, 'store'])->name('master-data.daily-tasks.store');
+            Route::put('/master-data/daily-tasks/{id}', [\App\Http\Controllers\DailyTaskTemplateController::class, 'update'])->name('master-data.daily-tasks.update');
+            Route::delete('/master-data/daily-tasks/{id}', [\App\Http\Controllers\DailyTaskTemplateController::class, 'destroy'])->name('master-data.daily-tasks.destroy');
+        });
+
+        // Master Data - IT Admin ONLY
+        Route::middleware('role:it_admin')->group(function () {
+            
 
             Route::get('/master-data/users', [\App\Http\Controllers\UserController::class, 'index'])->name('hydroponics.users');
             Route::post('/master-data/users', [\App\Http\Controllers\UserController::class, 'store'])->name('hydroponics.users.store');
@@ -109,11 +126,7 @@ Route::middleware('auth')->group(function () {
             Route::put('/master-data/employees/{id}', [\App\Http\Controllers\MasterDataController::class, 'updateEmployee'])->name('master-data.employees.update');
             Route::delete('/master-data/employees/{id}', [\App\Http\Controllers\MasterDataController::class, 'destroyEmployee'])->name('master-data.employees.delete');
             
-            Route::get('/master-data/labels', [\App\Http\Controllers\LabelController::class, 'index'])->name('master-data.labels');
-            Route::get('/master-data/labels/api', [\App\Http\Controllers\LabelController::class, 'api'])->name('master-data.labels.api');
-            Route::post('/master-data/labels', [\App\Http\Controllers\LabelController::class, 'store'])->name('master-data.labels.store');
-            Route::post('/master-data/labels/{id}', [\App\Http\Controllers\LabelController::class, 'update'])->name('master-data.labels.update');
-            Route::delete('/master-data/labels/{id}', [\App\Http\Controllers\LabelController::class, 'destroy'])->name('master-data.labels.destroy');
+            
 
             
             Route::get('/master-data/fix-db-sequences', function () {
@@ -132,11 +145,7 @@ Route::middleware('auth')->group(function () {
             });
 
             // Daily Task Templates
-            Route::get('/master-data/daily-tasks', [\App\Http\Controllers\DailyTaskTemplateController::class, 'index'])->name('master-data.daily-tasks');
-            Route::post('/master-data/daily-tasks', [\App\Http\Controllers\DailyTaskTemplateController::class, 'store'])->name('master-data.daily-tasks.store');
-            Route::put('/master-data/daily-tasks/{id}', [\App\Http\Controllers\DailyTaskTemplateController::class, 'update'])->name('master-data.daily-tasks.update');
-            Route::delete('/master-data/daily-tasks/{id}', [\App\Http\Controllers\DailyTaskTemplateController::class, 'destroy'])->name('master-data.daily-tasks.destroy');
-        });
+                    });
 
         // Hydroponic Module - Produksi, Produksi GH, Packing
         Route::middleware('role:produksi,produksi_gh,packing,keuangan,pemasaran')->group(function () {

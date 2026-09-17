@@ -197,7 +197,7 @@
                 $masterDataActive = request()->is('hydroponics/master-data/*');
             @endphp
             {{-- Master Data Dropdown --}}
-            @if(Auth::user()?->role_agri === 'it_admin')
+            @if(in_array(Auth::user()?->role_agri, ['it_admin', 'produksi']))
             <div class="nav-item nav-dropdown {{ $masterDataActive ? 'active' : '' }}" onclick="toggleDropdown(this)" style="margin-top: 1rem;">
                 <div style="display: flex; align-items: center;">
                     <i class="ph ph-database"></i>
@@ -216,12 +216,14 @@
                 <a href="/hydroponics/master-data/plants" class="submenu-item {{ request()->is('hydroponics/master-data/plants') ? 'active' : '' }}">
                     <i class="ph ph-list-bullets" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Jenis Tanaman
                 </a>
-                <a href="/hydroponics/master-data/users" class="submenu-item {{ request()->is('hydroponics/master-data/users') ? 'active' : '' }}">
+                @if(Auth::user()?->role_agri === 'it_admin')
+                  <a href="/hydroponics/master-data/users" class="submenu-item {{ request()->is('hydroponics/master-data/users') ? 'active' : '' }}">
                     <i class="ph ph-users-three" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Pengguna
                 </a>
                 <a href="/hydroponics/master-data/employees" class="submenu-item {{ request()->is('hydroponics/master-data/employees') ? 'active' : '' }}">
                     <i class="ph ph-identification-card" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Karyawan
                 </a>
+                  @endif
             </div>
 
             {{-- Diari IT (Hanya IT Admin) --}}
