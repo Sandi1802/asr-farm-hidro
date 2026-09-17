@@ -77,6 +77,18 @@
             </div>
         </div>
     </div>
+
+    <!-- Laporan Pekerjaan Lainnya -->
+    <div style="background:white; padding:1.5rem; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.05); margin-top:2rem;">
+        <h3 style="border-bottom:3px solid #6366f1; padding-bottom:0.5rem; margin-top:0;">
+            <i class="ph ph-notebook" style="color:#6366f1;"></i> Laporan Pekerjaan Lainnya
+        </h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+            Tuliskan pekerjaan-pekerjaan tambahan (di luar rutinitas di atas) yang dikerjakan hari ini. Laporan akan tersimpan otomatis saat Anda selesai mengetik (klik di luar kotak).
+        </p>
+        <textarea id="catatanHarian" rows="5" onblur="saveCatatanHarian()" placeholder="Contoh: Memperbaiki atap bocor di GH 1..." style="width:100%; border:1px solid #ccc; border-radius:8px; padding:1rem; font-family:inherit; resize:vertical;"></textarea>
+        <div id="catatanStatus" style="font-size:0.8rem; color:#10b981; margin-top:0.5rem; text-align:right; min-height:1rem;"></div>
+    </div>
 </div>
 
 <!-- Modal Notes -->
