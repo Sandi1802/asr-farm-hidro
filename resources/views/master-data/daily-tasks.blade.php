@@ -37,7 +37,7 @@
 
     <div class="card" style="padding: 1.5rem; overflow: hidden; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color);">
         <div class="table-responsive">
-            <table class="table datatable" style="width: 100%;">
+            <table class="table datatable" data-page-length="25" style="width: 100%;">
                 <thead>
                     <tr>
                         <th class="dt-no" style="width: 50px;">NO</th>
@@ -110,14 +110,6 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        if($.fn.DataTable) {
-            $(".datatable").DataTable({
-                pageLength: 25,
-                language: { search: "", searchPlaceholder: "Cari..." }
-            });
-        }
-    });
 
     function openAddModal() {
         document.getElementById("modalTitle").innerText = "Tambah Tugas";
