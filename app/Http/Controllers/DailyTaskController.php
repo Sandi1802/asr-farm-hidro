@@ -10,7 +10,7 @@ class DailyTaskController extends Controller
 {
     private function generateTemplateIfNeeded($dateStr)
     {
-        $date = Carbon\Carbon::parse($dateStr)->format("Y-m-d");
+        $date = Carbon::parse($dateStr)->format("Y-m-d");
         
         $templates = \App\Models\DailyTaskTemplate::all();
         $templateNames = $templates->pluck("task_name")->toArray();
