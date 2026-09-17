@@ -145,12 +145,12 @@
                     <div class="form-group">
                         <label>Role Akun</label>
                         <select name="role_agri" class="form-control" required>
-                            <option value="admin">Tim IT / Super Admin</option>
+                            <option value="it_admin">Tim IT / Super Admin</option>
                             <option value="atasan">Atasan / Manajer</option>
-                            <option value="kepala_produksi">Kepala Produksi</option>
-                            <option value="kepala_greenhouse">Kepala Greenhouse</option>
-                            <option value="kepala_konven">Kepala Konven</option>
-                            <option value="staff">Staff Umum</option>
+                            <option value="produksi">Kepala Produksi (Global)</option>
+                            <option value="produksi_gh">Kepala Produksi GH</option>
+                            <option value="produksi_konvensional">Kepala Produksi Konvensional</option>
+                            <option value="produksi_paprika">Kepala Produksi Paprika</option>
                             <option value="keuangan">Tim Keuangan</option>
                             <option value="pemasaran">Tim Pemasaran</option>
                             <option value="packing">Tim Packing</option>
@@ -224,12 +224,12 @@
                     <div class="form-group">
                         <label>Role Akun</label>
                         <select name="role_agri" id="edit_role_agri" class="form-control" required>
-                            <option value="admin">Tim IT / Super Admin</option>
+                            <option value="it_admin">Tim IT / Super Admin</option>
                             <option value="atasan">Atasan / Manajer</option>
-                            <option value="kepala_produksi">Kepala Produksi</option>
-                            <option value="kepala_greenhouse">Kepala Greenhouse</option>
-                            <option value="kepala_konven">Kepala Konven</option>
-                            <option value="staff">Staff Umum</option>
+                            <option value="produksi">Kepala Produksi (Global)</option>
+                            <option value="produksi_gh">Kepala Produksi GH</option>
+                            <option value="produksi_konvensional">Kepala Produksi Konvensional</option>
+                            <option value="produksi_paprika">Kepala Produksi Paprika</option>
                             <option value="keuangan">Tim Keuangan</option>
                             <option value="pemasaran">Tim Pemasaran</option>
                             <option value="packing">Tim Packing</option>
