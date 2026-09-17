@@ -112,4 +112,17 @@ class DailyTaskController extends Controller
         $task->delete();
         return response()->json(['success' => true]);
     }
+
+    public function apiUpdateCatatan(Request $request)
+    {
+        $date = $request->date;
+        $notes = $request->notes;
+
+        $task = DailyTask::updateOrCreate(
+            ["date" => $date, "shift" => "catatan", "task_name" => "Catatan Tambahan"],
+            ["notes" => $notes, "status" => "completed", "created_by" => auth()->id()]
+        );
+
+        return response()->json(["success" => true]);
+    }
 }

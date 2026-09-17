@@ -134,6 +134,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/daily-tasks', [\App\Http\Controllers\DailyTaskController::class, 'webIndex'])->name('hydroponics.daily-tasks');
             Route::get('/daily-tasks-api', [\App\Http\Controllers\DailyTaskController::class, 'apiIndex']);
             Route::post('/daily-tasks-api', [\App\Http\Controllers\DailyTaskController::class, 'apiStore']);
+            Route::post('/daily-tasks-api/catatan', [\App\Http\Controllers\DailyTaskController::class, 'apiUpdateCatatan']);
             Route::post('/daily-tasks-api/{id}/complete', [\App\Http\Controllers\DailyTaskController::class, 'apiToggleComplete']);
             Route::post('/daily-tasks-api/{id}/note', [\App\Http\Controllers\DailyTaskController::class, 'apiUpdateNote']);
             Route::delete('/daily-tasks-api/{id}', [\App\Http\Controllers\DailyTaskController::class, 'apiDelete']);

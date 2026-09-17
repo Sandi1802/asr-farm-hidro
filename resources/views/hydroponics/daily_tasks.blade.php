@@ -244,6 +244,14 @@ function renderTasks() {
     document.getElementById('statSiang').innerText = stats.siang.total > 0 ? Math.round((stats.siang.done / stats.siang.total) * 100) + '%' : '0%';
     document.getElementById('statClosing').innerText = stats.closing.total > 0 ? Math.round((stats.closing.done / stats.closing.total) * 100) + '%' : '0%';
     document.getElementById('statPR').innerText = stats.pr.pending + ' Pending';
+
+    const catatan = allTasks.find(t => t.shift === 'catatan');
+    if (catatan) {
+        document.getElementById('catatanHarian').value = catatan.notes || '';
+    } else {
+        document.getElementById('catatanHarian').value = '';
+    }
+
 }
 
 function toggleTask(id) {
@@ -349,6 +357,35 @@ function savePR() {
     })
     .catch(err => {
         alert('Terjadi kesalahan: ' + err.message);
+    });
+}
+
+function saveCatatanHarian() {
+    const text = document.getElementById("catatanHarian").value;
+    const date = document.getElementById("taskDate").value;
+    const statusEl = document.getElementById("catatanStatus");
+    
+    statusEl.innerText = "Menyimpan...";
+    
+    fetch("/hydroponics/daily-tasks-api/catatan", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]') .getAttribute("content")
+        },
+        body: JSON.stringify({ date: date, notes: text })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            statusEl.innerText = "Tersimpan pada " + new Date().toLocaleTimeString();
+            setTimeout(() => { if(statusEl.innerText.startsWith("Tersimpan")) statusEl.innerText=""; }, 3000);
+        } else {
+            statusEl.innerText = "Gagal menyimpan";
+        }
+    }).catch(err => {
+        statusEl.innerText = "Gagal menyimpan: " + err.message;
     });
 }
 </script>
