@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -57,6 +57,7 @@ Route::middleware('auth')->group(function () {
             
             Route::get('/master-data/employees', [\App\Http\Controllers\MasterDataController::class, 'employees'])->name('master-data.employees');
             Route::post('/master-data/employees', [\App\Http\Controllers\MasterDataController::class, 'storeEmployee'])->name('master-data.employees.store');
+            Route::put('/master-data/employees/{id}', [\App\Http\Controllers\MasterDataController::class, 'updateEmployee'])->name('master-data.employees.update');
             Route::delete('/master-data/employees/{id}', [\App\Http\Controllers\MasterDataController::class, 'destroyEmployee'])->name('master-data.employees.delete');
             
             Route::get('/master-data/labels', [\App\Http\Controllers\LabelController::class, 'index'])->name('master-data.labels');
@@ -211,3 +212,4 @@ Route::middleware('auth')->group(function () {
         Route::post('/penyemprotan', [\App\Http\Controllers\PaprikaController::class, 'storePenyemprotan'])->name('paprika.penyemprotan.store');
     });
 });
+
