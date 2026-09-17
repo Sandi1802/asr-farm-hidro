@@ -144,6 +144,14 @@
                         <input type="text" name="username" class="form-control" required placeholder="Contoh: sandi.p">
                     </div>
                     <div class="form-group">
+                          <label>Email</label>
+                          <input type="email" name="email" class="form-control" placeholder="email@contoh.com">
+                      </div>
+                      <div class="form-group">
+                          <label>Email</label>
+                          <input type="email" name="email" id="edit_email" class="form-control" placeholder="email@contoh.com">
+                      </div>
+                      <div class="form-group">
                         <label>No. Telepon <span style="color:var(--text-muted); font-weight:400;">(Opsional)</span></label>
                         <input type="text" name="phone" class="form-control" placeholder="08xx-xxxx-xxxx">
                     </div>
