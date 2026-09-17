@@ -62,8 +62,17 @@ Route::middleware('auth')->group(function () {
                 $count = 0;
                 foreach ($users as $user) {
                     if (!\App\Models\Employee::where('email', $user->email)->exists()) {
+                        // Cari NIP yang belum dipakai
+                        $baseNip = 'EMP-' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
+                        $nip = $baseNip;
+                        $counter = 1;
+                        while (\App\Models\Employee::where('nip', $nip)->exists()) {
+                            $nip = $baseNip . '-' . $counter;
+                            $counter++;
+                        }
+                        
                         \App\Models\Employee::create([
-                            'nip' => 'EMP-' . str_pad($user->id, 4, '0', STR_PAD_LEFT),
+                            'nip' => $nip,
                             'name' => $user->name ?: 'Unknown',
                             'position' => 'Staff',
                             'department' => 'Umum',
