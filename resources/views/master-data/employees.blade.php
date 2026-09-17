@@ -1,6 +1,6 @@
 ﻿@extends('layouts.app')
 
-@section('title', 'Master Data â€” Pegawai')
+@section('title', 'Master Data – Pegawai')
 
 @section('content')
     <div class="flex-between" style="margin-bottom: 1.5rem;">
@@ -20,18 +20,14 @@
         </div>
     @endif
 
-    @if($errors->any())
-        <div style="padding: 1rem; background: #ef4444; color: white; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
-            <ul style="margin: 0; padding-left: 1.5rem;">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+    @if(session('error'))
+        <div style="padding: 1rem; background: #dc2626; color: white; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+            {{ session('error') }}
         </div>
     @endif
 
-    <div class="table-container">
-        <table class="table datatable" style="width: 100%;">
+    <div class="table-responsive">
+        <table id="employeesTable" class="data-table">
             <thead>
                 <tr>
                     <th>No.</th>
@@ -232,8 +228,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Password Akun</label>
-                        <input type="password" name="password" id="edit_password" class="form-control" required placeholder="Minimal 6 karakter">
+                        <label>Password Akun <span style="color:var(--text-muted); font-weight:400;">(Kosongkan jika tidak diubah)</span></label>
+                        <input type="password" name="password" id="edit_password" class="form-control" placeholder="Minimal 6 karakter">
                     </div>
                 </div>
                 <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
@@ -243,24 +239,24 @@
             </form>
         </div>
     </div>
+
 @section('scripts')
 <script>
     function openEditModal(btn) {
-    try {
-        let employee = JSON.parse(btn.getAttribute('data-employee'));
-        let modal = document.getElementById('editModal');
-        let form = document.getElementById('editForm');
-        
-        form.action = '/hydroponics/master-data/employees/' + employee.id;
-        
-        document.getElementById('edit_nip').value = employee.nip;
-        document.getElementById('edit_name').value = employee.name;
-        document.getElementById('edit_position').value = employee.position;
-        document.getElementById('edit_department').value = employee.department;
+        var employee = JSON.parse(btn.getAttribute('data-employee'));
+        var modal = document.getElementById('editModal');
+        var form = document.getElementById('editForm');
 
+        form.action = '/hydroponics/master-data/employees/' + employee.id;
+
+        document.getElementById('edit_nip').value = employee.nip || '';
+        document.getElementById('edit_name').value = employee.name || '';
+        document.getElementById('edit_position').value = employee.position || '';
+        document.getElementById('edit_department').value = employee.department || '';
         document.getElementById('edit_phone').value = employee.phone || '';
-        document.getElementById('edit_status').value = employee.status;
-        
+        document.getElementById('edit_status').value = employee.status || 'Active';
+        document.getElementById('edit_password').value = '';
+
         if (employee.user) {
             document.getElementById('edit_username').value = employee.user.username || '';
             document.getElementById('edit_role_agri').value = employee.user.role_agri || '';
@@ -268,13 +264,10 @@
             document.getElementById('edit_username').value = '';
             document.getElementById('edit_role_agri').value = '';
         }
-        
+
         modal.classList.add('active');
     }
 </script>
 @endsection
 
 @endsection
-
-
-
