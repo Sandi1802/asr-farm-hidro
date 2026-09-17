@@ -265,9 +265,6 @@
 
 @section('scripts')
 <script>
-}
-});
-
 function openEditModal(btn) {
     var employee = JSON.parse(btn.getAttribute('data-employee'));
     var modal = document.getElementById('editModal');
