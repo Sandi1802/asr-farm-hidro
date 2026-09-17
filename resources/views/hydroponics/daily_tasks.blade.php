@@ -80,14 +80,20 @@
 
     <!-- Laporan Pekerjaan Lainnya -->
     <div style="background:white; padding:1.5rem; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.05); margin-top:2rem;">
-        <h3 style="border-bottom:3px solid #6366f1; padding-bottom:0.5rem; margin-top:0;">
-            <i class="ph ph-notebook" style="color:#6366f1;"></i> Laporan Pekerjaan Lainnya
-        </h3>
-        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
-            Tuliskan pekerjaan-pekerjaan tambahan (di luar rutinitas di atas) yang dikerjakan hari ini. Laporan akan tersimpan otomatis saat Anda selesai mengetik (klik di luar kotak).
-        </p>
-        <textarea id="catatanHarian" rows="5" onblur="saveCatatanHarian()" placeholder="Contoh: Memperbaiki atap bocor di GH 1..." style="width:100%; border:1px solid #ccc; border-radius:8px; padding:1rem; font-family:inherit; resize:vertical;"></textarea>
-        <div id="catatanStatus" style="font-size:0.8rem; color:#10b981; margin-top:0.5rem; text-align:right; min-height:1rem;"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #6366f1; padding-bottom:0.5rem; margin-bottom:1rem;">
+            <h3 style="margin:0;">
+                <i class="ph ph-notebook" style="color:#6366f1;"></i> Laporan Pekerjaan Lainnya
+            </h3>
+            <button onclick="showAddLainnyaModal()" class="btn btn-sm" style="background:#6366f1; color:white; border:none; border-radius:6px; padding:0.4rem 0.8rem; cursor:pointer;">
+                <i class="ph ph-plus"></i> Tambah Laporan
+            </button>
+        </div>
+        <div class="table-responsive">
+            <table id="dt-tambahan" class="table table-bordered table-striped" style="width:100%">
+                <thead><tr><th style="width:30px;">Aksi</th><th>Pekerjaan</th><th style="width:50px;">Notes</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -119,6 +125,25 @@
         <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
             <button onclick="closePRModal()" class="btn btn-secondary">Batal</button>
             <button onclick="savePR()" class="btn btn-primary" style="background:var(--asr-green); border:none;">Simpan</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tambah Laporan -->
+<div id="lainnyaModal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:12px; padding:1.5rem; width:100%; max-width:400px;">
+        <h4 style="margin-top:0;">Tambah Pekerjaan Lainnya</h4>
+        <div style="margin-bottom:1rem;">
+            <label style="font-weight:600; display:block; margin-bottom:0.3rem;">Nama Pekerjaan</label>
+            <input type="text" id="lainnyaTitle" style="width:100%; border:1px solid #ccc; border-radius:8px; padding:0.5rem;">
+        </div>
+        <div style="margin-bottom:1rem;">
+            <label style="font-weight:600; display:block; margin-bottom:0.3rem;">Keterangan/Catatan</label>
+            <textarea id="lainnyaNotes" rows="3" style="width:100%; border:1px solid #ccc; border-radius:8px; padding:0.5rem;"></textarea>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+            <button onclick="closeLainnyaModal()" class="btn btn-secondary">Batal</button>
+            <button onclick="saveLainnya()" class="btn btn-primary" style="background:#6366f1; border:none;">Simpan</button>
         </div>
     </div>
 </div>
@@ -208,7 +233,7 @@ let allTasks = [];
 let dtTables = {};
 
 document.addEventListener("DOMContentLoaded", function() {
-    ["opening", "siang", "closing", "pr"].forEach(type => {
+    ["opening", "siang", "closing", "pr", "tambahan"].forEach(type => {
         dtTables[type] = $("#dt-" + type).DataTable({
             pageLength: 5,
             lengthMenu: [5, 10, 25, 50],
@@ -231,23 +256,23 @@ function loadTasks() {
 }
 
 function renderTasks() {
-    const lists = { opening: [], siang: [], closing: [], pr: [] };
+    const lists = { opening: [], siang: [], closing: [], pr: [], tambahan: [] };
     const stats = { opening: { total:0, done:0 }, siang: { total:0, done:0 }, closing: { total:0, done:0 }, pr: { pending:0 } };
 
     allTasks.forEach(t => {
         const type = t.is_pr ? 'pr' : t.shift;
         if(lists[type]) {
             lists[type].push(t);
-            if(type !== 'pr') {
+            if(type !== 'pr' && type !== 'tambahan') {
                 stats[type].total++;
                 if(t.status === 'completed') stats[type].done++;
-            } else {
+            } else if (type === 'pr') {
                 if(t.status === 'pending') stats.pr.pending++;
             }
         }
     });
 
-    ['opening', 'siang', 'closing', 'pr'].forEach(type => {
+    ['opening', 'siang', 'closing', 'pr', 'tambahan'].forEach(type => {
         if(!dtTables[type]) return;
         const table = dtTables[type];
         table.clear();
@@ -298,14 +323,6 @@ function renderTasks() {
     document.getElementById('statSiang').innerText = stats.siang.total > 0 ? Math.round((stats.siang.done / stats.siang.total) * 100) + '%' : '0%';
     document.getElementById('statClosing').innerText = stats.closing.total > 0 ? Math.round((stats.closing.done / stats.closing.total) * 100) + '%' : '0%';
     document.getElementById('statPR').innerText = stats.pr.pending + ' Pending';
-
-    const catatan = allTasks.find(t => t.shift === 'catatan');
-    if (catatan) {
-        document.getElementById('catatanHarian').value = catatan.notes || '';
-    } else {
-        document.getElementById('catatanHarian').value = '';
-    }
-
 }
 
 function toggleTask(id) {
@@ -414,32 +431,56 @@ function savePR() {
     });
 }
 
-function saveCatatanHarian() {
-    const text = document.getElementById("catatanHarian").value;
-    const date = document.getElementById("taskDate").value;
-    const statusEl = document.getElementById("catatanStatus");
+function showAddLainnyaModal() {
+    document.getElementById('lainnyaTitle').value = '';
+    document.getElementById('lainnyaNotes').value = '';
+    document.getElementById('lainnyaModal').style.display = 'flex';
+}
+
+function closeLainnyaModal() {
+    document.getElementById('lainnyaModal').style.display = 'none';
+}
+
+function saveLainnya() {
+    const title = document.getElementById('lainnyaTitle').value;
+    const notes = document.getElementById('lainnyaNotes').value;
+    const date = document.getElementById('taskDate').value;
     
-    statusEl.innerText = "Menyimpan...";
+    if(!title) return alert('Nama pekerjaan harus diisi');
     
-    fetch("/hydroponics/daily-tasks-api/catatan", {
-        method: "POST",
+    fetch(`/hydroponics/daily-tasks-api`, {
+        method: 'POST',
         headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]') .getAttribute("content")
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        body: JSON.stringify({ date: date, notes: text })
+        body: JSON.stringify({
+            task_name: title,
+            notes: notes,
+            date: date,
+            shift: 'tambahan',
+            is_pr: false
+        })
     })
-    .then(res => res.json())
+    .then(async res => {
+        if(!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.message || 'Gagal menyimpan data (HTTP ' + res.status + ')');
+        }
+        return res.json();
+    })
     .then(data => {
         if(data.success) {
-            statusEl.innerText = "Tersimpan pada " + new Date().toLocaleTimeString();
-            setTimeout(() => { if(statusEl.innerText.startsWith("Tersimpan")) statusEl.innerText=""; }, 3000);
+            allTasks.push(data.task);
+            renderTasks();
+            closeLainnyaModal();
         } else {
-            statusEl.innerText = "Gagal menyimpan";
+            alert('Gagal: ' + (data.message || 'Unknown error'));
         }
-    }).catch(err => {
-        statusEl.innerText = "Gagal menyimpan: " + err.message;
+    })
+    .catch(err => {
+        alert('Terjadi kesalahan: ' + err.message);
     });
 }
 </script>

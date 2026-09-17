@@ -100,7 +100,7 @@ class DailyTaskController extends Controller
     {
         $request->validate([
             'task_name' => 'required|string|max:255',
-            'shift' => 'required|in:opening,siang,closing,pr',
+            'shift' => 'required|in:opening,siang,closing,pr,tambahan',
             'date' => 'required|date',
             'is_pr' => 'boolean'
         ]);
