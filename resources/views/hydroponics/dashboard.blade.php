@@ -76,7 +76,7 @@ $plantStageJson = json_encode($plantStageData ?? []);
         $pendingProcurements = \App\Models\Procurement::where('status_po', false)->count();
         $combinedStats = [
             // Baris 1: Kapasitas & Operasional (4 Kolom)
-            ['label' => 'Total Fasilitas', 'value' => $totalGH . ' GH', 'icon' => 'ph-buildings', 'class' => 'sbc-dark-green', 'sub' => $totalRacks . ' Rak • ' . number_format($totalHoles,0,',','.') . ' Lubang'],
+            ['label' => 'Total Fasilitas', 'value' => $totalGH . ' GH', 'icon' => 'ph-buildings', 'class' => 'sbc-dark-green', 'sub' => $totalRacks . ' Rak • ' . number_format($totalHoles,0,',','.') . ' Lubang', 'link' => route('hydroponics.greenhouses')],
             ['label' => 'Keterisian Lahan', 'value' => $occupancyRate . '%', 'icon' => 'ph-chart-pie-slice', 'class' => 'sbc-mid-green', 'sub' => number_format($plantedHoles,0,',','.') . ' Lubang Terisi (' . $plantedTypesCount . ' Jenis)'],
             ['id' => 'card-lubang-kosong', 'label' => 'Lubang Kosong', 'value' => number_format($emptyHolesCount,0,',','.'),        'icon' => 'ph-circle-dashed', 'class' => 'sbc-slate-farm', 'sub' => 'Menunggu ditanam'],
             ['label' => 'Jadwal Hari Ini', 'value' => $todayActivities, 'icon' => 'ph-calendar-check', 'class' => 'sbc-gold', 'sub' => 'Kegiatan Operasional'],
