@@ -324,14 +324,18 @@ class HydroponicController extends Controller
         $totalTanam = \App\Models\Hole::whereBetween('planted_at', [$start, $end])->count();
 
         // Panen in period
-        $totalPanen = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])
+        $panenFromHoles = \App\Models\Hole::where('status', 'panen')->whereBetween('harvested_at', [$start, $end])->count();
+        $panenFromLogs = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])
             ->where('action_type', 'panen')
             ->sum(\Illuminate\Support\Facades\DB::raw("CAST(details->>'jumlah' AS INTEGER)"));
+        $totalPanen = $panenFromHoles + $panenFromLogs;
 
         // Rusak in period
-        $totalRusak = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])
+        $rusakFromHoles = \App\Models\Hole::where('status', 'rusak')->whereBetween('updated_at', [$start, $end])->count();
+        $rusakFromLogs = \App\Models\MaintenanceLog::whereBetween('created_at', [$start, $end])
             ->where('action_type', 'rusak')
             ->sum(\Illuminate\Support\Facades\DB::raw("CAST(details->>'jumlah' AS INTEGER)"));
+        $totalRusak = $rusakFromHoles + $rusakFromLogs;
 
         return response()->json([
             'period_label' => $periodLabel,
