@@ -25,13 +25,12 @@ class HydroponicController extends Controller
         $plantedHoles   = Hole::where('status', 'ditanam')->count();
         $plantedTypesCount = Hole::where('status', 'ditanam')->distinct('plant_name')->count('plant_name');
         
-        $harvestedByPlantData = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)
-            ->where('action_type', 'panen')
-            ->selectRaw("COALESCE(details->>'plant_name', 'Tidak Diketahui') as plant_name")
-            ->selectRaw("SUM(CAST(details->>'jumlah' AS INTEGER)) as total_jumlah")
-            ->groupBy('plant_name')
-            ->pluck('total_jumlah', 'plant_name')
-            ->toArray();
+        $harvestedByPlantData = \App\Models\Hole::where('status', 'panen')
+                ->whereNotNull('plant_name')
+                ->selectRaw('plant_name, count(*) as count')
+                ->groupBy('plant_name')
+                ->pluck('count', 'plant_name')
+                ->toArray();
         $harvestedByPlant = $harvestedByPlantData;
         $harvestedHoles = array_sum($harvestedByPlantData);
         $harvestedTypesCount = count(array_filter(array_keys($harvestedByPlant), fn($k) => $k !== 'Tidak Diketahui')) ?: count($harvestedByPlant);
@@ -428,12 +427,11 @@ class HydroponicController extends Controller
             $logs = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)->get();
             
             // Panen details grouped by plant_name
-            $harvestedByPlantData = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)
-                ->where('action_type', 'panen')
-                ->selectRaw("COALESCE(details->>'plant_name', 'Tidak Diketahui') as plant_name")
-                ->selectRaw("SUM(CAST(details->>'jumlah' AS INTEGER)) as total_jumlah")
+            $harvestedByPlantData = \App\Models\Hole::where('status', 'panen')
+                ->whereNotNull('plant_name')
+                ->selectRaw('plant_name, count(*) as count')
                 ->groupBy('plant_name')
-                ->pluck('total_jumlah', 'plant_name')
+                ->pluck('count', 'plant_name')
                 ->toArray();
             $harvestedByPlant = $harvestedByPlantData;
             $harvestedHoles = array_sum($harvestedByPlantData);
