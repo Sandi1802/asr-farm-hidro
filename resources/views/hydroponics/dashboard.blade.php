@@ -541,7 +541,7 @@ $plantStageJson = json_encode($plantStageData ?? []);
         </div>
         <div class="responsive-grid-inv" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.5rem;">
             @foreach(array_diff_key($categoryConfig, ['lainnya' => '']) as $typeKey => $cfg)
-                @php $items = $inventoryItems->where('type', $typeKey); @endphp
+                @php $items = $inventoryItems->filter(function($i) use ($typeKey) { return strtolower($i->type ?? '') == $typeKey; }); @endphp
                 <div class="inv-card-premium">
                     <div class="inv-header">
                         <div style="display:flex; align-items:center; gap:1rem;">
