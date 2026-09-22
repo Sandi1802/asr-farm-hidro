@@ -25,15 +25,31 @@ class HydroponicController extends Controller
         $plantedHoles   = Hole::where('status', 'ditanam')->count();
         $plantedTypesCount = Hole::where('status', 'ditanam')->distinct('plant_name')->count('plant_name');
         
-        $harvestedByPlantData = \App\Models\Hole::where('status', 'panen')
-                ->whereNotNull('plant_name')
-                ->selectRaw('plant_name, count(*) as count')
-                ->groupBy('plant_name')
-                ->pluck('count', 'plant_name')
-                ->toArray();
-        $harvestedByPlant = $harvestedByPlantData;
-        $harvestedHoles = array_sum($harvestedByPlantData);
-        $harvestedTypesCount = count(array_filter(array_keys($harvestedByPlant), fn($k) => $k !== 'Tidak Diketahui')) ?: count($harvestedByPlant);
+        $harvestedTotals = [];
+        $holeHarvested = \App\Models\Hole::whereNotNull('plant_name')
+            ->whereNotNull('harvested_at')
+            ->selectRaw('plant_name, count(*) as count')
+            ->groupBy('plant_name')
+            ->pluck('count', 'plant_name')
+            ->toArray();
+        foreach ($holeHarvested as $pName => $qty) {
+            if ($pName !== 'Tidak Diketahui') {
+                $harvestedTotals[$pName] = ($harvestedTotals[$pName] ?? 0) + $qty;
+            }
+        }
+        $allPanenLogs = \App\Models\MaintenanceLog::where('action_type', 'panen')->get();
+        foreach ($allPanenLogs as $log) {
+            $det = json_decode($log->details);
+            $pName = $det->plant_name ?? 'Tidak Diketahui';
+            if ($pName !== 'Tidak Diketahui') {
+                $qty = $det->jumlah ?? 0;
+                $harvestedTotals[$pName] = ($harvestedTotals[$pName] ?? 0) + $qty;
+            }
+        }
+        
+        $harvestedByPlant = $harvestedTotals;
+        $harvestedHoles = array_sum($harvestedTotals);
+        $harvestedTypesCount = count($harvestedTotals);
 
         $damagedByReasonData = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)
             ->where('action_type', 'rusak')
@@ -152,33 +168,6 @@ class HydroponicController extends Controller
         $mostPlantedValues = array_values($topPlantedQuery);
 
         // ─── CHART: Tanaman Paling Sering Dipanen ───
-        $harvestedTotals = [];
-        
-        // 1. Get from Hole table (historical/web approach)
-        $holeHarvested = \App\Models\Hole::whereNotNull('plant_name')
-            ->whereNotNull('harvested_at')
-            ->selectRaw('plant_name, count(*) as count')
-            ->groupBy('plant_name')
-            ->pluck('count', 'plant_name')
-            ->toArray();
-            
-        foreach ($holeHarvested as $pName => $qty) {
-            if ($pName !== 'Tidak Diketahui') {
-                $harvestedTotals[$pName] = ($harvestedTotals[$pName] ?? 0) + $qty;
-            }
-        }
-        
-        // 2. Get from MaintenanceLog (API/bulk approach)
-        $allPanenLogs = \App\Models\MaintenanceLog::where('action_type', 'panen')->get();
-        foreach ($allPanenLogs as $log) {
-            $det = json_decode($log->details);
-            $pName = $det->plant_name ?? 'Tidak Diketahui';
-            if ($pName !== 'Tidak Diketahui') {
-                $qty = $det->jumlah ?? 0;
-                $harvestedTotals[$pName] = ($harvestedTotals[$pName] ?? 0) + $qty;
-            }
-        }
-        
         arsort($harvestedTotals);
         $topHarvestedQuery = array_slice($harvestedTotals, 0, 8, true);
         $mostHarvestedLabels = array_keys($topHarvestedQuery);
@@ -427,15 +416,31 @@ class HydroponicController extends Controller
             $logs = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)->get();
             
             // Panen details grouped by plant_name
-            $harvestedByPlantData = \App\Models\Hole::where('status', 'panen')
-                ->whereNotNull('plant_name')
+            $harvestedTotals = [];
+            $holeHarvested = \App\Models\Hole::whereNotNull('plant_name')
+                ->whereNotNull('harvested_at')
                 ->selectRaw('plant_name, count(*) as count')
                 ->groupBy('plant_name')
                 ->pluck('count', 'plant_name')
                 ->toArray();
-            $harvestedByPlant = $harvestedByPlantData;
-            $harvestedHoles = array_sum($harvestedByPlantData);
-            $harvestedTypesCount = count(array_filter(array_keys($harvestedByPlant), fn($k) => $k !== 'Tidak Diketahui')) ?: count($harvestedByPlant);
+            foreach ($holeHarvested as $pName => $qty) {
+                if ($pName !== 'Tidak Diketahui') {
+                    $harvestedTotals[$pName] = ($harvestedTotals[$pName] ?? 0) + $qty;
+                }
+            }
+            $allPanenLogs = \App\Models\MaintenanceLog::where('action_type', 'panen')->get();
+            foreach ($allPanenLogs as $log) {
+                $det = json_decode($log->details);
+                $pName = $det->plant_name ?? 'Tidak Diketahui';
+                if ($pName !== 'Tidak Diketahui') {
+                    $qty = $det->jumlah ?? 0;
+                    $harvestedTotals[$pName] = ($harvestedTotals[$pName] ?? 0) + $qty;
+                }
+            }
+            
+            $harvestedByPlant = $harvestedTotals;
+            $harvestedHoles = array_sum($harvestedTotals);
+            $harvestedTypesCount = count($harvestedTotals);
 
             // Rusak details grouped by alasan
             $damagedByReasonData = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)
