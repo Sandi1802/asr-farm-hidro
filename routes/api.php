@@ -17,9 +17,9 @@ Route::post('/login', [MobileApiController::class, 'login']);
 // App Updater API (No auth required)
 Route::get('/app-version', function () {
     return response()->json([
-        'version' => '1.0.1',
+        'version' => '1.0.0',
         'url' => 'https://asrfarm.tech/download/asr_green_mobile.apk',
-        'is_required' => true,
+        'is_required' => false,
     ]);
 });
 
