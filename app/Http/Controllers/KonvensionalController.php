@@ -274,10 +274,76 @@ class KonvensionalController extends Controller
         return back()->with('success', $jumlah . ' Titik Tanam berhasil ditambahkan');
     }
 
+
+    public function titikTanamMassal(Request $request)
+    {
+        $request->validate([
+            'bedengan_ids' => 'required|array',
+            'nama_tanaman' => 'required|string',
+            'tanaman_sekunder' => 'nullable|string'
+        ]);
+
+        $bedenganIds = $request->bedengan_ids;
+        $updated = \App\Models\TitikTanam::whereIn('bedengan_id', $bedenganIds)
+            ->where('status', 'kosong')
+            ->update([
+                'status' => 'ditanam',
+                'nama_tanaman' => $request->nama_tanaman,
+                'tanaman_sekunder' => $request->tanaman_sekunder,
+                'tanggal_tanam' => now(),
+                'kosong_sejak' => null
+            ]);
+
+        return back()->with('success', $updated . ' Titik Tanam berhasil ditanami massal!');
+    }
+
     public function titikTanamUpdate(Request $request, $id)
     {
         $titik = TitikTanam::findOrFail($id);
-        $titik->update($request->all());
+        
+        if ($request->status == 'panen') {
+            $jenisPanen = $request->input('jenis_panen', 'cabut');
+            
+            // Simpan riwayat panen
+            \App\Models\RiwayatPanenKonvensional::create([
+                'titik_tanam_id' => $titik->id,
+                'jenis_panen' => $jenisPanen,
+                'jumlah_kg' => $request->input('jumlah_kg'),
+                'catatan' => 'Panen ' . $titik->nama_tanaman
+            ]);
+
+            if ($jenisPanen == 'cabut') {
+                $titik->update([
+                    'status' => 'kosong',
+                    'nama_tanaman' => null,
+                    'tanaman_sekunder' => null,
+                    'tanggal_tanam' => null,
+                    'tanggal_panen' => null,
+                    'kosong_sejak' => now()
+                ]);
+            } else {
+                // Panen Petik -> Status tetap ditanam
+                $titik->update([
+                    'status' => 'ditanam'
+                ]);
+            }
+        } else {
+            // Update biasa
+            $data = $request->except(['jenis_panen', 'jumlah_kg']);
+            
+            if ($request->status == 'ditanam' && $titik->status != 'ditanam') {
+                $data['kosong_sejak'] = null; // Menghapus status kosong
+                if (!$titik->tanggal_tanam) {
+                    $data['tanggal_tanam'] = now();
+                }
+            }
+            if ($request->status == 'kosong' && $titik->status != 'kosong') {
+                $data['kosong_sejak'] = now();
+            }
+            
+            $titik->update($data);
+        }
+
         return back()->with('success', 'Titik Tanam berhasil diupdate');
     }
     

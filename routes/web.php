@@ -265,6 +265,7 @@ Route::middleware('auth')->group(function () {
         // Titik Tanam
         Route::get('/bedengan/{bedengan_id}/titik-tanam', [\App\Http\Controllers\KonvensionalController::class, 'titikTanamShow'])->name('konvensional.titik_tanam');
         Route::post('/bedengan/{bedengan_id}/titik-tanam', [\App\Http\Controllers\KonvensionalController::class, 'titikTanamStore']);
+        Route::post('/titik-tanam/massal', [\App\Http\Controllers\KonvensionalController::class, 'titikTanamMassal'])->name('konvensional.titik_tanam.massal');
         Route::post('/titik-tanam/{id}', [\App\Http\Controllers\KonvensionalController::class, 'titikTanamUpdate']);
         Route::delete('/titik-tanam/{id}', [\App\Http\Controllers\KonvensionalController::class, 'titikTanamDestroy']);
 

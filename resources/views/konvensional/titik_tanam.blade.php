@@ -63,6 +63,9 @@
                     <td style="padding: 1rem; vertical-align: middle;">
                         @if($titik->nama_tanaman)
                             <span style="font-size: 0.85rem; color: var(--text-color); font-weight: 500;"><i class="ph ph-plant" style="color: var(--asr-green);"></i> {{ $titik->nama_tanaman }}</span>
+                            @if($titik->tanaman_sekunder)
+                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;"><i class="ph ph-tree" style="color: #0284c7;"></i> {{ $titik->tanaman_sekunder }} (Tumpang Sari)</div>
+                            @endif
                         @else
                             <span style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">Belum ditanami</span>
                         @endif
@@ -163,11 +166,54 @@
     </div>
 </div>
 
+
+<!-- Modal Tanam Massal -->
+<div id="modalTanamMassal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 12px; width: 100%; max-width: 500px; padding: 2rem; position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="margin: 0; color: var(--text-color); font-size: 1.25rem;">Tanam Massal Lintas Bedengan</h3>
+            <button onclick="document.getElementById('modalTanamMassal').style.display='none'" style="background: none; border: none; font-size: 1.25rem; cursor: pointer;"><i class="ph ph-x"></i></button>
+        </div>
+        
+        <form action="{{ route('konvensional.titik_tanam.massal') }}" method="POST">
+            @csrf
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-color);">Pilih Bedengan (Hanya yang titiknya kosong)</label>
+                <div style="max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 0.75rem;">
+                    @foreach($bedengan->lahan->bedengan as $b)
+                        <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <input type="checkbox" name="bedengan_ids[]" value="{{ $b->id }}" {{ $b->id == $bedengan->id ? 'checked' : '' }}> 
+                            {{ $b->nama_bedengan }} ({{ $b->titik_tanam()->where('status','kosong')->count() }} titik kosong)
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-color);">Tanaman Utama</label>
+                <input type="text" name="nama_tanaman" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;" placeholder="Contoh: Brokoli">
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-color);">Tanaman Sekunder (Tumpang Sari - Opsional)</label>
+                <input type="text" name="tanaman_sekunder" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;" placeholder="Contoh: Bawang Daun">
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" onclick="document.getElementById('modalTanamMassal').style.display='none'" class="btn btn-outline" style="padding: 0.75rem 1.5rem; border-radius: 6px;">Batal</button>
+                <button type="submit" class="btn" style="background: #0284c7; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer;">Tanam Massal Sekarang</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 function editTitik(titik) {
     document.getElementById('updateTitle').innerText = titik.nama_titik;
     document.getElementById('updateStatus').value = titik.status;
     document.getElementById('updateTanaman').value = titik.nama_tanaman || '';
+    document.getElementById('updateTanamanSekunder').value = titik.tanaman_sekunder || '';
+    document.getElementById('updateJumlahKg').value = '';
     
     document.getElementById('formUpdate').action = "/konvensional/titik-tanam/" + titik.id;
     

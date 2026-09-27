@@ -57,7 +57,22 @@
             <button onclick="switchPeriodKonv('today', this)" class="period-tab-k" style="border:none; background:transparent; padding:0.4rem 0.85rem; border-radius:7px; font-size:0.78rem; font-weight:700; color:var(--text-muted); cursor:pointer; transition:all 0.2s; font-family:inherit;">Hari Ini</button>
         </div>
     </div>
-    <div class="dashboard-stats">
+  
+  <!-- Idle Land Alert -->
+  @if(isset($idleHolesCount) && $idleHolesCount > 0)
+  <div style="background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #ef4444; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <i class="ph ph-warning-circle" style="color: #ef4444; font-size: 1.75rem;"></i>
+          <div>
+              <h4 style="margin: 0; color: #991b1b; font-size: 0.95rem;">Peringatan Lahan Menganggur!</h4>
+              <p style="margin: 0.2rem 0 0; color: #b91c1c; font-size: 0.85rem;">Terdapat <strong>{{ $idleHolesCount }} lubang tanam</strong> yang kosong lebih dari 5 hari. Segera rencanakan penanaman.</p>
+          </div>
+      </div>
+      <a href="{{ route('konvensional.lahan') }}" style="background: #ef4444; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600;">Lihat Lahan</a>
+  </div>
+  @endif
+
+  <div class="dashboard-stats">
         @php
         $combinedStats = [
             // Baris 1: Kapasitas & Aset
