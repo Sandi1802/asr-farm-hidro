@@ -465,8 +465,7 @@ class HydroponicController extends Controller
                 ->leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
                 ->where('holes.status', 'ditanam')
                 ->whereNotNull('holes.planted_at')
-                ->whereRaw("EXTRACT(MONTH FROM (holes.planted_at + (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day'))) = ?", [$defaultDays, $month])
-                ->whereRaw("EXTRACT(YEAR FROM (holes.planted_at + (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day'))) = ?", [$defaultDays, $year])
+                ->whereRaw("EXTRACT(YEAR FROM (holes.planted_at + (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day'))) * 100 + EXTRACT(MONTH FROM (holes.planted_at + (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day'))) <= ?", [$defaultDays, $defaultDays, $year * 100 + $month])
                 ->select('holes.*')
                 ->get();
             
@@ -488,16 +487,14 @@ class HydroponicController extends Controller
                     foreach ($holes as $hole) {
                         $gh = optional(optional(optional($hole->row)->rack)->greenhouse)->name ?? 'GH Unknown';
                         $rack = optional(optional($hole->row)->rack)->name ?? 'Rak Unknown';
-                        $pt = $plantTypes->get($hole->plant_name);
-                        $days = $pt ? ($pt->growth_days - $pt->semai_days) : $defaultDays;
-                        $harvestDate = \Carbon\Carbon::parse($hole->planted_at)->addDays($days)->translatedFormat('d M Y');
+                        $age = \Carbon\Carbon::parse($hole->planted_at)->diffInDays(now());
                         
                         $locKey = $gh . ' - ' . $rack;
                         if (!isset($locations[$locKey])) {
-                            $locations[$locKey] = ['count' => 0, 'dates' => []];
+                            $locations[$locKey] = ['count' => 0, 'ages' => []];
                         }
                         $locations[$locKey]['count']++;
-                        $locations[$locKey]['dates'][$harvestDate] = true;
+                        $locations[$locKey]['ages'][] = $age;
                     }
                     
                     $siapPanenHtml .= '<div style="margin-bottom:1.5rem; border:1px solid var(--border-color); border-radius:8px; overflow:hidden;">';
@@ -509,15 +506,19 @@ class HydroponicController extends Controller
                     $siapPanenHtml .= '<tr style="background:var(--card-bg, #fff); border-bottom:1px solid var(--border-color); color:var(--text-muted);">';
                     $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:left; font-weight:600;">Lokasi (GH / Rak)</th>';
                     $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Jumlah</th>';
-                    $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Tgl Panen (Estimasi)</th>';
+                    $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Usia Tanaman</th>';
                     $siapPanenHtml .= '</tr></thead><tbody>';
                     
                     foreach ($locations as $loc => $data) {
-                        $dates = implode(', ', array_keys($data['dates']));
+                        if (empty($data['ages'])) continue;
+                        $minAge = min($data['ages']);
+                        $maxAge = max($data['ages']);
+                        $ageStr = ($minAge == $maxAge) ? $minAge . ' Hari' : $minAge . ' - ' . $maxAge . ' Hari';
+                        
                         $siapPanenHtml .= '<tr style="border-bottom:1px solid var(--border-color);">';
                         $siapPanenHtml .= '<td style="padding:0.75rem 1rem; color:var(--text-main);">'.htmlspecialchars($loc).'</td>';
                         $siapPanenHtml .= '<td style="padding:0.75rem 1rem; text-align:center; font-weight:600; color:var(--text-main);">'.$data['count'].'</td>';
-                        $siapPanenHtml .= '<td style="padding:0.75rem 1rem; text-align:center; color:var(--text-muted);">'.htmlspecialchars($dates).'</td>';
+                        $siapPanenHtml .= '<td style="padding:0.75rem 1rem; text-align:center; color:var(--text-muted);">'.htmlspecialchars($ageStr).'</td>';
                         $siapPanenHtml .= '</tr>';
                     }
                     $siapPanenHtml .= '</tbody></table></div>';
@@ -559,8 +560,7 @@ class HydroponicController extends Controller
             $readyIds = \App\Models\Hole::leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
                 ->where('holes.status', 'ditanam')
                 ->whereNotNull('holes.planted_at')
-                ->whereRaw("EXTRACT(MONTH FROM (holes.planted_at + (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day'))) = ?", [$defaultDays, $month])
-                ->whereRaw("EXTRACT(YEAR FROM (holes.planted_at + (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day'))) = ?", [$defaultDays, $year])
+                ->whereRaw("EXTRACT(YEAR FROM (holes.planted_at + (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day'))) * 100 + EXTRACT(MONTH FROM (holes.planted_at + (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day'))) <= ?", [$defaultDays, $defaultDays, $year * 100 + $month])
                 ->pluck('holes.id');
             
             $readyToHarvestCount = $readyIds->count();
