@@ -386,17 +386,22 @@ class RackApiController extends Controller
 
             $request->validate([
                 'jumlah' => 'required|integer|min:1',
-                'alasan' => 'required|string'
+                'alasan' => 'required|string',
+                'plant_name' => 'nullable|string',
+                'catatan' => 'nullable|string'
             ]);
 
             $jumlah = $request->jumlah;
             $alasan = $request->alasan;
+            $plantName = $request->plant_name;
+            $catatan = $request->catatan;
 
             // Collect all planted holes
             $plantedHoles = collect();
             foreach ($rack->rows as $row) {
                 foreach ($row->holes as $hole) {
                     if ($hole->status === 'ditanam') {
+                        if ($plantName && $hole->plant_name !== $plantName) continue;
                         $plantedHoles->push($hole);
                     }
                 }
@@ -423,16 +428,21 @@ class RackApiController extends Controller
                 'loggable_id' => $rack->id,
                 'user_id' => auth()->id() ?? 1,
                 'action_type' => 'rusak',
-                'notes' => 'Lapor rusak ' . $jumlah . ' tanaman: ' . $alasan,
-                'details' => json_encode(['jumlah' => $jumlah, 'alasan' => $alasan])
+                'notes' => 'Lapor rusak ' . $jumlah . ' tanaman ' . ($plantName ?? '') . ': ' . $alasan,
+                'details' => json_encode([
+                    'jumlah' => $jumlah, 
+                    'alasan' => $alasan,
+                    'plant_name' => $plantName,
+                    'catatan' => $catatan
+                ])
             ]);
 
             // Create Damage Note so it shows up on the Web Dashboard
             \App\Models\DamageNote::create([
                 'user_id' => auth()->id() ?? 1,
-                'plant_name' => 'Dilaporkan dari Mobile',
-                'damage_type' => 'Lainnya',
-                'description' => "Kerusakan $jumlah lubang tanam. Alasan: $alasan",
+                'plant_name' => $plantName ?? 'Tidak Diketahui',
+                'damage_type' => $alasan,
+                'description' => "Kerusakan $jumlah tanaman. Catatan: " . ($catatan ?? '-'),
                 'severity' => 'sedang',
                 'location' => $rack->greenhouse->name . ' › ' . $rack->name,
                 'damaged_at' => now(),
