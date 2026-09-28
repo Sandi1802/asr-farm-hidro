@@ -57,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/racks/{id}/plant', [RackApiController::class, 'plant']);
         Route::post('/racks/{id}/harvest', [RackApiController::class, 'harvest']);
         Route::post('/racks/{id}/damage', [RackApiController::class, 'damage']);
+        Route::post('/racks/{id}/note', [RackApiController::class, 'updateNote']);
         
         // Holes
         Route::post('/holes/{id}', [HoleApiController::class, 'update']);

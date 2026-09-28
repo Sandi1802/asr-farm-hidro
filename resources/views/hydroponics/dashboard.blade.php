@@ -361,11 +361,13 @@ $plantStageJson = json_encode($plantStageData ?? []);
                             $locations = [];
                             foreach($holes as $hole) {
                                 $gh = optional(optional(optional($hole->row)->rack)->greenhouse)->name ?? 'GH Unknown';
-                                $rack = optional(optional($hole->row)->rack)->name ?? 'Rak Unknown';
+                                $rackModel = optional(optional($hole->row)->rack);
+                                $rack = $rackModel->name ?? 'Rak Unknown';
+                                $catatan = $rackModel->catatan_lapangan ?? '-';
                                 $age = \Carbon\Carbon::parse($hole->planted_at)->diffInDays(now());
                                 $locKey = $gh . ' - ' . $rack;
                                 if(!isset($locations[$locKey])) {
-                                    $locations[$locKey] = ['count' => 0, 'ages' => []];
+                                    $locations[$locKey] = ['count' => 0, 'ages' => [], 'catatan' => $catatan];
                                 }
                                 $locations[$locKey]['count']++;
                                 $locations[$locKey]['ages'][] = $age;
@@ -382,6 +384,7 @@ $plantStageJson = json_encode($plantStageData ?? []);
                                         <th style="padding:0.75rem 1rem; text-align:left; font-weight:600;">Lokasi (GH / Rak)</th>
                                         <th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Jumlah</th>
                                         <th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Usia Tanaman</th>
+                                        <th style="padding:0.75rem 1rem; text-align:left; font-weight:600;">Konfirmasi Lapangan</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -389,12 +392,13 @@ $plantStageJson = json_encode($plantStageData ?? []);
                                     @php 
                                         $minAge = min($data['ages']);
                                         $maxAge = max($data['ages']);
-                                        $ageStr = $minAge == $maxAge ? $minAge . ' hari' : $minAge . ' - ' . $maxAge . ' hari';
+                                        $ageStr = $minAge == $maxAge ? $minAge . ' Hari' : $minAge . ' - ' . $maxAge . ' Hari';
                                     @endphp
                                     <tr style="border-bottom:1px solid var(--border-color);">
                                         <td style="padding:0.75rem 1rem; color:var(--text-main);">{{ $loc }}</td>
                                         <td style="padding:0.75rem 1rem; text-align:center; font-weight:600; color:var(--text-main);">{{ $data['count'] }}</td>
                                         <td style="padding:0.75rem 1rem; text-align:center; color:var(--text-muted);">{{ $ageStr }}</td>
+                                        <td style="padding:0.75rem 1rem; color:var(--text-main); font-style:italic;">{{ $data['catatan'] }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>

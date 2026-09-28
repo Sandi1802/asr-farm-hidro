@@ -493,4 +493,17 @@ class RackApiController extends Controller
             return response()->json(["success" => false, "message" => $e->getMessage()], 500);
         }
     }
+
+    public function updateNote(Request $request, $id)
+    {
+        $rack = Rack::findOrFail($id);
+        $rack->update([
+            "catatan_lapangan" => $request->note,
+            "catatan_lapangan_updated_at" => now(),
+        ]);
+        return response()->json([
+            "success" => true,
+            "message" => "Catatan lapangan berhasil disimpan"
+        ]);
+    }
 }

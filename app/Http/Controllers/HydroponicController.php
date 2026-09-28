@@ -486,12 +486,14 @@ class HydroponicController extends Controller
                     $locations = [];
                     foreach ($holes as $hole) {
                         $gh = optional(optional(optional($hole->row)->rack)->greenhouse)->name ?? 'GH Unknown';
-                        $rack = optional(optional($hole->row)->rack)->name ?? 'Rak Unknown';
+                        $rackModel = optional(optional($hole->row)->rack);
+                        $rack = $rackModel->name ?? 'Rak Unknown';
+                        $catatan = $rackModel->catatan_lapangan ?? '-';
                         $age = \Carbon\Carbon::parse($hole->planted_at)->diffInDays(now());
                         
                         $locKey = $gh . ' - ' . $rack;
                         if (!isset($locations[$locKey])) {
-                            $locations[$locKey] = ['count' => 0, 'ages' => []];
+                            $locations[$locKey] = ['count' => 0, 'ages' => [], 'catatan' => $catatan];
                         }
                         $locations[$locKey]['count']++;
                         $locations[$locKey]['ages'][] = $age;
@@ -507,6 +509,7 @@ class HydroponicController extends Controller
                     $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:left; font-weight:600;">Lokasi (GH / Rak)</th>';
                     $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Jumlah</th>';
                     $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Usia Tanaman</th>';
+                    $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:left; font-weight:600;">Konfirmasi Lapangan</th>';
                     $siapPanenHtml .= '</tr></thead><tbody>';
                     
                     foreach ($locations as $loc => $data) {
@@ -519,6 +522,7 @@ class HydroponicController extends Controller
                         $siapPanenHtml .= '<td style="padding:0.75rem 1rem; color:var(--text-main);">'.htmlspecialchars($loc).'</td>';
                         $siapPanenHtml .= '<td style="padding:0.75rem 1rem; text-align:center; font-weight:600; color:var(--text-main);">'.$data['count'].'</td>';
                         $siapPanenHtml .= '<td style="padding:0.75rem 1rem; text-align:center; color:var(--text-muted);">'.htmlspecialchars($ageStr).'</td>';
+                        $siapPanenHtml .= '<td style="padding:0.75rem 1rem; color:var(--text-main); font-style:italic;">'.htmlspecialchars($data['catatan']).'</td>';
                         $siapPanenHtml .= '</tr>';
                     }
                     $siapPanenHtml .= '</tbody></table></div>';
