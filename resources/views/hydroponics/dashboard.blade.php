@@ -1383,6 +1383,36 @@ function updateSummaryCards(month, year) {
                 let elSudahSub = document.getElementById('card-sudah-panen-sub'); if(elSudahSub) elSudahSub.textContent = data.sudah_panen_sub;
                 let elGagal = document.getElementById('card-gagal-panen'); if(elGagal) elGagal.textContent = data.gagal_panen;
                 let elGagalSub = document.getElementById('card-gagal-panen-sub'); if(elGagalSub) elGagalSub.textContent = data.gagal_panen_sub;
+                let listSudah = document.getElementById('sudahPanenModalList');
+                if (listSudah && data.sudah_panen_detail) {
+                    listSudah.innerHTML = '';
+                    if (Object.keys(data.sudah_panen_detail).length === 0) {
+                        listSudah.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-muted);">Belum ada data panen.</div>';
+                    } else {
+                        for (const [plant, qty] of Object.entries(data.sudah_panen_detail)) {
+                            listSudah.innerHTML += '<li style="padding: 1rem; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">' +
+                                '<div><div style="font-weight:600; color:var(--text-main);">' + plant + '</div></div>' +
+                                '<div style="background:var(--bg-hover); padding: 0.3rem 0.8rem; border-radius: 20px; font-weight:700; font-size:0.9rem; color:#0f766e;">' + qty + ' Lubang</div>' +
+                                '</li>';
+                        }
+                    }
+                }
+                
+                let listGagal = document.getElementById('gagalPanenModalList');
+                if (listGagal && data.gagal_panen_detail) {
+                    listGagal.innerHTML = '';
+                    if (Object.keys(data.gagal_panen_detail).length === 0) {
+                        listGagal.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-muted);">Tidak ada kerusakan tercatat.</div>';
+                    } else {
+                        for (const [reason, qty] of Object.entries(data.gagal_panen_detail)) {
+                            listGagal.innerHTML += '<li style="padding: 1rem; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">' +
+                                '<div><div style="font-weight:600; color:var(--text-main);">' + reason + '</div></div>' +
+                                '<div style="background:#fef2f2; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight:700; font-size:0.9rem; color:#b91c1c;">' + qty + ' Lubang</div>' +
+                                '</li>';
+                        }
+                    }
+                }
+
             }
             if(document.getElementById('val-total-tanam')) {
                 document.getElementById('val-total-tanam').textContent = data.total_tanam_bulan_ini + ' Lubang';
