@@ -60,9 +60,13 @@ class HydroponicController extends Controller
             $det = json_decode($log->details);
             $pName = $det->plant_name ?? 'Tidak Diketahui';
             $alasan = $det->alasan ?? 'Lainnya';
+            $catatan = $det->catatan ?? null;
             $qty = $det->jumlah ?? 0;
             
-            $key = $pName . ' (' . $alasan . ')';
+            $key = htmlspecialchars($pName) . ' (' . htmlspecialchars($alasan) . ')';
+            if ($catatan) {
+                $key .= '<br><span style="font-size:0.85rem; color:var(--text-muted); font-weight:normal; margin-top:4px; display:inline-block;">Catatan: ' . htmlspecialchars($catatan) . '</span>';
+            }
             $damagedTotals[$key] = ($damagedTotals[$key] ?? 0) + $qty;
         }
         $damagedByReason = $damagedTotals;
@@ -475,9 +479,13 @@ class HydroponicController extends Controller
             $det = json_decode($log->details);
             $pName = $det->plant_name ?? 'Tidak Diketahui';
             $alasan = $det->alasan ?? 'Lainnya';
+            $catatan = $det->catatan ?? null;
             $qty = $det->jumlah ?? 0;
             
-            $key = $pName . ' (' . $alasan . ')';
+            $key = htmlspecialchars($pName) . ' (' . htmlspecialchars($alasan) . ')';
+            if ($catatan) {
+                $key .= '<br><span style="font-size:0.85rem; color:var(--text-muted); font-weight:normal; margin-top:4px; display:inline-block;">Catatan: ' . htmlspecialchars($catatan) . '</span>';
+            }
             $damagedTotals[$key] = ($damagedTotals[$key] ?? 0) + $qty;
         }
         $damagedByReason = $damagedTotals;
@@ -518,10 +526,8 @@ class HydroponicController extends Controller
                 $emptyHolesGrouped[$locKey]['qty']++;
             }
             
-            // Sort by quantity descending
-            uasort($emptyHolesGrouped, function($a, $b) {
-                return $b['qty'] <=> $a['qty'];
-            });
+            // Sort by GH and Rack name naturally
+            uksort($emptyHolesGrouped, 'strnatcmp');
             
             $lubangKosongHtml = '<ul id="lubangKosongModalList" style="list-style: none; padding: 0; margin: 0;">';
             if (empty($emptyHolesGrouped)) {
@@ -593,9 +599,13 @@ class HydroponicController extends Controller
                 $det = json_decode($log->details);
                 $pName = $det->plant_name ?? 'Tidak Diketahui';
                 $alasan = $det->alasan ?? 'Lainnya';
+                $catatan = $det->catatan ?? null;
                 $qty = $det->jumlah ?? 0;
                 
-                $key = $pName . ' (' . $alasan . ')';
+                $key = htmlspecialchars($pName) . ' (' . htmlspecialchars($alasan) . ')';
+                if ($catatan) {
+                    $key .= '<br><span style="font-size:0.85rem; color:var(--text-muted); font-weight:normal; margin-top:4px; display:inline-block;">Catatan: ' . htmlspecialchars($catatan) . '</span>';
+                }
                 $damagedTotalsHist[$key] = ($damagedTotalsHist[$key] ?? 0) + $qty;
             }
             $damagedByReasonHist = $damagedTotalsHist;
@@ -1334,6 +1344,9 @@ class HydroponicController extends Controller
                     $locations[$locKey]['count']++;
                     $locations[$locKey]['ages'][] = $age;
                 }
+                
+                // Sort locations naturally
+                uksort($locations, 'strnatcmp');
                 
                 $siapPanenHtml .= '<div style="margin-bottom:1.5rem; border:1px solid var(--border-color); border-radius:8px; overflow:hidden;">';
                 $siapPanenHtml .= '<div style="background:var(--bg-light); padding:0.75rem 1rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">';

@@ -485,7 +485,7 @@ $plantStageJson = json_encode($plantStageData ?? []);
                         @foreach($damagedByReason as $reason => $qty)
                             <li style="padding: 1rem; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
                                 <div>
-                                    <div style="font-weight:600; color:var(--text-main);">{{ $reason }}</div>
+                                    <div style="font-weight:600; color:var(--text-main);">{!! $reason !!}</div>
                                 </div>
                                 <div style="background:#fef2f2; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight:700; font-size:0.9rem; color:#b91c1c;">
                                     {{ $qty }} Lubang

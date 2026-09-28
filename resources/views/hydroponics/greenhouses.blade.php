@@ -156,7 +156,7 @@
                                         if(!isset($rackGrouped[$r])) $rackGrouped[$r] = 0;
                                         $rackGrouped[$r]++;
                                     }
-                                    arsort($rackGrouped);
+                                    uksort($rackGrouped, 'strnatcmp');
                                 @endphp
                                 <li style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 0.75rem; background: #fdfaf5;">
                                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
@@ -198,7 +198,7 @@
                                         if(!isset($rackGrouped[$r])) $rackGrouped[$r] = 0;
                                         $rackGrouped[$r]++;
                                     }
-                                    arsort($rackGrouped);
+                                    uksort($rackGrouped, 'strnatcmp');
                                 @endphp
                                 <li style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 0.75rem; background: #f0fdf4;">
                                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
