@@ -47,12 +47,15 @@
                     $allHoles = $gh->racks->flatMap->rows->flatMap->holes;
                     $cntKosong  = $allHoles->where('status', 'kosong')->count();
                     $cntDitanamTotal = $allHoles->where('status', 'ditanam')->count();
-                    $cntReady   = $allHoles->where('status', 'ditanam')->filter(function($h) use ($plantTypeMap, $defaultDays) {
+                    $readyHoles   = $allHoles->where('status', 'ditanam')->filter(function($h) use ($plantTypeMap, $defaultDays) {
                         if (!$h->planted_at) return false;
                         $days = isset($plantTypeMap[$h->plant_name]) ? $plantTypeMap[$h->plant_name] : $defaultDays;
                         return \Carbon\Carbon::parse($h->planted_at)->addDays($days)->lte(now());
-                    })->count();
+                    });
+                    $cntReady = $readyHoles->count();
                     $cntDitanam = max(0, $cntDitanamTotal - $cntReady);
+                    
+                    $readyGrouped = $readyHoles->whereNotNull('plant_name')->groupBy('plant_name');
                     $cntPanen   = $allHoles->where('status', 'panen')->count();
                     $cntRusak   = $allHoles->where('status', 'rusak')->count();
                     
@@ -98,7 +101,9 @@
                     </td>
 
                     <td style="padding: 1rem; vertical-align: middle; text-align: center;">
-                        <span style="background: #ffedd5; color: #ea580c; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">{{ number_format($cntReady, 0, ',', '.') }}</span>
+                        <span @if($cntReady > 0) onclick="document.getElementById('readyModal_{{ $gh->id }}').style.display='flex'" style="background: #ffedd5; color: #ea580c; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 700; cursor: pointer; text-decoration: underline;" @else style="background: #ffedd5; color: #ea580c; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 700;" @endif>
+                            {{ number_format($cntReady, 0, ',', '.') }}
+                        </span>
                     </td>
 
                     <td style="padding: 1rem; vertical-align: middle; text-align: center;">
@@ -132,7 +137,29 @@
                         </div>
                     </td>
                 </tr>
-                @endforeach
+                                @if($cntReady > 0)
+                <div id="readyModal_{{ $gh->id }}" class="modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(2px);">
+                    <div style="background: white; padding: 1.5rem; border-radius: 12px; width: 100%; max-width: 500px; max-height: 85vh; display:flex; flex-direction:column; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+                            <h3 style="margin:0; font-size: 1.15rem; font-weight: 700; color:var(--text-main);"><i class="ph ph-trophy" style="color:#ea580c; margin-right:8px;"></i> Tanaman Siap Panen ({{ $gh->name }})</h3>
+                            <button onclick="document.getElementById('readyModal_{{ $gh->id }}').style.display='none'" style="border:none; background:transparent; cursor:pointer; font-size:1.2rem; color:var(--text-muted);"><i class="ph ph-x"></i></button>
+                        </div>
+                        <div style="overflow-y:auto; flex-grow:1; padding-right:0.5rem;">
+                            <ul style="list-style:none; padding:0; margin:0;">
+                                @foreach($readyGrouped as $plantName => $holes)
+                                <li style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 0.75rem; display:flex; justify-content:space-between; align-items:center; background: #fdfaf5;">
+                                    <div style="font-weight: 700; font-size: 1.05rem; color: var(--text-main);">{{ $plantName }}</div>
+                                    <div style="background: #ffedd5; color: #ea580c; padding: 0.35rem 0.8rem; border-radius: 20px; font-size: 0.9rem; font-weight: 700;">
+                                        {{ number_format($holes->count(), 0, ',', '.') }} Lubang
+                                    </div>
+                                </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                @endif
+@endforeach
             </tbody>
         </table>
         
