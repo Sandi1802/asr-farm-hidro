@@ -78,7 +78,7 @@ $plantStageJson = json_encode($plantStageData ?? []);
             // Baris 1: Kapasitas & Operasional (4 Kolom)
             ['label' => 'Total Fasilitas', 'value' => $totalGH . ' GH', 'icon' => 'ph-buildings', 'class' => 'sbc-dark-green', 'sub' => $totalRacks . ' Rak • ' . number_format($totalHoles,0,',','.') . ' Lubang', 'link' => route('hydroponics.greenhouses')],
             ['label' => 'Keterisian Lahan', 'value' => $occupancyRate . '%', 'icon' => 'ph-chart-pie-slice', 'class' => 'sbc-mid-green', 'sub' => number_format($plantedHoles,0,',','.') . ' Lubang Terisi (' . $plantedTypesCount . ' Jenis)'],
-            ['id' => 'card-lubang-kosong', 'label' => 'Lubang Kosong', 'value' => number_format($emptyHolesCount,0,',','.'),        'icon' => 'ph-circle-dashed', 'class' => 'sbc-slate-farm', 'sub' => 'Menunggu ditanam'],
+            ['id' => 'card-lubang-kosong', 'label' => 'Lubang Kosong', 'value' => number_format($emptyHolesCount,0,',','.'),        'icon' => 'ph-circle-dashed', 'class' => 'sbc-slate-farm', 'sub' => 'Menunggu ditanam', 'onClick' => 'showLubangKosongModal()'],
             ['label' => 'Jadwal Hari Ini', 'value' => $todayActivities, 'icon' => 'ph-calendar-check', 'class' => 'sbc-gold', 'sub' => 'Kegiatan Operasional'],
             
             // Baris 2: Siklus Produksi
@@ -340,6 +340,34 @@ $plantStageJson = json_encode($plantStageData ?? []);
     </div>
 
 
+
+    <!-- Modal for Lubang Kosong Details -->
+    <div id="lubangKosongModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); backdrop-filter: blur(2px);">
+        <div style="background:var(--card-bg, #ffffff); width:500px; max-width:95%; margin: 60px auto; border-radius:12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; max-height:85vh;">
+            <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+                <h3 style="margin:0; color:var(--text-main); font-size: 1.15rem; font-weight: 700;"><i class="ph ph-circle-dashed" style="color:#0f766e; margin-right:8px;"></i> Rincian Lubang Kosong</h3>
+                <button onclick="document.getElementById('lubangKosongModal').style.display='none'" style="border:none; background:transparent; font-size:1.2rem; cursor:pointer; color: var(--text-muted);"><i class="ph ph-x"></i></button>
+            </div>
+            <div style="padding: 1.5rem; overflow-y:auto;" id="lubangKosongModalContainer">
+                <ul id="lubangKosongModalList" style="list-style: none; padding: 0; margin: 0;">
+                @if(empty($emptyHolesGrouped))
+                    <div style="text-align:center; padding:2rem; color:var(--text-muted);">Tidak ada lubang kosong.</div>
+                @else
+                    @foreach($emptyHolesGrouped as $loc => $qty)
+                        <li style="padding: 1rem; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-weight:600; color:var(--text-main);">{{ $loc }}</div>
+                            </div>
+                            <div style="background:var(--bg-hover); padding: 0.3rem 0.8rem; border-radius: 20px; font-weight:700; font-size:0.9rem; color:#0f766e;">
+                                {{ number_format($qty, 0, ',', '.') }} Lubang
+                            </div>
+                        </li>
+                    @endforeach
+                @endif
+                </ul>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal for Siap Panen Details -->
     <div id="siapPanenModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); backdrop-filter: blur(2px);">
@@ -744,6 +772,9 @@ document.addEventListener('click', function(e) {
 
 function showSiapPanenModal() {
     document.getElementById('siapPanenModal').style.display = 'block';
+}
+function showLubangKosongModal() {
+    document.getElementById('lubangKosongModal').style.display = 'block';
 }
 function showSudahPanenModal() {
     document.getElementById('sudahPanenModal').style.display = 'block';
@@ -1341,6 +1372,11 @@ function updateSummaryCards(month, year) {
                 let modalBody = document.querySelector('#siapPanenModal > div > div:nth-child(2)');
                 if (modalBody && data.siap_panen_html) {
                     modalBody.innerHTML = data.siap_panen_html;
+                }
+                
+                let lubangKosongBody = document.getElementById('lubangKosongModalContainer');
+                if (lubangKosongBody && data.lubang_kosong_html) {
+                    lubangKosongBody.innerHTML = data.lubang_kosong_html;
                 }
                 
                 let elSudah = document.getElementById('card-sudah-panen'); if(elSudah) elSudah.textContent = data.sudah_panen;

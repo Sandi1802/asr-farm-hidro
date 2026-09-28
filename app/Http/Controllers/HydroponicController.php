@@ -93,6 +93,18 @@ class HydroponicController extends Controller
             ->latest()->take(5)->get();
 
         $emptyHolesCount     = Hole::where('status', 'kosong')->count();
+        
+        $emptyHolesRaw = Hole::with(['row.rack.greenhouse'])->where('status', 'kosong')->get();
+        $emptyHolesGrouped = [];
+        foreach ($emptyHolesRaw as $h) {
+            $gh = optional(optional(optional($h->row)->rack)->greenhouse)->name ?? 'GH Unknown';
+            $rack = optional(optional($h->row)->rack)->name ?? 'Rak Unknown';
+            $locKey = $gh . ' - ' . $rack;
+            if (!isset($emptyHolesGrouped[$locKey])) $emptyHolesGrouped[$locKey] = 0;
+            $emptyHolesGrouped[$locKey]++;
+        }
+        arsort($emptyHolesGrouped);
+
         $occupancyRate       = $totalHoles > 0 ? round(($plantedHoles / $totalHoles) * 100, 1) : 0;
         $totalInventoryItems = Inventory::count();
 
@@ -248,7 +260,7 @@ class HydroponicController extends Controller
             'harvestedHoles', 'damagedHoles', 'inventoryByCategory',
             'inventoryItems', 'recentActivities',
             'readyToHarvestCount', 'readyToHarvestItems',
-            'emptyHolesCount', 'occupancyRate', 'totalInventoryItems',
+            'emptyHolesCount', 'emptyHolesGrouped', 'occupancyRate', 'totalInventoryItems',
             'calendarEvents', 'mostPlantedLabels', 'mostPlantedValues',
             'mostHarvestedLabels', 'mostHarvestedValues',
             'rotationData', 'produksiBulanIni', 'weeklyTrendData',
@@ -529,6 +541,28 @@ class HydroponicController extends Controller
                 }
             }
             
+            $emptyHolesRaw = \App\Models\Hole::with(['row.rack.greenhouse'])->where('status', 'kosong')->get();
+            $emptyHolesGrouped = [];
+            foreach ($emptyHolesRaw as $h) {
+                $gh = optional(optional(optional($h->row)->rack)->greenhouse)->name ?? 'GH Unknown';
+                $rackModel = optional(optional($h->row)->rack);
+                $rack = $rackModel->name ?? 'Rak Unknown';
+                $locKey = $gh . ' - ' . $rack;
+                if (!isset($emptyHolesGrouped[$locKey])) $emptyHolesGrouped[$locKey] = 0;
+                $emptyHolesGrouped[$locKey]++;
+            }
+            arsort($emptyHolesGrouped);
+            
+            $lubangKosongHtml = '<ul id="lubangKosongModalList" style="list-style: none; padding: 0; margin: 0;">';
+            if (empty($emptyHolesGrouped)) {
+                $lubangKosongHtml .= '<div style="text-align:center; padding:2rem; color:var(--text-muted);">Tidak ada lubang kosong.</div>';
+            } else {
+                foreach ($emptyHolesGrouped as $loc => $qty) {
+                    $lubangKosongHtml .= '<li style="padding: 1rem; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;"><div><div style="font-weight:600; color:var(--text-main);">' . htmlspecialchars($loc) . '</div></div><div style="background:var(--bg-hover); padding: 0.3rem 0.8rem; border-radius: 20px; font-weight:700; font-size:0.9rem; color:#0f766e;">' . number_format($qty,0,',','.') . ' Lubang</div></li>';
+                }
+            }
+            $lubangKosongHtml .= '</ul>';
+
             $panenBulanIni = \App\Models\Activity::where('type', 'panen')->whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
             $tanamBulanIni = \App\Models\Activity::where('type', 'tanam')->whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
             $semaiBulanIni = \App\Models\Semai::whereMonth('semai_date', $month)->whereYear('semai_date', $year)->sum('quantity');
@@ -540,6 +574,7 @@ class HydroponicController extends Controller
                 'siap_panen' => number_format($readyToHarvestCount,0,',','.'),
                 'siap_panen_sub' => $readyTypesCount.' Jenis Tanaman',
                 'siap_panen_html' => $siapPanenHtml,
+                'lubang_kosong_html' => $lubangKosongHtml,
                 'sudah_panen' => number_format($harvestedHoles,0,',','.'),
                 'sudah_panen_sub' => $harvestedTypesCount.' Jenis Tanaman',
                 'sudah_panen_detail' => $harvestedByPlant,
