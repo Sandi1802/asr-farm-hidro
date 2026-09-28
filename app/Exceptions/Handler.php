@@ -47,4 +47,34 @@ class Handler extends ExceptionHandler
             //
         });
     }
+
+    /**
+     * Render an exception into an HTTP response.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Throwable  $e
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @throws \Throwable
+     */
+    public function render($request, Throwable $e)
+    {
+        // Tangani error 419 Page Expired (CSRF Token Mismatch)
+        if ($e instanceof \Illuminate\Session\TokenMismatchException) {
+            // Jika request berupa AJAX / API, kembalikan JSON
+            if ($request->expectsJson() || $request->isXmlHttpRequest()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sesi telah berakhir. Silakan muat ulang halaman (refresh).'
+                ], 419);
+            }
+
+            // Jika form biasa, kembalikan ke halaman sebelumnya dengan pesan error
+            return redirect()->back()
+                ->withInput($request->except('password', 'password_confirmation'))
+                ->withErrors(['session_expired' => 'Halaman kadaluarsa karena terlalu lama didiamkan (Sesi berakhir). Silakan ulangi proses Anda.']);
+        }
+
+        return parent::render($request, $e);
+    }
 }

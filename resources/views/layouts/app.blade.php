@@ -447,7 +447,38 @@
                         <html><head><title>Print Chart</title></head>
                         <body style="margin:0;display:flex;justify-content:center;align-items:center;height:100vh;">
                             <img src="${dataUrl}" style="max-width:100%;max-height:100%;" onload="window.print();window.close();" />
-                        </body></html>
+                        
+    <!-- Global Session Alerts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: '{{ session('success') }}',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            @endif
+
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: '{{ session('error') }}'
+                });
+            @endif
+
+            @if($errors->any())
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan',
+                    text: '{{ $errors->first() }}'
+                });
+            @endif
+        });
+    </script>
+</body></html>
                     `);
                     printWin.document.close();
                 } else {
@@ -543,5 +574,36 @@
     </script>
     @yield('scripts')
     @stack('scripts')
+
+    <!-- Global Session Alerts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: '{{ session('success') }}',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            @endif
+
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: '{{ session('error') }}'
+                });
+            @endif
+
+            @if($errors->any())
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan',
+                    text: '{{ $errors->first() }}'
+                });
+            @endif
+        });
+    </script>
 </body>
 </html>
