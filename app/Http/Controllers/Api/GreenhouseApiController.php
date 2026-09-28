@@ -119,7 +119,7 @@ class GreenhouseApiController extends Controller
                         'rusak' => $countRusak,
                     ],
                     'plants' => $plantsArray,
-                    'racks' => $gh->racks->map(function($r) {
+                    'racks' => $gh->racks->sortBy('name', SORT_NATURAL)->values()->map(function($r) {
                         $rHoles = $r->rows->flatMap->holes;
                         return [
                             'id' => $r->id,

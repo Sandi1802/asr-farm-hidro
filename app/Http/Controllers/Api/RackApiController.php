@@ -12,7 +12,7 @@ class RackApiController extends Controller
     public function index()
     {
         try {
-            $racks = Rack::with(['greenhouse', 'rows.holes'])->get();
+            $racks = Rack::with(['greenhouse', 'rows.holes'])->get()->sortBy('name', SORT_NATURAL)->values();
 
             $summary = [
                 'total_greenhouses' => \App\Models\Greenhouse::count(),
