@@ -1358,7 +1358,7 @@ class HydroponicController extends Controller
                 $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:left; font-weight:600;">Lokasi (GH / Rak)</th>';
                 $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Jumlah</th>';
                 $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Usia Tanaman</th>';
-                $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:left; font-weight:600;">Konfirmasi Lapangan</th>';
+                $siapPanenHtml .= '<th style="padding:0.75rem 1rem; text-align:left; font-weight:600;">Kondisi di lapangan</th>';
                 $siapPanenHtml .= '</tr></thead><tbody>';
                 
                 foreach ($locations as $loc => $data) {
