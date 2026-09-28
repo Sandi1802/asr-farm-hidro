@@ -511,17 +511,33 @@ class HydroponicController extends Controller
                 $rackModel = optional(optional($h->row)->rack);
                 $rack = $rackModel->name ?? 'Rak Unknown';
                 $locKey = $gh . ' - ' . $rack;
-                if (!isset($emptyHolesGrouped[$locKey])) $emptyHolesGrouped[$locKey] = 0;
-                $emptyHolesGrouped[$locKey]++;
+                $catatan = $rackModel->catatan_lapangan ?? '-';
+                if (!isset($emptyHolesGrouped[$locKey])) {
+                    $emptyHolesGrouped[$locKey] = ['qty' => 0, 'catatan' => $catatan];
+                }
+                $emptyHolesGrouped[$locKey]['qty']++;
             }
-            arsort($emptyHolesGrouped);
+            
+            // Sort by quantity descending
+            uasort($emptyHolesGrouped, function($a, $b) {
+                return $b['qty'] <=> $a['qty'];
+            });
             
             $lubangKosongHtml = '<ul id="lubangKosongModalList" style="list-style: none; padding: 0; margin: 0;">';
             if (empty($emptyHolesGrouped)) {
                 $lubangKosongHtml .= '<div style="text-align:center; padding:2rem; color:var(--text-muted);">Tidak ada lubang kosong.</div>';
             } else {
-                foreach ($emptyHolesGrouped as $loc => $qty) {
-                    $lubangKosongHtml .= '<li style="padding: 1rem; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;"><div><div style="font-weight:600; color:var(--text-main);">' . htmlspecialchars($loc) . '</div></div><div style="background:var(--bg-hover); padding: 0.3rem 0.8rem; border-radius: 20px; font-weight:700; font-size:0.9rem; color:#0f766e;">' . number_format($qty,0,',','.') . ' Lubang</div></li>';
+                foreach ($emptyHolesGrouped as $loc => $data) {
+                    $qty = $data['qty'];
+                    $catatan = $data['catatan'];
+                    $lubangKosongHtml .= '<li style="padding: 1rem; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">' . 
+                        '<div>' . 
+                            '<div style="font-weight:600; color:var(--text-main);">' . htmlspecialchars($loc) . '</div>' . 
+                            '<div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">Catatan: ' . htmlspecialchars($catatan) . '</div>' . 
+                        '</div>' . 
+                        '<div style="background:var(--bg-hover); padding: 0.3rem 0.8rem; border-radius: 20px; font-weight:700; font-size:0.9rem; color:#0f766e;">' . 
+                        number_format($qty,0,',','.') . ' Lubang</div>' . 
+                    '</li>';
                 }
             }
             $lubangKosongHtml .= '</ul>';

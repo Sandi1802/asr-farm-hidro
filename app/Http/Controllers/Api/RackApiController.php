@@ -196,12 +196,14 @@ class RackApiController extends Controller
 
             $request->validate([
                 'ppm_level' => 'nullable|numeric',
-                'ph_level' => 'nullable|numeric'
+                'ph_level' => 'nullable|numeric',
+                'suhu' => 'nullable|numeric'
             ]);
 
             $rack->update([
                 'ppm_level' => $request->ppm_level,
                 'ph_level' => $request->ph_level,
+                'suhu' => $request->suhu,
                 'ppm_ph_updated_at' => now(),
             ]);
 
