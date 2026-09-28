@@ -82,8 +82,6 @@ $plantStageJson = json_encode($plantStageData ?? []);
             ['label' => 'Jadwal Hari Ini', 'value' => $todayActivities, 'icon' => 'ph-calendar-check', 'class' => 'sbc-gold', 'sub' => 'Kegiatan Operasional'],
             
             // Baris 2: Siklus Produksi
-            ['id' => 'val-total-semai', 'label' => 'Total Semai',       'value' => number_format($produksiBulanIni['total_semai'],0,',','.').' Benih', 'icon' => 'ph-seedling',   'class' => 'sbc-mid-green', 'sub' => $produksiBulanIni['jenis_semai'].' Jenis Tanaman'],
-            ['id' => 'val-total-tanam', 'label' => 'Total Masuk GH',    'value' => number_format($produksiBulanIni['total_tanam'],0,',','.').' Lubang', 'icon' => 'ph-plant',    'class' => 'sbc-teal-farm'],
             ['id' => 'card-siap-panen', 'label' => 'Siap Panen',    'value' => number_format($readyToHarvestCount,0,',','.'),    'icon' => 'ph-trophy',        'class' => 'sbc-gold',        'sub' => $readyTypesCount.' Jenis Tanaman', 'onClick' => 'showSiapPanenModal()'],
             
             // Baris 3: Laporan & Isu
