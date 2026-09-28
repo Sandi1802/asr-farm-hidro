@@ -129,7 +129,7 @@
                         <i class="ph ph-bell"></i>
                         <span id="notifBadge" style="display:none; position:absolute; top:-4px; right:-8px; background:#ef4444; color:white; font-size:0.6rem; font-weight:bold; border-radius:10px; min-width:18px; height:18px; line-height:18px; text-align:center; padding:0 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></span>
                     </button>
-                    <div id="notifDropdown" class="notif-dropdown" style="display:none; position: absolute; top: 110%; right: -10px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); min-width: 320px; max-width: 380px; box-shadow: var(--shadow-lg); z-index: 100; overflow: hidden;">
+                    <div id="notifDropdown" class="notif-dropdown" style="display:none; position: fixed; top: 70px; right: 12px; left: 12px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); max-width: 400px; margin: 0 auto; box-shadow: var(--shadow-lg); z-index: 1000; overflow: hidden;">
                         <div id="notifContent">
                             <div style="padding: 2rem; text-align: center;">
                                 <i class="ph ph-spinner ph-spin" style="font-size: 2rem; color: #cbd5e1;"></i>
