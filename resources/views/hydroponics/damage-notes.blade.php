@@ -255,7 +255,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
                     <td>
                         <div style="display:flex;gap:4px;justify-content:flex-end;">
                             <button class="dt-action-btn dt-btn-edit" title="Update"
-                                onclick="openUpdateModal({{ $note->id }}, '{{ $note->status }}', '{{ addslashes($note->action_taken ?? '') }}')">
+                                onclick='openUpdateModal({{ $note->id }}, "{{ $note->status }}", {!! json_encode($note->action_taken ?? "") !!})'>
                                 <i class="ph ph-pencil-simple"></i>
                             </button>
                             <button class="dt-action-btn dt-btn-delete" title="Hapus"
