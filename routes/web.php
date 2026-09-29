@@ -251,18 +251,18 @@ Route::middleware('auth')->group(function () {
     Route::prefix('kebun')->group(function () {
         Route::get('/', [\App\Http\Controllers\KonvenKebunController::class, 'dashboard'])->name('konvensional.kebun');
         Route::get('/tanam', [\App\Http\Controllers\KonvenKebunController::class, 'tanamForm']);
-        Route::post('/tanam', [\App\Http\Controllers\KonvenKebunController::class, 'tanamStore']);
+        Route::post('/tanam', [\App\Http\Controllers\KonvenKebunController::class, 'tanamStore'])->name('konvensional.kebun.tanam.store');
         Route::get('/tanam/get-bedeng', [\App\Http\Controllers\KonvenKebunController::class, 'getBedengByPola']);
         Route::get('/panen', [\App\Http\Controllers\KonvenKebunController::class, 'panenIndex']);
-        Route::post('/panen', [\App\Http\Controllers\KonvenKebunController::class, 'panenStore']);
+        Route::post('/panen', [\App\Http\Controllers\KonvenKebunController::class, 'panenStore'])->name('konvensional.kebun.panen.store');
         Route::post('/gagal', [\App\Http\Controllers\KonvenKebunController::class, 'gagalStore']);
         
         Route::get('/riwayat/{id}', [\App\Http\Controllers\KonvenKebunController::class, 'riwayatBedeng']);
         
         Route::get('/master-tanaman', [\App\Http\Controllers\KonvenKebunController::class, 'masterTanaman']);
-        Route::post('/master-tanaman', [\App\Http\Controllers\KonvenKebunController::class, 'masterTanamanStore']);
+        Route::post('/master-tanaman', [\App\Http\Controllers\KonvenKebunController::class, 'masterTanamanStore'])->name('konvensional.kebun.tanaman.store');
         Route::match(['post', 'put'], '/master-tanaman/{id}', [\App\Http\Controllers\KonvenKebunController::class, 'masterTanamanUpdate']);
-        Route::delete('/master-tanaman/{id}', [\App\Http\Controllers\KonvenKebunController::class, 'masterTanamanDestroy']);
+        Route::delete('/master-tanaman/{id}', [\App\Http\Controllers\KonvenKebunController::class, 'masterTanamanDestroy'])->name('konvensional.kebun.tanaman.destroy');
     });
     
         // Dashboard

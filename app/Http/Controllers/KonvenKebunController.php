@@ -139,13 +139,22 @@ class KonvenKebunController extends Controller
             'terpakai' => $zonas->pluck('terpakai')->toArray(),
         ];
 
-        return view('konvensional.kebun.dashboard', compact(
-            'total_bedeng', 'terpakai', 'kosong', 'persentase',
-            'mendekati_panen', 'siap_panen', 'terlambat',
-            'estimasi_bulan_ini', 'realisasi_bulan_ini',
-            'bed_map', 'agenda_panen', 'tanaman_aktif_summary',
-            'aktivitas_terbaru', 'chart_panen', 'chart_pemanfaatan'
-        ));
+        return view('konvensional.kebun.dashboard', [
+            'totalBedeng' => \,
+            'terpakai' => \,
+            'kosong' => \,
+            'pctPemanfaatan' => \,
+            'mendekatiPanen' => \,
+            'siapPanen' => \,
+            'terlambatPanen' => \,
+            'estimasiBulanIni' => \,
+            'realisasiBulanIni' => \,
+            'bedengMap' => \,
+            'agendaPanen' => \,
+            'tanamanAktifSummary' => \,
+            'aktivitasTerbaru' => \,
+            'chartPanenBulanan' => \,
+            'chartPerZona' =>         ]);
     }
 
     /**
@@ -290,7 +299,7 @@ class KonvenKebunController extends Controller
             ->orderBy('estimasi_tanggal_panen', 'asc')
             ->get();
             
-        return view('konvensional.kebun.panen', compact('aktif'));
+        return view('konvensional.kebun.panen', ['tanamAktif' => $aktif]);
     }
 
     /**
@@ -462,7 +471,7 @@ class KonvenKebunController extends Controller
             ->orderBy('tanggal_tanam', 'desc')
             ->get();
             
-        return view('konvensional.kebun.riwayat-bedeng', compact('bedeng', 'riwayats'));
+        return view('konvensional.kebun.riwayat-bedeng', ['bedeng' => $bedeng, 'riwayat' => $riwayats]);
     }
 
     /**
@@ -471,7 +480,7 @@ class KonvenKebunController extends Controller
     public function masterTanaman()
     {
         $tanaman = KonvenTanaman::orderBy('nama')->get();
-        return view('konvensional.kebun.master-tanaman', compact('tanaman'));
+        return view('konvensional.kebun.master-tanaman', ['tanamanList' => $tanaman]);
     }
 
     /**
