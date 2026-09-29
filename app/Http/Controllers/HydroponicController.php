@@ -25,30 +25,62 @@ class HydroponicController extends Controller
         $plantedHoles   = Hole::where('status', 'ditanam')->count();
         $plantedTypesCount = Hole::where('status', 'ditanam')->distinct('plant_name')->count('plant_name');
         
-        $harvestedTotals = [];
+$harvestedTotals = [];
+        $t_month = now()->month;
+        $t_year = now()->year;
+        $today = now()->format('Y-m-d');
+        $yesterday = now()->subDay()->format('Y-m-d');
+
         $holeHarvested = \App\Models\Hole::whereNotNull('plant_name')
             ->whereNotNull('harvested_at')
-            ->selectRaw('plant_name, count(*) as count')
-            ->groupBy('plant_name')
-            ->pluck('count', 'plant_name')
-            ->toArray();
-        foreach ($holeHarvested as $pName => $qty) {
-            if ($pName !== 'Tidak Diketahui') {
-                $harvestedTotals[$pName] = ($harvestedTotals[$pName] ?? 0) + $qty;
+            ->whereMonth('harvested_at', $t_month)
+            ->whereYear('harvested_at', $t_year)
+            ->get(['plant_name', 'harvested_at']);
+
+        foreach ($holeHarvested as $hole) {
+            $pName = $hole->plant_name;
+            if ($pName == 'Tidak Diketahui' || !$pName) continue;
+            
+            if (!isset($harvestedTotals[$pName])) {
+                $harvestedTotals[$pName] = ['today' => 0, 'yesterday' => 0, 'month' => 0];
+            }
+            
+            $harvestedTotals[$pName]['month']++;
+            $date = \Carbon\Carbon::parse($hole->harvested_at)->format('Y-m-d');
+            if ($date === $today) {
+                $harvestedTotals[$pName]['today']++;
+            } elseif ($date === $yesterday) {
+                $harvestedTotals[$pName]['yesterday']++;
             }
         }
-        $allPanenLogs = \App\Models\MaintenanceLog::where('action_type', 'panen')->get();
+
+        $allPanenLogs = \App\Models\MaintenanceLog::where('action_type', 'panen')
+            ->whereMonth('created_at', $t_month)
+            ->whereYear('created_at', $t_year)
+            ->get(['details', 'created_at']);
+
         foreach ($allPanenLogs as $log) {
             $det = json_decode($log->details);
             $pName = $det->plant_name ?? 'Tidak Diketahui';
-            if ($pName !== 'Tidak Diketahui') {
-                $qty = $det->jumlah ?? 0;
-                $harvestedTotals[$pName] = ($harvestedTotals[$pName] ?? 0) + $qty;
+            if ($pName == 'Tidak Diketahui' || !$pName) continue;
+
+            $qty = (int) ($det->jumlah ?? 0);
+            
+            if (!isset($harvestedTotals[$pName])) {
+                $harvestedTotals[$pName] = ['today' => 0, 'yesterday' => 0, 'month' => 0];
+            }
+
+            $harvestedTotals[$pName]['month'] += $qty;
+            $date = \Carbon\Carbon::parse($log->created_at)->format('Y-m-d');
+            if ($date === $today) {
+                $harvestedTotals[$pName]['today'] += $qty;
+            } elseif ($date === $yesterday) {
+                $harvestedTotals[$pName]['yesterday'] += $qty;
             }
         }
         
         $harvestedByPlant = $harvestedTotals;
-        $harvestedHoles = array_sum($harvestedTotals);
+        $harvestedHoles = array_sum(array_column($harvestedTotals, 'month'));
         $harvestedTypesCount = count($harvestedTotals);
 
         $allRusakLogs = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)
@@ -443,30 +475,62 @@ class HydroponicController extends Controller
             $logs = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)->get();
             
             // Panen details grouped by plant_name
-            $harvestedTotals = [];
+$harvestedTotals = [];
+            $t_month = $month;
+            $t_year = $year;
+            $today = now()->format('Y-m-d');
+            $yesterday = now()->subDay()->format('Y-m-d');
+    
             $holeHarvested = \App\Models\Hole::whereNotNull('plant_name')
                 ->whereNotNull('harvested_at')
-                ->selectRaw('plant_name, count(*) as count')
-                ->groupBy('plant_name')
-                ->pluck('count', 'plant_name')
-                ->toArray();
-            foreach ($holeHarvested as $pName => $qty) {
-                if ($pName !== 'Tidak Diketahui') {
-                    $harvestedTotals[$pName] = ($harvestedTotals[$pName] ?? 0) + $qty;
+                ->whereMonth('harvested_at', $t_month)
+                ->whereYear('harvested_at', $t_year)
+                ->get(['plant_name', 'harvested_at']);
+    
+            foreach ($holeHarvested as $hole) {
+                $pName = $hole->plant_name;
+                if ($pName == 'Tidak Diketahui' || !$pName) continue;
+                
+                if (!isset($harvestedTotals[$pName])) {
+                    $harvestedTotals[$pName] = ['today' => 0, 'yesterday' => 0, 'month' => 0];
+                }
+                
+                $harvestedTotals[$pName]['month']++;
+                $date = \Carbon\Carbon::parse($hole->harvested_at)->format('Y-m-d');
+                if ($date === $today) {
+                    $harvestedTotals[$pName]['today']++;
+                } elseif ($date === $yesterday) {
+                    $harvestedTotals[$pName]['yesterday']++;
                 }
             }
-            $allPanenLogs = \App\Models\MaintenanceLog::where('action_type', 'panen')->get();
+    
+            $allPanenLogs = \App\Models\MaintenanceLog::where('action_type', 'panen')
+                ->whereMonth('created_at', $t_month)
+                ->whereYear('created_at', $t_year)
+                ->get(['details', 'created_at']);
+    
             foreach ($allPanenLogs as $log) {
                 $det = json_decode($log->details);
                 $pName = $det->plant_name ?? 'Tidak Diketahui';
-                if ($pName !== 'Tidak Diketahui') {
-                    $qty = $det->jumlah ?? 0;
-                    $harvestedTotals[$pName] = ($harvestedTotals[$pName] ?? 0) + $qty;
+                if ($pName == 'Tidak Diketahui' || !$pName) continue;
+    
+                $qty = (int) ($det->jumlah ?? 0);
+                
+                if (!isset($harvestedTotals[$pName])) {
+                    $harvestedTotals[$pName] = ['today' => 0, 'yesterday' => 0, 'month' => 0];
+                }
+    
+                $harvestedTotals[$pName]['month'] += $qty;
+                $date = \Carbon\Carbon::parse($log->created_at)->format('Y-m-d');
+                if ($date === $today) {
+                    $harvestedTotals[$pName]['today'] += $qty;
+                } elseif ($date === $yesterday) {
+                    $harvestedTotals[$pName]['yesterday'] += $qty;
                 }
             }
             
             $harvestedByPlant = $harvestedTotals;
-            $harvestedHoles = array_sum($harvestedTotals);
+            $harvestedHoles = array_sum(array_column($harvestedTotals, 'month'));
             $harvestedTypesCount = count($harvestedTotals);
 
             // Rusak details grouped by alasan

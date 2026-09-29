@@ -452,13 +452,15 @@ $plantStageJson = json_encode($plantStageData ?? []);
                             Belum ada data panen bulan ini.
                         </div>
                     @else
-                        @foreach($harvestedByPlant as $plant => $qty)
+                        @foreach($harvestedByPlant as $plant => $data)
                             <li style="padding: 1rem; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
                                 <div>
                                     <div style="font-weight:600; color:var(--text-main);">{{ $plant }}</div>
                                 </div>
-                                <div style="background:var(--bg-hover); padding: 0.3rem 0.8rem; border-radius: 20px; font-weight:700; font-size:0.9rem; color:#0f766e;">
-                                    {{ $qty }} Lubang
+                                <div style="text-align:right; font-size:0.85rem; color:var(--text-muted);">
+                                    <div><span style="display:inline-block; width:60px; text-align:left;">Hari ini</span>: <strong style="color:var(--text-main);">{{ $data['today'] }}</strong></div>
+                                    <div><span style="display:inline-block; width:60px; text-align:left;">Kemarin</span>: <strong style="color:var(--text-main);">{{ $data['yesterday'] }}</strong></div>
+                                    <div style="margin-top:4px; font-weight:bold; color:#0f766e;"><span style="display:inline-block; width:60px; text-align:left;">Bulan ini</span>: {{ $data['month'] }} Lubang</div>
                                 </div>
                             </li>
                         @endforeach
@@ -1389,10 +1391,14 @@ function updateSummaryCards(month, year) {
                     if (Object.keys(data.sudah_panen_detail).length === 0) {
                         listSudah.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-muted);">Belum ada data panen.</div>';
                     } else {
-                        for (const [plant, qty] of Object.entries(data.sudah_panen_detail)) {
+                        for (const [plant, pData] of Object.entries(data.sudah_panen_detail)) {
                             listSudah.innerHTML += '<li style="padding: 1rem; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">' +
                                 '<div><div style="font-weight:600; color:var(--text-main);">' + plant + '</div></div>' +
-                                '<div style="background:var(--bg-hover); padding: 0.3rem 0.8rem; border-radius: 20px; font-weight:700; font-size:0.9rem; color:#0f766e;">' + qty + ' Lubang</div>' +
+                                '<div style="text-align:right; font-size:0.85rem; color:var(--text-muted);">' +
+                                    '<div><span style="display:inline-block; width:60px; text-align:left;">Hari ini</span>: <strong style="color:var(--text-main);">' + pData.today + '</strong></div>' +
+                                    '<div><span style="display:inline-block; width:60px; text-align:left;">Kemarin</span>: <strong style="color:var(--text-main);">' + pData.yesterday + '</strong></div>' +
+                                    '<div style="margin-top:4px; font-weight:bold; color:#0f766e;"><span style="display:inline-block; width:60px; text-align:left;">Bulan ini</span>: ' + pData.month + ' Lubang</div>' +
+                                '</div>' +
                                 '</li>';
                         }
                     }
