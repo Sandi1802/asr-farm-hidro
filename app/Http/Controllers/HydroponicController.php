@@ -827,11 +827,131 @@ $harvestedTotals = [];
 
     public function greenhouses()
     {
-        $greenhouses = Greenhouse::with(['racks.rows.holes'])->withCount('racks')->get();
-        $plantTypeMap = PlantType::pluck('growth_days', 'name');
-        $defaultDays = 30;
+        $greenhouses = Greenhouse::withCount('racks')->get();
+        
+        // Optimasi: Gunakan agregasi SQL untuk menghitung lubang per GH daripada load 19,000 model Hole ke RAM
+        $holeStats = \Illuminate\Support\Facades\DB::table('holes')
+            ->join('rows', 'holes.row_id', '=', 'rows.id')
+            ->join('racks', 'rows.rack_id', '=', 'racks.id')
+            ->select('racks.greenhouse_id', 'holes.status', \Illuminate\Support\Facades\DB::raw('COUNT(holes.id) as count'))
+            ->groupBy('racks.greenhouse_id', 'holes.status')
+            ->get();
+            
+        $ghStats = [];
+        foreach ($greenhouses as $gh) {
+            $ghStats[$gh->id] = [
+                'kosong' => 0,
+                'ditanam' => 0,
+                'panen' => 0,
+                'rusak' => 0,
+                'total' => 0
+            ];
+        }
+        
+        foreach ($holeStats as $stat) {
+            if (isset($ghStats[$stat->greenhouse_id])) {
+                $status = $stat->status;
+                if (isset($ghStats[$stat->greenhouse_id][$status])) {
+                    $ghStats[$stat->greenhouse_id][$status] += $stat->count;
+                }
+                $ghStats[$stat->greenhouse_id]['total'] += $stat->count;
+            }
+        }
 
-        return view('hydroponics.greenhouses', compact('greenhouses', 'plantTypeMap', 'defaultDays'));
+        // Agregasi Siap Panen per GH, per jenis tanaman, dan per rak
+        $readyHolesAgg = \Illuminate\Support\Facades\DB::table('holes')
+            ->join('rows', 'holes.row_id', '=', 'rows.id')
+            ->join('racks', 'rows.rack_id', '=', 'racks.id')
+            ->leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
+            ->where('holes.status', 'ditanam')
+            ->whereNotNull('holes.planted_at')
+            ->whereRaw("holes.planted_at <= NOW() - (COALESCE(plant_types.growth_days, 30) * INTERVAL '1 day')")
+            ->select(
+                'racks.greenhouse_id',
+                'holes.plant_name',
+                'racks.name as rack_name',
+                \Illuminate\Support\Facades\DB::raw('COUNT(holes.id) as count')
+            )
+            ->groupBy('racks.greenhouse_id', 'holes.plant_name', 'racks.name')
+            ->get();
+            
+        $ghReadyGrouped = [];
+        $ghReadyTotal = [];
+        foreach ($greenhouses as $gh) {
+            $ghReadyGrouped[$gh->id] = [];
+            $ghReadyTotal[$gh->id] = 0;
+        }
+        
+        foreach ($readyHolesAgg as $r) {
+            if (isset($ghReadyGrouped[$r->greenhouse_id])) {
+                $pName = $r->plant_name ?: 'Tidak Diketahui';
+                if (!isset($ghReadyGrouped[$r->greenhouse_id][$pName])) {
+                    $ghReadyGrouped[$r->greenhouse_id][$pName] = [
+                        'total' => 0,
+                        'racks' => []
+                    ];
+                }
+                $ghReadyGrouped[$r->greenhouse_id][$pName]['total'] += $r->count;
+                if (!isset($ghReadyGrouped[$r->greenhouse_id][$pName]['racks'][$r->rack_name])) {
+                    $ghReadyGrouped[$r->greenhouse_id][$pName]['racks'][$r->rack_name] = 0;
+                }
+                $ghReadyGrouped[$r->greenhouse_id][$pName]['racks'][$r->rack_name] += $r->count;
+                $ghReadyTotal[$r->greenhouse_id] += $r->count;
+            }
+        }
+        
+        foreach ($ghReadyGrouped as $ghId => &$plants) {
+            foreach ($plants as $pName => &$pData) {
+                uksort($pData['racks'], 'strnatcmp');
+            }
+        }
+
+                $ditanamHolesAgg = \Illuminate\Support\Facades\DB::table('holes')
+            ->join('rows', 'holes.row_id', '=', 'rows.id')
+            ->join('racks', 'rows.rack_id', '=', 'racks.id')
+            ->leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
+            ->where('holes.status', 'ditanam')
+            ->where(function($q) {
+                $q->whereNull('holes.planted_at')
+                  ->orWhereRaw("holes.planted_at > NOW() - (COALESCE(plant_types.growth_days, 30) * INTERVAL '1 day')");
+            })
+            ->select(
+                'racks.greenhouse_id',
+                'holes.plant_name',
+                'racks.name as rack_name',
+                \Illuminate\Support\Facades\DB::raw('COUNT(holes.id) as count')
+            )
+            ->groupBy('racks.greenhouse_id', 'holes.plant_name', 'racks.name')
+            ->get();
+            
+        $ghDitanamGrouped = [];
+        foreach ($greenhouses as $gh) {
+            $ghDitanamGrouped[$gh->id] = [];
+        }
+        foreach ($ditanamHolesAgg as $r) {
+            if (isset($ghDitanamGrouped[$r->greenhouse_id])) {
+                $pName = $r->plant_name ?: 'Tidak Diketahui';
+                if (!isset($ghDitanamGrouped[$r->greenhouse_id][$pName])) {
+                    $ghDitanamGrouped[$r->greenhouse_id][$pName] = [
+                        'total' => 0,
+                        'racks' => []
+                    ];
+                }
+                $ghDitanamGrouped[$r->greenhouse_id][$pName]['total'] += $r->count;
+                if (!isset($ghDitanamGrouped[$r->greenhouse_id][$pName]['racks'][$r->rack_name])) {
+                    $ghDitanamGrouped[$r->greenhouse_id][$pName]['racks'][$r->rack_name] = 0;
+                }
+                $ghDitanamGrouped[$r->greenhouse_id][$pName]['racks'][$r->rack_name] += $r->count;
+            }
+        }
+        
+        foreach ($ghDitanamGrouped as $ghId => &$plants) {
+            foreach ($plants as $pName => &$pData) {
+                uksort($pData['racks'], 'strnatcmp');
+            }
+        }
+
+        return view('hydroponics.greenhouses', compact('greenhouses', 'ghStats', 'ghReadyGrouped', 'ghReadyTotal', 'ghDitanamGrouped'));
     }
 
     public function storeGreenhouse(Request $request)

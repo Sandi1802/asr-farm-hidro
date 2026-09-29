@@ -43,23 +43,19 @@
             <tbody>
                 @foreach($greenhouses as $gh)
                 @php
-                    $thirtyDaysAgo = now()->subDays(30);
-                    $allHoles = $gh->racks->flatMap->rows->flatMap->holes;
-                    $cntKosong  = $allHoles->where('status', 'kosong')->count();
-                    $cntDitanamTotal = $allHoles->where('status', 'ditanam')->count();
-                    $readyHoles   = $allHoles->where('status', 'ditanam')->filter(function($h) use ($plantTypeMap, $defaultDays) {
-                        if (!$h->planted_at) return false;
-                        $days = isset($plantTypeMap[$h->plant_name]) ? $plantTypeMap[$h->plant_name] : $defaultDays;
-                        return \Carbon\Carbon::parse($h->planted_at)->addDays($days)->lte(now());
-                    });
-                    $cntReady = $readyHoles->count();
+                    $stats = $ghStats[$gh->id] ?? ['kosong'=>0,'ditanam'=>0,'panen'=>0,'rusak'=>0,'total'=>1];
+                    $cntKosong = $stats['kosong'];
+                    $cntDitanamTotal = $stats['ditanam'];
+                    $cntPanen = $stats['panen'];
+                    $cntRusak = $stats['rusak'];
+                    
+                    $cntReady = $ghReadyTotal[$gh->id] ?? 0;
                     $cntDitanam = max(0, $cntDitanamTotal - $cntReady);
                     
-                    $readyGrouped = $readyHoles->whereNotNull('plant_name')->groupBy('plant_name');
-                    $cntPanen   = $allHoles->where('status', 'panen')->count();
-                    $cntRusak   = $allHoles->where('status', 'rusak')->count();
+                    $readyGrouped = $ghReadyGrouped[$gh->id] ?? [];
+                    $ditanamGrouped = $ghDitanamGrouped[$gh->id] ?? [];
                     
-                    $total = $allHoles->count() ?: 1;
+                    $total = $stats['total'] ?: 1;
                     $pct = round((($cntDitanamTotal) / $total) * 100);
                 @endphp
                 <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
@@ -85,7 +81,7 @@
 
                     <td style="padding: 1rem; vertical-align: middle;">
                         <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">{{ $pct }}% <span style="font-weight: 500; color: var(--text-muted);">({{ number_format($allHoles->count(), 0, ',', '.') }} Lubang)</span></span>
+                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">{{ $pct }}% <span style="font-weight: 500; color: var(--text-muted);">({{ number_format($total, 0, ',', '.') }} Lubang)</span></span>
                             <div style="width: 100px; height: 6px; background: #e2e8f0; border-radius: 10px; overflow: hidden;">
                                 <div style="width: {{ $pct }}%; height: 100%; background: #16a34a; border-radius: 10px;"></div>
                             </div>
@@ -148,25 +144,16 @@
                         </div>
                         <div style="overflow-y:auto; flex-grow:1; padding-right:0.5rem;">
                             <ul style="list-style:none; padding:0; margin:0;">
-                                @foreach($readyGrouped as $plantName => $holes)
-                                @php
-                                    $rackGrouped = [];
-                                    foreach($holes as $h) {
-                                        $r = optional(optional($h->row)->rack)->name ?? 'Unknown Rak';
-                                        if(!isset($rackGrouped[$r])) $rackGrouped[$r] = 0;
-                                        $rackGrouped[$r]++;
-                                    }
-                                    uksort($rackGrouped, 'strnatcmp');
-                                @endphp
+                                @foreach($readyGrouped as $plantName => $pData)
                                 <li style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 0.75rem; background: #fdfaf5;">
                                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                                         <div style="font-weight: 700; font-size: 1.05rem; color: var(--text-main);">{{ $plantName }}</div>
                                         <div style="background: #ffedd5; color: #ea580c; padding: 0.35rem 0.8rem; border-radius: 20px; font-size: 0.9rem; font-weight: 700;">
-                                            {{ number_format($holes->count(), 0, ',', '.') }} Lubang
+                                            {{ number_format($pData['total'], 0, ',', '.') }} Lubang
                                         </div>
                                     </div>
                                     <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                                        @foreach($rackGrouped as $rName => $rCount)
+                                        @foreach($pData['racks'] as $rName => $rCount)
                                             <span style="background: white; border: 1px solid #fed7aa; padding: 2px 6px; border-radius: 4px; color: #9a3412;">{{ $rName }}: {{ $rCount }}</span>
                                         @endforeach
                                     </div>
