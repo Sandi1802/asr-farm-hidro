@@ -31,28 +31,7 @@ $harvestedTotals = [];
         $today = now()->format('Y-m-d');
         $yesterday = now()->subDay()->format('Y-m-d');
 
-        $holeHarvested = \App\Models\Hole::whereNotNull('plant_name')
-            ->whereNotNull('harvested_at')
-            ->whereMonth('harvested_at', $t_month)
-            ->whereYear('harvested_at', $t_year)
-            ->get(['plant_name', 'harvested_at']);
 
-        foreach ($holeHarvested as $hole) {
-            $pName = $hole->plant_name;
-            if ($pName == 'Tidak Diketahui' || !$pName) continue;
-            
-            if (!isset($harvestedTotals[$pName])) {
-                $harvestedTotals[$pName] = ['today' => 0, 'yesterday' => 0, 'month' => 0];
-            }
-            
-            $harvestedTotals[$pName]['month']++;
-            $date = \Carbon\Carbon::parse($hole->harvested_at)->format('Y-m-d');
-            if ($date === $today) {
-                $harvestedTotals[$pName]['today']++;
-            } elseif ($date === $yesterday) {
-                $harvestedTotals[$pName]['yesterday']++;
-            }
-        }
 
         $allPanenLogs = \App\Models\MaintenanceLog::where('action_type', 'panen')
             ->whereMonth('created_at', $t_month)
@@ -481,28 +460,7 @@ $harvestedTotals = [];
             $today = now()->format('Y-m-d');
             $yesterday = now()->subDay()->format('Y-m-d');
     
-            $holeHarvested = \App\Models\Hole::whereNotNull('plant_name')
-                ->whereNotNull('harvested_at')
-                ->whereMonth('harvested_at', $t_month)
-                ->whereYear('harvested_at', $t_year)
-                ->get(['plant_name', 'harvested_at']);
-    
-            foreach ($holeHarvested as $hole) {
-                $pName = $hole->plant_name;
-                if ($pName == 'Tidak Diketahui' || !$pName) continue;
-                
-                if (!isset($harvestedTotals[$pName])) {
-                    $harvestedTotals[$pName] = ['today' => 0, 'yesterday' => 0, 'month' => 0];
-                }
-                
-                $harvestedTotals[$pName]['month']++;
-                $date = \Carbon\Carbon::parse($hole->harvested_at)->format('Y-m-d');
-                if ($date === $today) {
-                    $harvestedTotals[$pName]['today']++;
-                } elseif ($date === $yesterday) {
-                    $harvestedTotals[$pName]['yesterday']++;
-                }
-            }
+
     
             $allPanenLogs = \App\Models\MaintenanceLog::where('action_type', 'panen')
                 ->whereMonth('created_at', $t_month)
