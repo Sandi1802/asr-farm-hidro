@@ -184,6 +184,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/maintenance-logs', [\App\Http\Controllers\MaintenanceLogController::class, 'index'])->name('hydroponics.maintenance-logs');
             Route::post('/maintenance-logs/destroy-all', [\App\Http\Controllers\MaintenanceLogController::class, 'destroyAll'])->name('hydroponics.maintenance-logs.destroyAll');
             Route::delete('/maintenance-logs/{id}', [\App\Http\Controllers\MaintenanceLogController::class, 'destroy'])->name('hydroponics.maintenance-logs.destroy');
+            Route::put('/maintenance-logs/{id}', [\App\Http\Controllers\MaintenanceLogController::class, 'update'])->name('hydroponics.maintenance-logs.update');
 
             // Damage Notes
             Route::get('/damage-notes', [\App\Http\Controllers\DamageNoteController::class, 'index'])->name('hydroponics.damage-notes');

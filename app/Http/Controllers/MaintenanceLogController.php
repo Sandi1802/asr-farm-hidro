@@ -81,8 +81,20 @@ class MaintenanceLogController extends Controller
         ]);
 
         $log = MaintenanceLog::findOrFail($id);
+        
+        $details = $log->details ? json_decode($log->details, true) : [];
+        
+        // Coba ekstrak jumlah dari teks catatan (misal "Panen 150 tanaman..." atau "Rusak 50 tanaman...")
+        if (preg_match('/(?:Panen|Rusak)\s+(\d+)\s+tanaman/i', $request->notes, $matches)) {
+            $details['jumlah'] = (int) $matches[1];
+        } elseif (preg_match('/(\d+)/', $request->notes, $matches)) {
+            // Fallback: ambil angka pertama yang ditemukan
+            $details['jumlah'] = (int) $matches[1];
+        }
+
         $log->update([
-            'notes' => $request->notes
+            'notes' => $request->notes,
+            'details' => json_encode($details)
         ]);
 
         return back()->with("success", "Log pemeliharaan berhasil diupdate.");
