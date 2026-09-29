@@ -131,6 +131,7 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
+    const lahanData = @json($lahanList);
     const $lahan = $('#lahan_id');
     const $zona = $('#zona_id');
     const $pola = $('#pola_id');
@@ -151,11 +152,12 @@ $(document).ready(function() {
         $bedengContainer.addClass('d-none');
         $detailContainer.addClass('d-none');
         if(lahanId) {
-            $.get(`/konvensional/api/zona?lahan_id=${lahanId}`, function(data) {
-                data.forEach(item => {
+            let selectedLahan = lahanData.find(l => l.id == lahanId);
+            if(selectedLahan && selectedLahan.zona) {
+                selectedLahan.zona.forEach(item => {
                     $zona.append(`<option value="${item.id}">${item.nama}</option>`);
                 });
-            });
+            }
         }
     });
 
@@ -166,11 +168,14 @@ $(document).ready(function() {
         $bedengContainer.addClass('d-none');
         $detailContainer.addClass('d-none');
         if(zonaId) {
-            $.get(`/konvensional/api/pola?zona_id=${zonaId}`, function(data) {
-                data.forEach(item => {
+            let lahanId = $lahan.val();
+            let selectedLahan = lahanData.find(l => l.id == lahanId);
+            let selectedZona = selectedLahan ? selectedLahan.zona.find(z => z.id == zonaId) : null;
+            if(selectedZona && selectedZona.pola) {
+                selectedZona.pola.forEach(item => {
                     $pola.append(`<option value="${item.id}">${item.nama}</option>`);
                 });
-            });
+            }
         }
     });
 
@@ -178,7 +183,7 @@ $(document).ready(function() {
     $pola.change(function() {
         let polaId = $(this).val();
         if(polaId) {
-            $.get(`/konvensional/api/bedeng?pola_id=${polaId}`, function(data) {
+            $.get(`/konvensional/kebun/tanam/get-bedeng?pola_id=${polaId}`, function(data) {
                 $bedengGrid.empty();
                 if(data.length === 0) {
                     $bedengGrid.html('<p class="text-muted">Tidak ada bedeng di pola ini.</p>');

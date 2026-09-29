@@ -179,11 +179,12 @@ class KonvenKebunController extends Controller
                 ->get();
         }
 
-        return view('konvensional.kebun.tanam-form', compact(
-            'lahans', 'tanaman_master', 
-            'selected_lahan', 'selected_zona', 'selected_pola',
-            'bedengs'
-        ));
+        return view('konvensional.kebun.tanam-form', [
+            'lahanList' => $lahans,
+            'tanamanList' => $tanaman_master,
+            'selectedPola' => $selected_pola,
+            'bedengList' => $bedengs
+        ]);
     }
 
     /**
