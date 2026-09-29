@@ -247,6 +247,24 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('konvensional')->middleware('role:produksi,produksi_konvensional,packing,keuangan,pemasaran')->group(function () {
+    // --- NEW KEBUN MODULE ---
+    Route::prefix('kebun')->group(function () {
+        Route::get('/', [\App\Http\Controllers\KonvenKebunController::class, 'dashboard'])->name('konvensional.kebun');
+        Route::get('/tanam', [\App\Http\Controllers\KonvenKebunController::class, 'tanamForm']);
+        Route::post('/tanam', [\App\Http\Controllers\KonvenKebunController::class, 'tanamStore']);
+        Route::get('/tanam/get-bedeng', [\App\Http\Controllers\KonvenKebunController::class, 'getBedengByPola']);
+        Route::get('/panen', [\App\Http\Controllers\KonvenKebunController::class, 'panenIndex']);
+        Route::post('/panen', [\App\Http\Controllers\KonvenKebunController::class, 'panenStore']);
+        Route::post('/gagal', [\App\Http\Controllers\KonvenKebunController::class, 'gagalStore']);
+        
+        Route::get('/riwayat/{id}', [\App\Http\Controllers\KonvenKebunController::class, 'riwayatBedeng']);
+        
+        Route::get('/master-tanaman', [\App\Http\Controllers\KonvenKebunController::class, 'masterTanaman']);
+        Route::post('/master-tanaman', [\App\Http\Controllers\KonvenKebunController::class, 'masterTanamanStore']);
+        Route::match(['post', 'put'], '/master-tanaman/{id}', [\App\Http\Controllers\KonvenKebunController::class, 'masterTanamanUpdate']);
+        Route::delete('/master-tanaman/{id}', [\App\Http\Controllers\KonvenKebunController::class, 'masterTanamanDestroy']);
+    });
+    
         // Dashboard
         Route::get('/dashboard', [\App\Http\Controllers\KonvensionalController::class, 'dashboard'])->name('konvensional.dashboard');
         Route::get('/dashboard/period-stats', [\App\Http\Controllers\KonvensionalController::class, 'getDashboardPeriodStats']);
@@ -300,4 +318,5 @@ Route::middleware('auth')->group(function () {
         Route::post('/penyemprotan', [\App\Http\Controllers\PaprikaController::class, 'storePenyemprotan'])->name('paprika.penyemprotan.store');
     });
 });
+
 
