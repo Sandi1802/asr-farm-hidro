@@ -446,26 +446,36 @@ $plantStageJson = json_encode($plantStageData ?? []);
                 <button onclick="document.getElementById('sudahPanenModal').style.display='none'" style="border:none; background:transparent; font-size:1.2rem; cursor:pointer; color: var(--text-muted);"><i class="ph ph-x"></i></button>
             </div>
             <div style="padding: 1.5rem; overflow-y:auto;">
-                <ul id="sudahPanenModalList" style="list-style: none; padding: 0; margin: 0;">
+                <div id="sudahPanenModalContainer">
                     @if(empty($harvestedByPlant))
                         <div style="text-align:center; padding:2rem; color:var(--text-muted);">
                             Belum ada data panen bulan ini.
                         </div>
                     @else
-                        @foreach($harvestedByPlant as $plant => $data)
-                            <li style="padding: 1rem; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
-                                <div>
-                                    <div style="font-weight:600; color:var(--text-main);">{{ $plant }}</div>
-                                </div>
-                                <div style="text-align:right; font-size:0.85rem; color:var(--text-muted);">
-                                    <div><span style="display:inline-block; width:60px; text-align:left;">Hari ini</span>: <strong style="color:var(--text-main);">{{ $data['today'] }}</strong></div>
-                                    <div><span style="display:inline-block; width:60px; text-align:left;">Kemarin</span>: <strong style="color:var(--text-main);">{{ $data['yesterday'] }}</strong></div>
-                                    <div style="margin-top:4px; font-weight:bold; color:#0f766e;"><span style="display:inline-block; width:60px; text-align:left;">Bulan ini</span>: {{ $data['month'] }} Lubang</div>
-                                </div>
-                            </li>
-                        @endforeach
+                        <div style="border:1px solid var(--border-color); border-radius:8px; overflow:hidden;">
+                            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                                <thead>
+                                    <tr style="background:var(--bg-light); border-bottom:1px solid var(--border-color); color:var(--text-muted);">
+                                        <th style="padding:0.75rem 1rem; text-align:left; font-weight:600;">Nama Tanaman</th>
+                                        <th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Hari Ini</th>
+                                        <th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Kemarin</th>
+                                        <th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Total Bulan Ini</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($harvestedByPlant as $plant => $data)
+                                        <tr style="border-bottom: 1px solid var(--border-color);">
+                                            <td style="padding:0.75rem 1rem; font-weight:600; color:var(--text-main);">{{ $plant }}</td>
+                                            <td style="padding:0.75rem 1rem; text-align:center; color:var(--text-main);">{{ $data['today'] }}</td>
+                                            <td style="padding:0.75rem 1rem; text-align:center; color:var(--text-main);">{{ $data['yesterday'] }}</td>
+                                            <td style="padding:0.75rem 1rem; text-align:center; font-weight:700; color:#0f766e;">{{ $data['month'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     @endif
-                </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -1385,22 +1395,30 @@ function updateSummaryCards(month, year) {
                 let elSudahSub = document.getElementById('card-sudah-panen-sub'); if(elSudahSub) elSudahSub.textContent = data.sudah_panen_sub;
                 let elGagal = document.getElementById('card-gagal-panen'); if(elGagal) elGagal.textContent = data.gagal_panen;
                 let elGagalSub = document.getElementById('card-gagal-panen-sub'); if(elGagalSub) elGagalSub.textContent = data.gagal_panen_sub;
-                let listSudah = document.getElementById('sudahPanenModalList');
+                let listSudah = document.getElementById('sudahPanenModalContainer');
                 if (listSudah && data.sudah_panen_detail) {
                     listSudah.innerHTML = '';
                     if (Object.keys(data.sudah_panen_detail).length === 0) {
                         listSudah.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-muted);">Belum ada data panen.</div>';
                     } else {
+                        let tableHtml = '<div style="border:1px solid var(--border-color); border-radius:8px; overflow:hidden;">' +
+                            '<table style="width:100%; border-collapse:collapse; font-size:0.9rem;">' +
+                            '<thead><tr style="background:var(--bg-light); border-bottom:1px solid var(--border-color); color:var(--text-muted);">' +
+                            '<th style="padding:0.75rem 1rem; text-align:left; font-weight:600;">Nama Tanaman</th>' +
+                            '<th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Hari Ini</th>' +
+                            '<th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Kemarin</th>' +
+                            '<th style="padding:0.75rem 1rem; text-align:center; font-weight:600;">Total Bulan Ini</th>' +
+                            '</tr></thead><tbody>';
                         for (const [plant, pData] of Object.entries(data.sudah_panen_detail)) {
-                            listSudah.innerHTML += '<li style="padding: 1rem; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">' +
-                                '<div><div style="font-weight:600; color:var(--text-main);">' + plant + '</div></div>' +
-                                '<div style="text-align:right; font-size:0.85rem; color:var(--text-muted);">' +
-                                    '<div><span style="display:inline-block; width:60px; text-align:left;">Hari ini</span>: <strong style="color:var(--text-main);">' + pData.today + '</strong></div>' +
-                                    '<div><span style="display:inline-block; width:60px; text-align:left;">Kemarin</span>: <strong style="color:var(--text-main);">' + pData.yesterday + '</strong></div>' +
-                                    '<div style="margin-top:4px; font-weight:bold; color:#0f766e;"><span style="display:inline-block; width:60px; text-align:left;">Bulan ini</span>: ' + pData.month + ' Lubang</div>' +
-                                '</div>' +
-                                '</li>';
+                            tableHtml += '<tr style="border-bottom: 1px solid var(--border-color);">' +
+                                '<td style="padding:0.75rem 1rem; font-weight:600; color:var(--text-main);">' + plant + '</td>' +
+                                '<td style="padding:0.75rem 1rem; text-align:center; color:var(--text-main);">' + pData.today + '</td>' +
+                                '<td style="padding:0.75rem 1rem; text-align:center; color:var(--text-main);">' + pData.yesterday + '</td>' +
+                                '<td style="padding:0.75rem 1rem; text-align:center; font-weight:700; color:#0f766e;">' + pData.month + '</td>' +
+                                '</tr>';
                         }
+                        tableHtml += '</tbody></table></div>';
+                        listSudah.innerHTML = tableHtml;
                     }
                 }
                 
