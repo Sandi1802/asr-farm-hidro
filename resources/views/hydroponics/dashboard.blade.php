@@ -1368,17 +1368,17 @@ function updateSummaryCards(month, year) {
       const ids = ['card-lubang-kosong', 'card-lubang-terisi', 'card-siap-panen', 'card-sudah-panen', 'card-gagal-panen'];
       ids.forEach(id => {
           // User requested to show 0 instead of a loading spinner
-          if(document.getElementById(id)) document.getElementById(id).innerHTML = '0';
+          if(document.getElementById(id)) document.getElementById(id).style.opacity = '0.5';
       });
     
     fetch('/hydroponics/dashboard/summary-cards?month=' + month + '&year=' + year)
         .then(res => res.json())
         .then(data => {
             if(document.getElementById('card-lubang-kosong')) {
-                let elKosong = document.getElementById('card-lubang-kosong'); if(elKosong) elKosong.textContent = data.lubang_kosong;
-                let elTerisi = document.getElementById('card-lubang-terisi'); if(elTerisi) elTerisi.textContent = data.lubang_terisi;
+                let elKosong = document.getElementById('card-lubang-kosong'); if(elKosong) { elKosong.textContent = data.lubang_kosong + ' LT'; elKosong.style.opacity = '1'; }
+                let elTerisi = document.getElementById('card-lubang-terisi'); if(elTerisi) { elTerisi.textContent = data.lubang_terisi; elTerisi.style.opacity = '1'; }
                 let elTerisiSub = document.getElementById('card-lubang-terisi-sub'); if(elTerisiSub) elTerisiSub.textContent = data.lubang_terisi_sub;
-                let elSiap = document.getElementById('card-siap-panen'); if(elSiap) elSiap.textContent = data.siap_panen;
+                let elSiap = document.getElementById('card-siap-panen'); if(elSiap) { elSiap.textContent = data.siap_panen + ' LT'; elSiap.style.opacity = '1'; }
                 let elSiapSub = document.getElementById('card-siap-panen-sub'); if(elSiapSub) elSiapSub.textContent = data.siap_panen_sub;
                 
                 let modalBody = document.querySelector('#siapPanenModal > div > div:nth-child(2)');
@@ -1391,9 +1391,9 @@ function updateSummaryCards(month, year) {
                     lubangKosongBody.innerHTML = data.lubang_kosong_html;
                 }
                 
-                let elSudah = document.getElementById('card-sudah-panen'); if(elSudah) elSudah.textContent = data.sudah_panen;
+                let elSudah = document.getElementById('card-sudah-panen'); if(elSudah) { elSudah.textContent = data.sudah_panen + ' LT'; elSudah.style.opacity = '1'; }
                 let elSudahSub = document.getElementById('card-sudah-panen-sub'); if(elSudahSub) elSudahSub.textContent = data.sudah_panen_sub;
-                let elGagal = document.getElementById('card-gagal-panen'); if(elGagal) elGagal.textContent = data.gagal_panen;
+                let elGagal = document.getElementById('card-gagal-panen'); if(elGagal) { elGagal.textContent = data.gagal_panen + ' LT'; elGagal.style.opacity = '1'; }
                 let elGagalSub = document.getElementById('card-gagal-panen-sub'); if(elGagalSub) elGagalSub.textContent = data.gagal_panen_sub;
                 let listSudah = document.getElementById('sudahPanenModalContainer');
                 if (listSudah && data.sudah_panen_detail) {
