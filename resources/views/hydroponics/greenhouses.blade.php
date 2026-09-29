@@ -166,9 +166,6 @@
                 @endif
                 
                 @if($cntDitanam > 0)
-                @php
-                    $ditanamGrouped = $allHoles->where('status', 'ditanam')->diff($readyHoles)->whereNotNull('plant_name')->groupBy('plant_name');
-                @endphp
                 <div id="ditanamModal_{{ $gh->id }}" class="modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(2px);">
                     <div style="background: white; padding: 1.5rem; border-radius: 12px; width: 100%; max-width: 600px; max-height: 85vh; display:flex; flex-direction:column; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
@@ -177,25 +174,16 @@
                         </div>
                         <div style="overflow-y:auto; flex-grow:1; padding-right:0.5rem;">
                             <ul style="list-style:none; padding:0; margin:0;">
-                                @foreach($ditanamGrouped as $plantName => $holes)
-                                @php
-                                    $rackGrouped = [];
-                                    foreach($holes as $h) {
-                                        $r = optional(optional($h->row)->rack)->name ?? 'Unknown Rak';
-                                        if(!isset($rackGrouped[$r])) $rackGrouped[$r] = 0;
-                                        $rackGrouped[$r]++;
-                                    }
-                                    uksort($rackGrouped, 'strnatcmp');
-                                @endphp
+                                @foreach($ditanamGrouped as $plantName => $pData)
                                 <li style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 0.75rem; background: #f0fdf4;">
                                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                                         <div style="font-weight: 700; font-size: 1.05rem; color: var(--text-main);">{{ $plantName }}</div>
                                         <div style="background: #dcfce7; color: #16a34a; padding: 0.35rem 0.8rem; border-radius: 20px; font-size: 0.9rem; font-weight: 700;">
-                                            {{ number_format($holes->count(), 0, ',', '.') }} Lubang
+                                            {{ number_format($pData['total'], 0, ',', '.') }} Lubang
                                         </div>
                                     </div>
                                     <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                                        @foreach($rackGrouped as $rName => $rCount)
+                                        @foreach($pData['racks'] as $rName => $rCount)
                                             <span style="background: white; border: 1px solid #bbf7d0; padding: 2px 6px; border-radius: 4px; color: #166534;">{{ $rName }}: {{ $rCount }}</span>
                                         @endforeach
                                     </div>
