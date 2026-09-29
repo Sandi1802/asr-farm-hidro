@@ -17,4 +17,9 @@ class KonvenZona extends Model
     {
         return $this->hasMany(KonvenPola::class, 'zona_id')->orderBy('urutan');
     }
+    public function bedeng()
+    {
+        return $this->hasManyThrough(KonvenBedeng::class, KonvenPola::class, 'zona_id', 'pola_id');
+    }
 }
+
