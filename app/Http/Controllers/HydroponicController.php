@@ -447,9 +447,8 @@ $harvestedTotals = [];
         if ($isCurrentMonth) {
             $emptyHolesCount = \App\Models\Hole::where('status', 'kosong')->count();
             
-            $plantedHolesGroup = \App\Models\Hole::where('status', 'ditanam')->whereNotNull('plant_name')->get()->groupBy('plant_name');
             $plantedHoles = \App\Models\Hole::where('status', 'ditanam')->count();
-            $plantedTypesCount = $plantedHolesGroup->count();
+            $plantedTypesCount = \App\Models\Hole::where('status', 'ditanam')->whereNotNull('plant_name')->distinct('plant_name')->count('plant_name');
 
             $logs = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)->get();
             
@@ -1343,31 +1342,50 @@ $harvestedTotals = [];
 
     private function buildSiapPanenHtml($readyHoles)
     {
-        $groupedHoles = $readyHoles->whereNotNull('plant_name')->groupBy('plant_name');
+        // Optimasi: Agregasi langsung via SQL (Jauh lebih cepat dari looping model)
+        $readyData = \Illuminate\Support\Facades\DB::table('holes')
+            ->join('rows', 'holes.row_id', '=', 'rows.id')
+            ->join('racks', 'rows.rack_id', '=', 'racks.id')
+            ->join('greenhouses', 'racks.greenhouse_id', '=', 'greenhouses.id')
+            ->leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
+            ->where('holes.status', 'ditanam')
+            ->whereNotNull('holes.planted_at')
+            ->whereRaw("holes.planted_at <= NOW() - (COALESCE(plant_types.growth_days, 30) * INTERVAL '1 day')")
+            ->selectRaw("
+                holes.plant_name,
+                greenhouses.name as gh_name,
+                racks.name as rack_name,
+                racks.catatan_lapangan,
+                MIN(holes.planted_at) as min_planted,
+                MAX(holes.planted_at) as max_planted,
+                COUNT(holes.id) as hole_count
+            ")
+            ->groupBy('holes.plant_name', 'greenhouses.name', 'racks.name', 'racks.catatan_lapangan')
+            ->get();
+
+        $groupedHoles = $readyData->groupBy('plant_name');
         $siapPanenHtml = '';
         
         if ($groupedHoles->isEmpty()) {
             $siapPanenHtml = '<div style="text-align:center; padding:2rem; color:var(--text-muted);"><i class="ph ph-leaf" style="font-size:3rem; opacity:0.3; margin-bottom:1rem; display:block;"></i>Belum ada tanaman yang diproyeksikan panen.</div>';
         } else {
-            foreach ($groupedHoles as $plantName => $holes) {
-                $totalHoles = $holes->count();
-                $locations = [];
-                foreach ($holes as $hole) {
-                    $gh = optional(optional(optional($hole->row)->rack)->greenhouse)->name ?? 'GH Unknown';
-                    $rackModel = optional(optional($hole->row)->rack);
-                    $rack = $rackModel->name ?? 'Rak Unknown';
-                    $catatan = $rackModel->catatan_lapangan ?? '-';
-                    $age = \Carbon\Carbon::parse($hole->planted_at)->diffInDays(now());
-                    
-                    $locKey = $gh . ' - ' . $rack;
-                    if (!isset($locations[$locKey])) {
-                        $locations[$locKey] = ['count' => 0, 'ages' => [], 'catatan' => $catatan];
-                    }
-                    $locations[$locKey]['count']++;
-                    $locations[$locKey]['ages'][] = $age;
-                }
+            foreach ($groupedHoles as $plantName => $items) {
+                if (!$plantName) continue;
+                $totalHoles = $items->sum('hole_count');
                 
-                // Sort locations naturally
+                // Sort locations naturally by GH and Rack
+                $locations = $items->mapWithKeys(function($item) {
+                    $locKey = $item->gh_name . ' - ' . $item->rack_name;
+                    $minAge = \Carbon\Carbon::parse($item->max_planted)->diffInDays(now()); // max planted_at = youngest
+                    $maxAge = \Carbon\Carbon::parse($item->min_planted)->diffInDays(now()); // min planted_at = oldest
+                    return [$locKey => [
+                        'count' => $item->hole_count,
+                        'catatan' => $item->catatan_lapangan ?? '-',
+                        'minAge' => $minAge,
+                        'maxAge' => $maxAge
+                    ]];
+                })->toArray();
+                
                 uksort($locations, 'strnatcmp');
                 
                 $siapPanenHtml .= '<div style="margin-bottom:1.5rem; border:1px solid var(--border-color); border-radius:8px; overflow:hidden;">';
@@ -1384,9 +1402,8 @@ $harvestedTotals = [];
                 $siapPanenHtml .= '</tr></thead><tbody>';
                 
                 foreach ($locations as $loc => $data) {
-                    if (empty($data['ages'])) continue;
-                    $minAge = min($data['ages']);
-                    $maxAge = max($data['ages']);
+                    $minAge = $data['minAge'];
+                    $maxAge = $data['maxAge'];
                     $ageStr = ($minAge == $maxAge) ? $minAge . ' Hari' : $minAge . ' - ' . $maxAge . ' Hari';
                     
                     $siapPanenHtml .= '<tr style="border-bottom:1px solid var(--border-color);">';
