@@ -72,7 +72,7 @@
                     </td>
                     <td style="padding: 1rem; vertical-align: middle; text-align: right;">
                         <div style="display: flex; gap: 0.35rem; justify-content: flex-end;">
-                            <button onclick="editTitik({{ $titik->toJson() }})" style="padding: 0.35rem 0.6rem; background: white; border: 1px solid var(--border-color); border-radius: 6px; color: var(--asr-green); cursor: pointer; font-size: 0.75rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem;">
+                            <button onclick='editTitik({!! $titik->toJson() !!})' style="padding: 0.35rem 0.6rem; background: white; border: 1px solid var(--border-color); border-radius: 6px; color: var(--asr-green); cursor: pointer; font-size: 0.75rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem;">
                                 <i class="ph ph-pencil-simple"></i> Update
                             </button>
                             <form action="{{ route('konvensional.titik_tanam', $titik->id) }}" method="POST" onsubmit="return confirm('Hapus titik tanam ini?');" style="margin: 0;">
@@ -147,15 +147,37 @@
                 </select>
             </div>
             
-            <div id="divTanaman" style="margin-bottom: 1.5rem; display: none;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-color);">Tanaman (Bibit)</label>
-                <select name="nama_tanaman" id="updateTanaman" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;">
+                        <div id="plantInputGroup" style="margin-bottom: 1.5rem; display: none;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-color);">Tanaman Utama</label>
+                <select name="nama_tanaman" id="updateTanaman" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 1rem;">
                     <option value="">-- Pilih Bibit --</option>
                     @foreach($bibits as $b)
                         <option value="{{ $b->nama_bibit }}">{{ $b->nama_bibit }} ({{ $b->estimasi_panen_hari }} hari)</option>
                     @endforeach
                 </select>
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Pilih bibit yang ada dari Master Data Bibit Konvensional</p>
+
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-color);">Tanaman Tumpang Sari (Opsional)</label>
+                <select name="tanaman_sekunder" id="updateTanamanSekunder" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;">
+                    <option value="">-- Tidak Ada --</option>
+                    @foreach($bibits as $b)
+                        <option value="{{ $b->nama_bibit }}">{{ $b->nama_bibit }} ({{ $b->estimasi_panen_hari }} hari)</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div id="panenInputGroup" style="margin-bottom: 1.5rem; display: none;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-color);">Jenis Panen</label>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="radio" name="jenis_panen" value="petik" checked> Panen Petik (Tanaman tetap)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="radio" name="jenis_panen" value="cabut"> Panen Cabut (Akar dicabut)
+                    </label>
+                </div>
+                
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-color);">Jumlah Panen (Kg/Ikat)</label>
+                <input type="text" name="jumlah_kg" id="updateJumlahKg" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;" placeholder="Contoh: 5 Kg">
             </div>
             
             <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
@@ -221,11 +243,21 @@ function editTitik(titik) {
     document.getElementById('modalUpdate').style.display='flex';
 }
 
-function checkStatus(val) {
-    if(val === 'ditanam' || val === 'siap_panen') {
-        document.getElementById('divTanaman').style.display = 'block';
-    } else {
-        document.getElementById('divTanaman').style.display = 'none';
+function checkStatus(status) {
+    var plantGroup = document.getElementById('plantInputGroup');
+    var panenGroup = document.getElementById('panenInputGroup');
+    
+    if (plantGroup && panenGroup) {
+        if (status === 'ditanam' || status === 'persiapan' || status === 'siap_panen' || status === 'rusak') {
+            plantGroup.style.display = 'block';
+            panenGroup.style.display = 'none';
+        } else if (status === 'panen') {
+            plantGroup.style.display = 'block';
+            panenGroup.style.display = 'block';
+        } else {
+            plantGroup.style.display = 'none';
+            panenGroup.style.display = 'none';
+        }
     }
 }
 </script>

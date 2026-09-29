@@ -736,6 +736,7 @@ class ComposerStaticInitfe33f98a750b8c5a51b30c78bd3fab21
         'Database\\Seeders\\KonvensionalSeeder' => __DIR__ . '/../..' . '/database/seeders/KonvensionalSeeder.php',
         'Database\\Seeders\\ProcurementSeeder' => __DIR__ . '/../..' . '/database/seeders/ProcurementSeeder.php',
         'Database\\Seeders\\RealDataSeeder' => __DIR__ . '/../..' . '/database/seeders/RealDataSeeder.php',
+        'Database\\Seeders\\SimulasiKonvensionalSeeder' => __DIR__ . '/../..' . '/database/seeders/SimulasiKonvensionalSeeder.php',
         'Database\\Seeders\\SuperAdminSeeder' => __DIR__ . '/../..' . '/database/seeders/SuperAdminSeeder.php',
         'Database\\Seeders\\SyncDailyTasksSeeder' => __DIR__ . '/../..' . '/database/seeders/SyncDailyTasksSeeder.php',
         'Database\\Seeders\\SyncInventorySeeder' => __DIR__ . '/../..' . '/database/seeders/SyncInventorySeeder.php',

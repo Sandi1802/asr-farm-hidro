@@ -217,6 +217,7 @@ return array(
     'Database\\Seeders\\KonvensionalSeeder' => $baseDir . '/database/seeders/KonvensionalSeeder.php',
     'Database\\Seeders\\ProcurementSeeder' => $baseDir . '/database/seeders/ProcurementSeeder.php',
     'Database\\Seeders\\RealDataSeeder' => $baseDir . '/database/seeders/RealDataSeeder.php',
+    'Database\\Seeders\\SimulasiKonvensionalSeeder' => $baseDir . '/database/seeders/SimulasiKonvensionalSeeder.php',
     'Database\\Seeders\\SuperAdminSeeder' => $baseDir . '/database/seeders/SuperAdminSeeder.php',
     'Database\\Seeders\\SyncDailyTasksSeeder' => $baseDir . '/database/seeders/SyncDailyTasksSeeder.php',
     'Database\\Seeders\\SyncInventorySeeder' => $baseDir . '/database/seeders/SyncInventorySeeder.php',

@@ -226,25 +226,25 @@
     @forelse($bedengMap as $lahan)
         <div class="lahan-container" style="margin-bottom: 2rem; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem;">
             <h4 style="font-size: 1.1rem; margin: 0 0 1.25rem 0; color: var(--asr-green); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
-                <i class="ph ph-mountains"></i> Lahan: {{ $lahan['nama'] }}
+                <i class="ph ph-mountains"></i> Lahan: {{ $lahan->nama }}
             </h4>
             
-            @forelse($lahan['zonas'] as $zona)
+            @forelse($lahan->zona as $zona)
                 <div class="zona-container" style="margin-bottom: 1.5rem; margin-left: 0.5rem;">
                     <h5 style="font-size: 0.95rem; margin: 0 0 0.75rem 0; color: var(--text-main);">
-                        <i class="ph ph-bounding-box" style="color: var(--text-muted);"></i> Zona: {{ $zona['nama'] }}
+                        <i class="ph ph-bounding-box" style="color: var(--text-muted);"></i> Zona: {{ $zona->nama }}
                     </h5>
                     
-                    @forelse($zona['polas'] as $pola)
+                    @forelse($zona->pola as $pola)
                         <div class="pola-container" style="margin-bottom: 1rem; background: var(--bg-color); padding: 1rem; border-radius: 8px;">
                             <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-muted);">
-                                Pola: {{ $pola['nama'] }}
+                                Pola: {{ $pola->nama }}
                             </div>
                             
                             <div class="bedeng-grid">
-                                @forelse($pola['bedengs'] as $bedeng)
+                                @forelse($pola->bedeng as $bedeng)
                                     @php
-                                        $status = $bedeng['tanamAktif'] ? $bedeng['tanamAktif']['status_tampilan'] : 'kosong';
+                                        $status = $bedeng->tanamAktif ? $bedeng->tanamAktif->status_tampilan : 'kosong';
                                         
                                         $bg = '#e2e8f0'; $border = '#cbd5e1'; $color = '#475569';
                                         if($status == 'tumbuh') { $bg = '#dcfce7'; $border = '#16a34a'; $color = '#166534'; }
@@ -252,27 +252,27 @@
                                         elseif($status == 'siap_panen') { $bg = '#ffedd5'; $border = '#f97316'; $color = '#9a3412'; }
                                         elseif($status == 'terlambat') { $bg = '#fee2e2'; $border = '#ef4444'; $color = '#991b1b'; }
                                         
-                                        $tanamanNama = $bedeng['tanamAktif'] ? $bedeng['tanamAktif']['tanaman']['nama'] : 'Kosong';
+                                        $tanamanNama = $bedeng->tanamAktif ? $bedeng->tanamAktif->tanaman->nama : 'Kosong';
                                     @endphp
                                     <div class="bedeng-cell" 
-                                         data-id="{{ $bedeng['id'] }}"
+                                         data-id="{{ $bedeng->id }}"
                                          data-status="{{ $status }}"
                                          data-tanaman="{{ strtolower($tanamanNama) }}"
                                          data-detail="{{ json_encode([
-                                             'kode' => $bedeng['kode'],
-                                             'luas' => $bedeng['luas_m2'],
+                                             'kode' => $bedeng->kode,
+                                             'luas' => $bedeng->luas_m2,
                                              'status' => $status,
                                              'tanaman' => $tanamanNama,
-                                             'tgl_tanam' => $bedeng['tanamAktif'] ? \Carbon\Carbon::parse($bedeng['tanamAktif']['tanggal_tanam'])->format('d M Y') : '-',
-                                             'estimasi' => $bedeng['tanamAktif'] ? \Carbon\Carbon::parse($bedeng['tanamAktif']['estimasi_tanggal_panen'])->format('d M Y') : '-',
-                                             'umur' => $bedeng['tanamAktif'] ? $bedeng['tanamAktif']['umur_hari'] : 0,
-                                             'sisa_hari' => $bedeng['tanamAktif'] ? $bedeng['tanamAktif']['sisa_hari'] : 0,
-                                             'jumlah' => $bedeng['tanamAktif'] ? $bedeng['tanamAktif']['jumlah_tanam'] : 0,
+                                             'tgl_tanam' => $bedeng->tanamAktif ? \Carbon\Carbon::parse($bedeng->tanamAktif->tanggal_tanam)->format('d M Y') : '-',
+                                             'estimasi' => $bedeng->tanamAktif ? \Carbon\Carbon::parse($bedeng->tanamAktif->estimasi_tanggal_panen)->format('d M Y') : '-',
+                                             'umur' => $bedeng->tanamAktif ? $bedeng->tanamAktif->umur_hari : 0,
+                                             'sisa_hari' => $bedeng->tanamAktif ? $bedeng->tanamAktif->sisa_hari : 0,
+                                             'jumlah' => $bedeng->tanamAktif ? $bedeng->tanamAktif->jumlah_tanam : 0,
                                          ]) }}"
                                          style="background: {{ $bg }}; border-color: {{ $border }}; color: {{ $color }};"
                                          onclick="showBedengDetail(this)">
-                                        <div class="bedeng-kode">{{ $bedeng['kode'] }}</div>
-                                        <div class="bedeng-tanaman" title="{{ $tanamanNama }}">{{ $bedeng['tanamAktif'] ? $tanamanNama : '' }}</div>
+                                        <div class="bedeng-kode">{{ $bedeng->kode }}</div>
+                                        <div class="bedeng-tanaman" title="{{ $tanamanNama }}">{{ $bedeng->tanamAktif ? $tanamanNama : '' }}</div>
                                     </div>
                                 @empty
                                     <div style="font-size: 0.8rem; color: var(--text-muted);">Tidak ada bedeng.</div>
@@ -315,16 +315,16 @@
                 <ul class="issue-list" style="padding: 0; margin: 0; list-style: none;">
                 @foreach($agendaPanen as $tanam)
                     @php
-                        $color = $tanam['sisa_hari'] < 0 ? '#ef4444' : ($tanam['sisa_hari'] <= 3 ? '#f97316' : 'var(--text-main)');
-                        $bgBadge = $tanam['sisa_hari'] < 0 ? '#fee2e2' : ($tanam['sisa_hari'] <= 3 ? '#ffedd5' : 'var(--bg-color)');
+                        $color = $tanam->sisa_hari < 0 ? '#ef4444' : ($tanam->sisa_hari <= 3 ? '#f97316' : 'var(--text-main)');
+                        $bgBadge = $tanam->sisa_hari < 0 ? '#fee2e2' : ($tanam->sisa_hari <= 3 ? '#ffedd5' : 'var(--bg-color)');
                     @endphp
                     <li style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px dashed var(--border-color);">
                         <div>
-                            <div style="font-weight: 600; color: var(--text-main);">{{ $tanam['bedeng']['kode'] }} - {{ $tanam['tanaman']['nama'] }}</div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Est: {{ \Carbon\Carbon::parse($tanam['estimasi_tanggal_panen'])->format('d M Y') }}</div>
+                            <div style="font-weight: 600; color: var(--text-main);">{{ $tanam->bedeng->kode }} - {{ $tanam->tanaman->nama }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Est: {{ \Carbon\Carbon::parse($tanam->estimasi_tanggal_panen)->format('d M Y') }}</div>
                         </div>
                         <div class="badge" style="background: {{ $bgBadge }}; color: {{ $color }}; padding: 0.4rem 0.6rem; border-radius: 4px; font-size: 0.75rem;">
-                            {{ $tanam['sisa_hari'] < 0 ? 'Terlambat ' . abs($tanam['sisa_hari']) . ' hari' : $tanam['sisa_hari'] . ' hari lagi' }}
+                            {{ $tanam->sisa_hari < 0 ? 'Terlambat ' . abs($tanam->sisa_hari) . ' hari' : $tanam->sisa_hari . ' hari lagi' }}
                         </div>
                     </li>
                 @endforeach
@@ -352,10 +352,10 @@
                     <tbody>
                         @forelse($tanamanAktifSummary as $sum)
                         <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 0.75rem 0.5rem; font-weight: 500; color: var(--text-main);">{{ $sum['tanaman_nama'] }}</td>
-                            <td style="padding: 0.75rem 0.5rem; text-align: center; color: var(--text-main);">{{ $sum['bedeng_count'] }}</td>
-                            <td style="padding: 0.75rem 0.5rem; text-align: right; color: var(--text-main);">{{ number_format($sum['total_populasi'], 0, ',', '.') }}</td>
-                            <td style="padding: 0.75rem 0.5rem; text-align: right; color: var(--text-main);">{{ number_format($sum['total_estimasi'], 2, ',', '.') }} {{ $sum['satuan'] }}</td>
+                            <td style="padding: 0.75rem 0.5rem; font-weight: 500; color: var(--text-main);">{{ $sum->tanaman_nama }}</td>
+                            <td style="padding: 0.75rem 0.5rem; text-align: center; color: var(--text-main);">{{ $sum->bedeng_count }}</td>
+                            <td style="padding: 0.75rem 0.5rem; text-align: right; color: var(--text-main);">{{ number_format($sum->total_populasi, 0, ',', '.') }}</td>
+                            <td style="padding: 0.75rem 0.5rem; text-align: right; color: var(--text-main);">{{ number_format($sum->total_estimasi, 2, ',', '.') }} {{ $sum->satuan }}</td>
                         </tr>
                         @empty
                         <tr>
@@ -395,17 +395,17 @@
             <div style="display: flex; flex-direction: column; gap: 1rem;">
                 @forelse($aktivitasTerbaru as $akt)
                     <div style="display: flex; gap: 1rem; align-items: flex-start; padding: 1rem; background: var(--bg-color); border-radius: 8px; border: 1px solid var(--border-color);">
-                        <div class="icon-box {{ $akt['jenis'] == 'tanam' ? 'green' : 'yellow' }}" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%;">
-                            <i class="ph {{ $akt['jenis'] == 'tanam' ? 'ph-plant' : 'ph-basket' }}"></i>
+                        <div class="icon-box {{ $akt->jenis == 'tanam' ? 'green' : 'yellow' }}" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%;">
+                            <i class="ph {{ $akt->jenis == 'tanam' ? 'ph-plant' : 'ph-basket' }}"></i>
                         </div>
                         <div>
                             <div style="font-weight: 600; color: var(--text-main); font-size: 0.95rem;">
-                                {{ $akt['jenis'] == 'tanam' ? 'Tanam Baru' : 'Panen' }} - {{ $akt['tanaman'] }} <span style="color: var(--text-muted); font-weight: 400;">(Bedeng {{ $akt['bedeng'] }})</span>
+                                {{ $akt->jenis == 'tanam' ? 'Tanam Baru' : 'Panen' }} - {{ $akt->tanaman }} <span style="color: var(--text-muted); font-weight: 400;">(Bedeng {{ $akt->bedeng }})</span>
                             </div>
                             <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.35rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <span><i class="ph ph-calendar"></i> {{ \Carbon\Carbon::parse($akt['tanggal'])->format('d M Y H:i') }}</span>
+                                <span><i class="ph ph-calendar"></i> {{ \Carbon\Carbon::parse($akt->tanggal)->format('d M Y H:i') }}</span>
                                 <span>•</span>
-                                <span style="font-weight: 500;">{{ $akt['jenis'] == 'tanam' ? number_format($akt['jumlah'], 0, ',', '.') . ' bibit' : number_format($akt['hasil'], 2, ',', '.') . ' ' . ($akt['satuan'] ?? 'kg') }}</span>
+                                <span style="font-weight: 500;">{{ $akt->jenis == 'tanam' ? number_format($akt->jumlah, 0, ',', '.') . ' bibit' : number_format($akt->hasil, 2, ',', '.') . ' ' . ($akt->satuan ?? 'kg') }}</span>
                             </div>
                         </div>
                     </div>

@@ -58,9 +58,9 @@ class KonvenKebunController extends Controller
             ->sum('jumlah_hasil');
 
         // 4. Bed Map Data
-        $bed_map = KonvenLahan::with(['zonas.polas.bedengs' => function($q) {
+        $bed_map = KonvenLahan::with(['zona.pola.bedeng' => function($q) {
             $q->orderBy('nomor');
-        }, 'zonas.polas.bedengs.tanamAktif.tanaman'])->get();
+        }, 'zona.pola.bedeng.tanamAktif.tanaman'])->get();
 
         // 5. Agenda Panen (14 hari ke depan)
         $agenda_panen = KonvenTanam::aktif()
@@ -84,12 +84,13 @@ class KonvenKebunController extends Controller
             ->limit(10)
             ->get()
             ->map(function($item) {
-                return [
-                    'tipe' => 'tanam',
+                return (object)[
+                    'jenis' => 'tanam',
                     'tanggal' => $item->tanggal_tanam,
-                    'keterangan' => "Tanam {$item->tanaman->nama} di Bedeng {$item->bedeng->kode} ({$item->jumlah_tanam} populasi)",
-                    'created_at' => $item->created_at,
-                    'user' => $item->dibuat_oleh
+                    'tanaman' => $item->tanaman->nama,
+                    'bedeng' => $item->bedeng->kode,
+                    'jumlah' => $item->jumlah_tanam,
+                    'created_at' => $item->created_at
                 ];
             });
             
@@ -98,12 +99,14 @@ class KonvenKebunController extends Controller
             ->limit(10)
             ->get()
             ->map(function($item) {
-                return [
-                    'tipe' => 'panen',
+                return (object)[
+                    'jenis' => 'panen',
                     'tanggal' => $item->tanggal_panen,
-                    'keterangan' => "Panen {$item->tanam->tanaman->nama} di Bedeng {$item->tanam->bedeng->kode} ({$item->jumlah_hasil} {$item->satuan})",
-                    'created_at' => $item->created_at,
-                    'user' => 'Sistem' // Asumsi belum ada created_by di panen
+                    'tanaman' => $item->tanam->tanaman->nama,
+                    'bedeng' => $item->tanam->bedeng->kode,
+                    'hasil' => $item->jumlah_hasil,
+                    'satuan' => $item->satuan,
+                    'created_at' => $item->created_at
                 ];
             });
             
@@ -126,7 +129,7 @@ class KonvenKebunController extends Controller
         }
 
         // 9. Chart Data: Pemanfaatan per zona
-        $zonas = KonvenZona::withCount(['bedengs as total_bedeng', 'bedengs as terpakai' => function($q) {
+        $zonas = KonvenZona::withCount(['bedeng as total_bedeng', 'bedeng as terpakai' => function($q) {
             $q->whereHas('tanamAktif');
         }])->get();
         
@@ -150,7 +153,7 @@ class KonvenKebunController extends Controller
      */
     public function tanamForm(Request $request)
     {
-        $lahans = KonvenLahan::with('zonas.polas')->get();
+        $lahans = KonvenLahan::with('zona.pola')->get();
         $tanaman_master = KonvenTanaman::orderBy('nama')->get();
         
         $selected_lahan = $request->query('lahan_id');

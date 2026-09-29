@@ -18,6 +18,11 @@ class KonvensionalController extends Controller
         $totalLahan = Lahan::count();
         $totalBedengan = Bedengan::count();
         $totalTitik = TitikTanam::count();
+        $idleHolesCount = TitikTanam::where('status', 'kosong')
+            ->whereNotNull('kosong_sejak')
+            ->where('kosong_sejak', '<=', now()->subDays(5))
+            ->count();
+
         $titikKosong = TitikTanam::where('status', 'kosong')->count();
 
         // 2. Status Produksi
@@ -89,7 +94,7 @@ class KonvensionalController extends Controller
         $calendarJson = json_encode($this->buildCalendarEvents());
 
         return view('konvensional.dashboard', compact(
-            'totalLahan', 'totalBedengan', 'totalTitik', 'titikKosong',
+            'totalLahan', 'totalBedengan', 'totalTitik', 'titikKosong', 'idleHolesCount',
             'titikTerisi', 'totalJenisBibit', 'rataPanenBibit', 'siapPanen', 'panenBulanIni',
             'gagalPanen', 'pemupukanBulanIni', 'penyemprotanBulanIni',
             'chartKeterisian', 'chartPerawatan', 'calendarJson'
