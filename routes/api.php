@@ -43,6 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/konvensional/bedengan/{id}', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'detailBedengan']);
     
     // Write Endpoints
+    Route::post('/konvensional/zona/{id}/tanam', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'tanamZona']);
     Route::post('/konvensional/bedengan/{id}/tanam', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'tanam']);
     Route::post('/konvensional/bedengan/{id}/panen', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'panen']);
     Route::post('/konvensional/bedengan/{id}/perawatan', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'perawatan']);

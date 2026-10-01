@@ -11,8 +11,28 @@
 </div>
 
 <div class="container mt-4">
+
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="ph ph-check-circle"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
+    @if($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong><i class="ph ph-warning-circle"></i> Terdapat kesalahan input:</strong>
+        <ul class="mb-0 mt-1">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
     <div class="d-flex justify-content-end mb-3">
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTanaman" onclick="resetForm()">
+        <button class="btn btn-primary" onclick="openAddModal()">
             <i class="ph ph-plus-circle"></i> Tambah Tanaman
         </button>
     </div>
@@ -39,20 +59,14 @@
                             <td>{{ $t->lama_hari_ke_panen }}</td>
                             <td>{{ $t->rata2_hasil_per_tanaman }} {{ $t->satuan_hasil }}</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary btn-edit" 
-                                    data-id="{{ $t->id }}"
-                                    data-nama="{{ $t->nama }}"
-                                    data-varietas="{{ $t->varietas }}"
-                                    data-lama="{{ $t->lama_hari_ke_panen }}"
-                                    data-hasil="{{ $t->rata2_hasil_per_tanaman }}"
-                                    data-satuan="{{ $t->satuan_hasil }}"
-                                    data-catatan="{{ $t->catatan }}">
+                                <button class="btn btn-sm btn-outline-primary"
+                                    onclick="openEditModal({{ $t->id }}, '{{ addslashes($t->nama) }}', '{{ addslashes($t->varietas ?? '') }}', {{ $t->lama_hari_ke_panen }}, {{ $t->rata2_hasil_per_tanaman }}, '{{ $t->satuan_hasil }}', '{{ addslashes($t->catatan ?? '') }}')">
                                     <i class="ph ph-pencil-simple"></i>
                                 </button>
-                                <form action="{{ route('konvensional.kebun.tanaman.destroy', $t->id) }}" method="POST" class="d-inline delete-form">
+                                <form action="{{ route('konvensional.kebun.tanaman.destroy', $t->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus tanaman ini?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="button" class="btn btn-sm btn-outline-danger btn-delete">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
                                         <i class="ph ph-trash"></i>
                                     </button>
                                 </form>
@@ -65,38 +79,29 @@
     </div>
 </div>
 
-<!-- Modal Tanaman -->
+{{-- MODAL --}}
 <div class="modal fade" id="modalTanaman" tabindex="-1">
     <div class="modal-dialog">
-        <form class="modal-content" id="formTanaman" action="{{ route('konvensional.kebun.tanaman.store') }}" method="POST">
+        <form class="modal-content" id="formTanaman" method="POST" action="{{ route('konvensional.kebun.tanaman.store') }}">
             @csrf
             <input type="hidden" name="_method" id="methodSpoof" value="POST">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="modalTitle"><i class="ph ph-plant"></i> Tambah Tanaman</h5>
+            <div class="modal-header" style="background:var(--asr-green); color:white;">
+                <h5 class="modal-title" id="modalTitle"><i class="ph ph-plant"></i> <span id="modalTitleText">Tambah Tanaman</span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-                          <div class="modal-body p-4">
-                  @if($errors->any())
-                      <div class="alert alert-danger">
-                          <ul class="mb-0">
-                              @foreach ($errors->all() as $error)
-                                  <li>{{ $error }}</li>
-                              @endforeach
-                          </ul>
-                      </div>
-                  @endif
+            <div class="modal-body p-4">
                 <div class="mb-3">
                     <label class="form-label">Nama Tanaman <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="nama" id="t_nama" required>
+                    <input type="text" class="form-control" name="nama" id="t_nama" required placeholder="Contoh: Selada, Pakcoy, Bayam">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Varietas</label>
-                    <input type="text" class="form-control" name="varietas" id="t_varietas">
+                    <label class="form-label">Varietas <span class="text-muted small">(opsional)</span></label>
+                    <input type="text" class="form-control" name="varietas" id="t_varietas" placeholder="Contoh: Keriting, Romaine">
                 </div>
                 <div class="row mb-3">
                     <div class="col-6">
                         <label class="form-label">Lama ke Panen (Hari) <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" name="lama_hari_ke_panen" id="t_lama" required min="1">
+                        <input type="number" class="form-control" name="lama_hari_ke_panen" id="t_lama" required min="1" placeholder="Contoh: 30">
                     </div>
                     <div class="col-6">
                         <label class="form-label">Satuan Hasil <span class="text-danger">*</span></label>
@@ -110,12 +115,12 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Rata-rata Hasil per Tanaman <span class="text-danger">*</span></label>
-                    <input type="number" step="0.01" class="form-control" name="rata2_hasil_per_tanaman" id="t_hasil" required min="0.01">
-                    <small class="text-muted">Gunakan titik untuk desimal. Contoh: 0.25 (untuk 250 gram jika satuan kg)</small>
+                    <input type="number" step="0.01" class="form-control" name="rata2_hasil_per_tanaman" id="t_hasil" required min="0.01" placeholder="Contoh: 0.25">
+                    <small class="text-muted">Gunakan titik untuk desimal. Contoh: 0.25 = 250 gram jika satuan kg.</small>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Catatan Tambahan</label>
-                    <textarea class="form-control" name="catatan" id="t_catatan" rows="2"></textarea>
+                    <textarea class="form-control" name="catatan" id="t_catatan" rows="2" placeholder="Catatan khusus (opsional)"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
@@ -128,50 +133,42 @@
 
 @push('scripts')
 <script>
-    function resetForm() {
-        $('#formTanaman')[0].reset();
-        $('#formTanaman').attr('action', '{{ route('konvensional.kebun.tanaman.store') }}');
-        $('#methodSpoof').val('POST');
-        $('#modalTitle').html('<i class="ph ph-plant"></i> Tambah Tanaman');
+    // Buka modal Tambah
+    function openAddModal() {
+        document.getElementById('formTanaman').reset();
+        document.getElementById('formTanaman').action = '{{ route('konvensional.kebun.tanaman.store') }}';
+        document.getElementById('methodSpoof').value = 'POST';
+        document.getElementById('modalTitleText').innerText = 'Tambah Tanaman';
+        new bootstrap.Modal(document.getElementById('modalTanaman')).show();
     }
 
-          $(document).ready(function() {
-          @if($errors->any())
-              var myModal = new bootstrap.Modal(document.getElementById('modalTanaman'));
-              myModal.show();
-          @endif
-        // Initialize DataTables
-        if ($.fn.DataTable) {
+    // Buka modal Edit
+    function openEditModal(id, nama, varietas, lama, hasil, satuan, catatan) {
+        document.getElementById('t_nama').value    = nama;
+        document.getElementById('t_varietas').value = varietas;
+        document.getElementById('t_lama').value    = lama;
+        document.getElementById('t_hasil').value   = hasil;
+        document.getElementById('t_satuan').value  = satuan;
+        document.getElementById('t_catatan').value = catatan;
+
+        document.getElementById('formTanaman').action = '/konvensional/kebun/master-tanaman/' + id;
+        document.getElementById('methodSpoof').value  = 'PUT';
+        document.getElementById('modalTitleText').innerText = 'Edit Tanaman';
+        new bootstrap.Modal(document.getElementById('modalTanaman')).show();
+    }
+
+    $(document).ready(function () {
+        // Auto-buka modal jika ada error validasi (user tadi kirim form)
+        @if($errors->any())
+            new bootstrap.Modal(document.getElementById('modalTanaman')).show();
+        @endif
+
+        // DataTables
+        if ($.fn.DataTable && !$.fn.DataTable.isDataTable('.datatable')) {
             $('.datatable').DataTable({
                 language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json' }
             });
         }
-
-        // Edit button click
-        $('.btn-edit').click(function() {
-            let id = $(this).data('id');
-            $('#t_nama').val($(this).data('nama'));
-            $('#t_varietas').val($(this).data('varietas'));
-            $('#t_lama').val($(this).data('lama'));
-            $('#t_hasil').val($(this).data('hasil'));
-            $('#t_satuan').val($(this).data('satuan'));
-            $('#t_catatan').val($(this).data('catatan'));
-            
-            $('#formTanaman').attr('action', `/konvensional/kebun/master-tanaman/${id}`);
-            $('#methodSpoof').val('PUT');
-            $('#modalTitle').html('<i class="ph ph-pencil-simple"></i> Edit Tanaman');
-            
-            let modal = new bootstrap.Modal(document.getElementById('modalTanaman'));
-            modal.show();
-        });
-
-        // Delete confirmation
-        $('.btn-delete').click(function() {
-            let form = $(this).closest('.delete-form');
-            if(confirm('Apakah Anda yakin ingin menghapus tanaman ini? Data yang terhubung mungkin akan ikut terhapus.')) {
-                form.submit();
-            }
-        });
     });
 </script>
 @endpush

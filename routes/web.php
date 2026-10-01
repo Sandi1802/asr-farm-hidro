@@ -347,6 +347,7 @@ Route::middleware('auth')->group(function () {
 
             // Bedengan
             Route::get('/zona/{zona_id}/bedengan', [\App\Http\Controllers\KonvenV2Controller::class, 'bedenganIndex'])->name('konven.v2.bedengan');
+    Route::post('/zona/{zona_id}/tanam-massal', [\App\Http\Controllers\KonvenV2Controller::class, 'tanamMassalZona'])->name('konven.v2.zona.tanam.massal');
             Route::post('/zona/{zona_id}/bedengan', [\App\Http\Controllers\KonvenV2Controller::class, 'bedenganStore'])->name('konven.v2.bedengan.store');
             Route::put('/bedengan/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'bedenganUpdate'])->name('konven.v2.bedengan.update');
             Route::delete('/bedengan/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'bedenganDestroy'])->name('konven.v2.bedengan.destroy');
