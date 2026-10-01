@@ -67,6 +67,10 @@ Route::middleware('auth')->group(function () {
         Route::middleware('role:it_admin')->group(function () {
             
 
+                        // Settings
+            Route::get('/master-data/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+            Route::put('/master-data/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+
             Route::get('/master-data/users', [\App\Http\Controllers\UserController::class, 'index'])->name('hydroponics.users');
             Route::post('/master-data/users', [\App\Http\Controllers\UserController::class, 'store'])->name('hydroponics.users.store');
             Route::post('/master-data/users/{id}', [\App\Http\Controllers\UserController::class, 'update'])->name('hydroponics.users.update');

@@ -114,14 +114,19 @@
 
                 <div style="flex: 1; overflow: hidden; display: flex; align-items: center; background: transparent; padding: 0.2rem 0;">
                     <div class="global-marquee-wrapper">
-                    <div class="global-marquee-content">
+                                        <div class="global-marquee-content">
+                        @php
+                            $rawMarquee = \App\Models\Setting::where('key', 'marquee_text')->value('value') ?? 'Selamat Datang, {user}! Pantau perkembangbiakan, produksi, dan operasional ASR FARM dengan mudah di sini.';
+                            $userName = Auth::user()->name ?? 'Super Admin';
+                            $marqueeText = str_replace('{user}', $userName, $rawMarquee);
+                        @endphp
                         <div class="global-marquee-item">
                             <img src="{{ asset('images/logo-asr.png') }}" alt="Logo" style="height: 24px; width: 24px; object-fit: cover; margin-right: 10px; background-color: #ffffff; border-radius: 50%; padding: 1px;">
-                            <span style="font-weight: 500; color: var(--text-main); font-size: 0.9rem;">Selamat Datang, {{ Auth::user()->name ?? 'Super Admin' }}! Pantau perkembangbiakan, produksi, dan operasional ASR FARM dengan mudah di sini.</span>
+                            <span style="font-weight: 500; color: var(--text-main); font-size: 0.9rem;">{{ $marqueeText }}</span>
                         </div>
                         <div class="global-marquee-item">
                             <img src="{{ asset('images/logo-asr.png') }}" alt="Logo" style="height: 24px; width: 24px; object-fit: cover; margin-right: 10px; background-color: #ffffff; border-radius: 50%; padding: 1px;">
-                            <span style="font-weight: 500; color: var(--text-main); font-size: 0.9rem;">Selamat Datang, {{ Auth::user()->name ?? 'Super Admin' }}! Pantau perkembangbiakan, produksi, dan operasional ASR FARM dengan mudah di sini.</span>
+                            <span style="font-weight: 500; color: var(--text-main); font-size: 0.9rem;">{{ $marqueeText }}</span>
                         </div>
                     </div>
                 </div>
