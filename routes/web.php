@@ -309,6 +309,44 @@ Route::middleware('auth')->group(function () {
         Route::get('/penyemprotan', [\App\Http\Controllers\KonvensionalController::class, 'penyemprotanIndex'])->name('konvensional.penyemprotan');
         Route::post('/penyemprotan', [\App\Http\Controllers\KonvensionalController::class, 'penyemprotanStore']);
         Route::delete('/penyemprotan/{id}', [\App\Http\Controllers\KonvensionalController::class, 'penyemprotanDestroy'])->name('konvensional.penyemprotan.destroy');
+
+        // ── Konven V2 – Manajemen Struktur Kebun ─────────────────────────────
+        Route::prefix('v2')->group(function () {
+            // Lahan
+            Route::get('/lahan', [\App\Http\Controllers\KonvenV2Controller::class, 'lahanIndex'])->name('konven.v2.lahan');
+            Route::post('/lahan', [\App\Http\Controllers\KonvenV2Controller::class, 'lahanStore'])->name('konven.v2.lahan.store');
+            Route::put('/lahan/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'lahanUpdate'])->name('konven.v2.lahan.update');
+            Route::delete('/lahan/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'lahanDestroy'])->name('konven.v2.lahan.destroy');
+
+            // Posisi
+            Route::get('/lahan/{lahan_id}/posisi', [\App\Http\Controllers\KonvenV2Controller::class, 'posisiIndex'])->name('konven.v2.posisi');
+            Route::post('/lahan/{lahan_id}/posisi', [\App\Http\Controllers\KonvenV2Controller::class, 'posisiStore'])->name('konven.v2.posisi.store');
+            Route::put('/posisi/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'posisiUpdate'])->name('konven.v2.posisi.update');
+            Route::delete('/posisi/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'posisiDestroy'])->name('konven.v2.posisi.destroy');
+
+            // Kode
+            Route::get('/posisi/{posisi_id}/kode', [\App\Http\Controllers\KonvenV2Controller::class, 'kodeIndex'])->name('konven.v2.kode');
+            Route::post('/posisi/{posisi_id}/kode', [\App\Http\Controllers\KonvenV2Controller::class, 'kodeStore'])->name('konven.v2.kode.store');
+            Route::put('/kode/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'kodeUpdate'])->name('konven.v2.kode.update');
+            Route::delete('/kode/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'kodeDestroy'])->name('konven.v2.kode.destroy');
+
+            // Zona
+            Route::get('/kode/{kode_id}/zona', [\App\Http\Controllers\KonvenV2Controller::class, 'zonaIndex'])->name('konven.v2.zona');
+            Route::post('/kode/{kode_id}/zona', [\App\Http\Controllers\KonvenV2Controller::class, 'zonaStore'])->name('konven.v2.zona.store');
+            Route::put('/zona/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'zonaUpdate'])->name('konven.v2.zona.update');
+            Route::delete('/zona/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'zonaDestroy'])->name('konven.v2.zona.destroy');
+
+            // Bedengan
+            Route::get('/zona/{zona_id}/bedengan', [\App\Http\Controllers\KonvenV2Controller::class, 'bedenganIndex'])->name('konven.v2.bedengan');
+            Route::post('/zona/{zona_id}/bedengan', [\App\Http\Controllers\KonvenV2Controller::class, 'bedenganStore'])->name('konven.v2.bedengan.store');
+            Route::put('/bedengan/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'bedenganUpdate'])->name('konven.v2.bedengan.update');
+            Route::delete('/bedengan/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'bedenganDestroy'])->name('konven.v2.bedengan.destroy');
+
+            // Lubang Tanam
+            Route::get('/bedengan/{bedengan_id}', [\App\Http\Controllers\KonvenV2Controller::class, 'bedenganDetail'])->name('konven.v2.bedengan.detail');
+            Route::put('/lubang/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'lubangUpdate'])->name('konven.v2.lubang.update');
+            Route::post('/bedengan/{bedengan_id}/tanam-massal', [\App\Http\Controllers\KonvenV2Controller::class, 'tanamMassal'])->name('konven.v2.tanam.massal');
+        });
     });
 
 
