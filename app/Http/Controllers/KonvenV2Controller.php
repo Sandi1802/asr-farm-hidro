@@ -451,6 +451,7 @@ class KonvenV2Controller extends Controller
             'lubangTanams' => fn($q) => $q->orderBy('nomor_lubang'),
         ])->findOrFail($bedengan_id);
 
+        $masterTanaman = \App\Models\KonvenTanaman::orderBy('nama')->get();
         $lubangStats = [
             'total'   => $bedengan->lubangTanams->count(),
             'kosong'  => $bedengan->lubangTanams->where('status', 'kosong')->count(),
@@ -459,7 +460,7 @@ class KonvenV2Controller extends Controller
             'rusak'   => $bedengan->lubangTanams->where('status', 'rusak')->count(),
         ];
 
-        return view('konvensional.v2.bedengan-detail', compact('bedengan', 'lubangStats'));
+        return view('konvensional.v2.bedengan-detail', compact('bedengan', 'lubangStats', 'masterTanaman'));
     }
 
     public function lubangUpdate(Request $r, $id)

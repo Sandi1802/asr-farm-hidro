@@ -75,7 +75,16 @@
                 <h5 class="modal-title" id="modalTitle"><i class="ph ph-plant"></i> Tambah Tanaman</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4">
+                          <div class="modal-body p-4">
+                  @if($errors->any())
+                      <div class="alert alert-danger">
+                          <ul class="mb-0">
+                              @foreach ($errors->all() as $error)
+                                  <li>{{ $error }}</li>
+                              @endforeach
+                          </ul>
+                      </div>
+                  @endif
                 <div class="mb-3">
                     <label class="form-label">Nama Tanaman <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" name="nama" id="t_nama" required>
@@ -126,7 +135,11 @@
         $('#modalTitle').html('<i class="ph ph-plant"></i> Tambah Tanaman');
     }
 
-    $(document).ready(function() {
+          $(document).ready(function() {
+          @if($errors->any())
+              var myModal = new bootstrap.Modal(document.getElementById('modalTanaman'));
+              myModal.show();
+          @endif
         // Initialize DataTables
         if ($.fn.DataTable) {
             $('.datatable').DataTable({
@@ -144,7 +157,7 @@
             $('#t_satuan').val($(this).data('satuan'));
             $('#t_catatan').val($(this).data('catatan'));
             
-            $('#formTanaman').attr('action', `/konvensional/kebun/tanaman/${id}`);
+            $('#formTanaman').attr('action', `/konvensional/kebun/master-tanaman/${id}`);
             $('#methodSpoof').val('PUT');
             $('#modalTitle').html('<i class="ph ph-pencil-simple"></i> Edit Tanaman');
             
