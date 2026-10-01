@@ -4,17 +4,20 @@
 
 @php
     $kode   = $zona->kode;
-    $posisi = $kode->posisi;
-    $lahan  = $posisi->lahan;
+    $lahan  = $kode->lahan ?? $kode->posisi?->lahan;
 @endphp
 
 {{-- Breadcrumb --}}
 <nav style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1.25rem;">
     <a href="{{ route('konven.v2.lahan') }}" style="color:var(--asr-green); text-decoration:none;">Lahan</a>
     <i class="ph ph-caret-right"></i>
+    @if($kode->lahan)
+    <a href="{{ route('konven.v2.kode.bylahan', $lahan->id) }}" style="color:var(--asr-green); text-decoration:none;">{{ $lahan->nama }}</a>
+    @elseif($kode->posisi)
     <a href="{{ route('konven.v2.posisi', $lahan->id) }}" style="color:var(--asr-green); text-decoration:none;">{{ $lahan->nama }}</a>
     <i class="ph ph-caret-right"></i>
-    <a href="{{ route('konven.v2.kode', $posisi->id) }}" style="color:var(--asr-green); text-decoration:none;">{{ $posisi->nama }}</a>
+    <a href="{{ route('konven.v2.kode', $kode->posisi->id) }}" style="color:var(--asr-green); text-decoration:none;">{{ $kode->posisi->nama }}</a>
+    @endif
     <i class="ph ph-caret-right"></i>
     <a href="{{ route('konven.v2.zona', $kode->id) }}" style="color:var(--asr-green); text-decoration:none;">{{ $kode->kode }}</a>
     <i class="ph ph-caret-right"></i>
