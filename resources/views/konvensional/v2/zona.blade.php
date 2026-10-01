@@ -34,6 +34,21 @@
 </div>
 @endif
 
+@if(session('error'))
+<div style="background:#fee2e2; color:#b91c1c; padding:0.9rem 1rem; border-radius:8px; margin-bottom:1rem; font-weight:500;">
+    <i class="ph ph-warning-circle"></i> {{ session('error') }}
+</div>
+@endif
+
+@if($errors->any())
+<div style="background:#fff7ed; color:#c2410c; padding:0.9rem 1rem; border-radius:8px; margin-bottom:1rem; font-weight:500;">
+    <i class="ph ph-warning"></i>
+    <ul style="margin:0.5rem 0 0 1rem; padding:0;">
+        @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
+    </ul>
+</div>
+@endif
+
 <div style="background:white; border-radius:12px; border:1px solid var(--border-color); overflow-x:auto;">
     <table class="table datatable" style="width:100%; border-collapse:collapse; text-align:left; min-width:600px;">
         <thead style="background:#f8fafc; border-bottom:1px solid var(--border-color);">
