@@ -1,6 +1,6 @@
-@if($count > 0)
+@if($typeCount > 0)
     <div style="padding: 1rem; border-bottom: 1px solid var(--border-color); background: #fff7ed; border-top-left-radius: 8px; border-top-right-radius: 8px;">
-        <h3 style="margin:0; font-size: 1rem; font-weight: 700; color: #9a3412;">🎉 Siap Panen! ({{ $count }} lubang)</h3>
+        <h3 style="margin:0; font-size: 1rem; font-weight: 700; color: #9a3412;">🎉 Siap Panen! ({{ $typeCount }} jenis tanaman)</h3>
         <p style="margin: 0.25rem 0 0 0; font-size: 0.8rem; color: var(--text-muted);">Tanaman yang sudah melewati batas waktu tumbuh</p>
     </div>
     <div style="max-height: 300px; overflow-y: auto; padding: 1rem; background: #fff7ed;">
@@ -18,12 +18,10 @@
                         <strong style="color: #9a3412; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;">
                             <i class="ph ph-plant"></i> {{ $plantName }}
                         </strong>
-                        <span style="background: #ea580c; color: white; padding: 0.15rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">
-                            {{ $plantCount }} lubang
-                        </span>
+                        
                     </div>
                     <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.3rem;">
-                        <div><strong>{{ $sampleGh }}</strong> &middot; {{ $sampleRack }} ({{ $plantCount }})</div>
+                        <div><strong>{{ $sampleGh }}</strong> &middot; {{ $sampleRack }}</div>
                         <div style="color: #b45309; display: flex; align-items: center; gap: 0.3rem;">
                             <i class="ph ph-clock"></i> Tanam sejak {{ $timeAgo }}
                         </div>
