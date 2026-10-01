@@ -1595,7 +1595,7 @@ $harvestedTotals = [];
                 foreach ($locations as $loc => $data) {
                     $minAge = $data['minAge'];
                     $maxAge = $data['maxAge'];
-                    $ageStr = ($minAge == $maxAge) ? $minAge . ' Hari' : $minAge . ' - ' . $maxAge . ' Hari';
+                    $ageStr = $maxAge . ' Hari';
                     
                     $siapPanenHtml .= '<tr style="border-bottom:1px solid var(--border-color);">';
                     $siapPanenHtml .= '<td style="padding:0.75rem 1rem; color:var(--text-main);">'.htmlspecialchars($loc).'</td>';
