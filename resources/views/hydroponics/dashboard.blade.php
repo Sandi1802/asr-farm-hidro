@@ -52,6 +52,8 @@ $plantStageJson = json_encode($plantStageData ?? []);
 .cal-year-scroller { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; max-height: 200px; overflow-y: auto; padding-right: 0.25rem; }
 .cal-year-scroller::-webkit-scrollbar { width: 4px; }
 .cal-year-scroller::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+.cal-scroll-wrapper::-webkit-scrollbar { height: 6px; }
+.cal-scroll-wrapper::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 </style>
 
 <div style="display: flex; flex-direction: column; gap: 1.5rem;">
@@ -574,7 +576,9 @@ $plantStageJson = json_encode($plantStageData ?? []);
         .inv-item:last-child {
             border-bottom: none;
         }
-    </style>
+    .cal-scroll-wrapper::-webkit-scrollbar { height: 6px; }
+.cal-scroll-wrapper::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+</style>
     <div style="margin-top: 2rem;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
             <h2 style="font-size:1.2rem;font-weight:800;color:var(--text-main);display:flex;align-items:center;gap:0.6rem;margin:0;">
@@ -678,7 +682,9 @@ $plantStageJson = json_encode($plantStageData ?? []);
         <div id="viewEventModalContent"></div>
     </div>
 </div>
-<style> .modal-overlay.open { display:flex !important; } </style>
+<style> .modal-overlay.open { display:flex !important; } .cal-scroll-wrapper::-webkit-scrollbar { height: 6px; }
+.cal-scroll-wrapper::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+</style>
 
 <script>
 // ══════════════════════════════════════════════════════════════
