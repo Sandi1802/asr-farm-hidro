@@ -317,7 +317,8 @@ Route::middleware('auth')->group(function () {
         // ── Konven V2 – Manajemen Struktur Kebun ─────────────────────────────
         Route::prefix('v2')->group(function () {
             // Lahan
-            Route::get('/lahan', [\App\Http\Controllers\KonvenV2Controller::class, 'lahanIndex'])->name('konven.v2.lahan');
+            Route::get('/logs', [\App\Http\Controllers\KonvenLogController::class, 'index'])->name('konven.v2.logs');
+    Route::get('/lahan', [\App\Http\Controllers\KonvenV2Controller::class, 'lahanIndex'])->name('konven.v2.lahan');
             Route::post('/lahan', [\App\Http\Controllers\KonvenV2Controller::class, 'lahanStore'])->name('konven.v2.lahan.store');
             Route::put('/lahan/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'lahanUpdate'])->name('konven.v2.lahan.update');
             Route::delete('/lahan/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'lahanDestroy'])->name('konven.v2.lahan.destroy');
