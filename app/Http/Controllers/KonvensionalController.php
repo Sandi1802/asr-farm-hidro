@@ -91,6 +91,43 @@ class KonvensionalController extends Controller
             $chartPerawatan['penyemprotan'][] = \App\Models\Penyemprotan::whereBetween('tanggal', [$startDate, $endDate])->count();
         }
 
+        // Top Tanam & Top Panen (V2 Tumpang Sari Support)
+        $allTanam = \Illuminate\Support\Facades\DB::table('konven_lubang_tanams')
+            ->whereNotNull('plant_name')->where('plant_name', '!=', '')
+            ->get();
+        
+        $tanamCounts = [];
+        $panenCounts = [];
+        foreach ($allTanam as $row) {
+            $plants = explode(', ', $row->plant_name);
+            foreach ($plants as $p) {
+                $p = trim($p);
+                if (empty($p)) continue;
+
+                if (!isset($tanamCounts[$p])) $tanamCounts[$p] = 0;
+                $tanamCounts[$p]++;
+
+                if ($row->status === 'panen') {
+                    if (!isset($panenCounts[$p])) $panenCounts[$p] = 0;
+                    $panenCounts[$p]++;
+                }
+            }
+        }
+        
+        arsort($tanamCounts);
+        $topTanamList = array_slice($tanamCounts, 0, 8);
+        $chartTopTanam = [
+            'labels' => array_keys($topTanamList),
+            'data' => array_values($topTanamList)
+        ];
+
+        arsort($panenCounts);
+        $topPanenList = array_slice($panenCounts, 0, 8);
+        $chartTopPanen = [
+            'labels' => array_keys($topPanenList),
+            'data' => array_values($topPanenList)
+        ];
+
         // Kalender (V2)
         $calendarData = [];
 
@@ -160,7 +197,7 @@ class KonvensionalController extends Controller
             'totalLahan', 'totalBedengan', 'totalTitik', 'titikKosong', 'idleHolesCount',
             'titikTerisi', 'totalJenisBibit', 'rataPanenBibit', 'siapPanen', 'panenBulanIni',
             'gagalPanen', 'pemupukanBulanIni', 'penyemprotanBulanIni',
-            'chartKeterisian', 'chartPerawatan', 'calendarJson'
+            'chartKeterisian', 'chartPerawatan', 'calendarJson', 'chartTopTanam', 'chartTopPanen'
         ));
     }
 
