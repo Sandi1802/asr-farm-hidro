@@ -23,7 +23,13 @@ class HydroponicController extends Controller
         $totalRacks     = Rack::count();
         $totalHoles     = Hole::count();
         $plantedHoles   = Hole::where('status', 'ditanam')->count();
-        $plantedTypesCount = Hole::where('status', 'ditanam')->distinct('plant_name')->count('plant_name');
+        $plantedTypesCount = Hole::where('status', 'ditanam')
+            ->whereNotNull('plant_name')
+            ->distinct('plant_name')
+            ->pluck('plant_name')
+            ->map(function($name) { return $this->normalizePlantName($name); })
+            ->unique()
+            ->count();
         
 $harvestedTotals = [];
         $t_month = now()->month;
@@ -100,7 +106,7 @@ $harvestedTotals = [];
         $readyToHarvestItems = Hole::with(['row.rack.greenhouse'])
             ->whereIn('id', $readyIds)
             ->get()
-            ->groupBy('plant_name');
+            ->groupBy(function($item) { return $this->normalizePlantName($item->plant_name); });
             
         $readyTypesCount = $readyToHarvestItems->count();
 
@@ -194,14 +200,19 @@ $harvestedTotals = [];
         ];
 
         // ─── CHART: Tanaman Paling Sering Ditanam ───
-        $topPlantedQuery = \App\Models\Hole::whereNotNull('plant_name')
+        $rawPlanted = \App\Models\Hole::whereNotNull('plant_name')
             ->whereNotNull('planted_at')
             ->selectRaw('plant_name, count(*) as count')
             ->groupBy('plant_name')
-            ->orderByDesc('count')
-            ->take(8)
-            ->pluck('count', 'plant_name')
-            ->toArray();
+            ->get();
+            
+        $normalizedPlanted = [];
+        foreach ($rawPlanted as $row) {
+            $pName = $this->normalizePlantName($row->plant_name);
+            $normalizedPlanted[$pName] = ($normalizedPlanted[$pName] ?? 0) + $row->count;
+        }
+        arsort($normalizedPlanted);
+        $topPlantedQuery = array_slice($normalizedPlanted, 0, 8, true);
         $mostPlantedLabels = array_keys($topPlantedQuery);
         $mostPlantedValues = array_values($topPlantedQuery);
 
@@ -452,7 +463,13 @@ $harvestedTotals = [];
             $emptyHolesCount = \App\Models\Hole::where('status', 'kosong')->count();
             
             $plantedHoles = \App\Models\Hole::where('status', 'ditanam')->count();
-            $plantedTypesCount = \App\Models\Hole::where('status', 'ditanam')->whereNotNull('plant_name')->distinct('plant_name')->count('plant_name');
+            $plantedTypesCount = \App\Models\Hole::where('status', 'ditanam')
+                ->whereNotNull('plant_name')
+                ->distinct('plant_name')
+                ->pluck('plant_name')
+                ->map(function($name) { return $this->normalizePlantName($name); })
+                ->unique()
+                ->count();
 
             $logs = \App\Models\MaintenanceLog::whereMonth('created_at', now()->month)->get();
             
@@ -533,7 +550,7 @@ $harvestedTotals = [];
             $readyIds = $readyHoles->pluck('id');
             $readyToHarvestCount = $readyIds->count();
             
-            $groupedHoles = $readyHoles->groupBy('plant_name');
+            $groupedHoles = $readyHoles->groupBy(function($item) { return $this->normalizePlantName($item->plant_name); });
             $readyTypesCount = $groupedHoles->count();
             $siapPanenHtml = $this->buildSiapPanenHtml($readyHoles);
             
@@ -661,7 +678,7 @@ $harvestedTotals = [];
             
             $readyToHarvestCount = $readyIds->count();
             $readyHolesHist = \App\Models\Hole::with(['row.rack.greenhouse'])->whereIn('id', $readyIds)->get();
-            $readyTypesCount = $readyHolesHist->whereNotNull('plant_name')->groupBy('plant_name')->count();
+            $readyTypesCount = $readyHolesHist->whereNotNull('plant_name')->groupBy(function($item) { return $this->normalizePlantName($item->plant_name); })->count();
             $siapPanenHtml = $this->buildSiapPanenHtml($readyHolesHist);
 
             $panenBulanIniHist = $allPanenLogsHist->sum(function($log) { return json_decode($log->details)->jumlah ?? 0; });
@@ -1517,7 +1534,7 @@ $harvestedTotals = [];
             ->groupBy('holes.plant_name', 'greenhouses.name', 'racks.name', 'racks.catatan_lapangan')
             ->get();
 
-        $groupedHoles = $readyData->groupBy('plant_name');
+        $groupedHoles = $readyData->groupBy(function($item) { return $this->normalizePlantName($item->plant_name); });
         $siapPanenHtml = '';
         
         if ($groupedHoles->isEmpty()) {
