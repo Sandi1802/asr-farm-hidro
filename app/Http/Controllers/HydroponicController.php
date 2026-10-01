@@ -1197,6 +1197,16 @@ $harvestedTotals = [];
     public function showRack($id)
     {
         $rack = Rack::with(['rows.holes', 'greenhouse'])->findOrFail($id);
+        
+        // Normalize plant names dynamically so the UI doesn't break if migration hasn't run
+        foreach ($rack->rows as $row) {
+            foreach ($row->holes as $hole) {
+                if ($hole->plant_name) {
+                    $hole->plant_name = $this->normalizePlantName($hole->plant_name);
+                }
+            }
+        }
+
         // Plant types from master data (for dynamic dropdowns and growth duration)
         $plantTypes = PlantType::orderBy('name')->get();
         // Fallback: names from inventory bibit if no plant types yet
