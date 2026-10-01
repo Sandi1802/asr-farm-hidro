@@ -76,7 +76,7 @@
                 <td style="padding:1rem;">
                     <div style="display:flex; gap:0.5rem;">
                         <a href="{{ route('konven.v2.bedengan.detail', $bedengan->id) }}" style="padding:0.4rem 0.75rem; background:var(--asr-green); color:white; border-radius:6px; text-decoration:none; font-size:0.75rem; font-weight:600;">Detail Tanam</a>
-                        <button onclick="openEditBedengan({{ $bedengan->id }}, {{ $bedengan->nomor }}, '{{ addslashes($bedengan->nama_display ?? '') }}')" style="padding:0.4rem 0.6rem; background:#f1f5f9; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;"><i class="ph ph-pencil"></i></button>
+                        <button onclick="openEditBedengan({{ $bedengan->id }}, {{ $bedengan->nomor }}, '{{ addslashes($bedengan->nama_display ?? '') }}', {{ $bedengan->lubangTanams->count() }})" style="padding:0.4rem 0.6rem; background:#f1f5f9; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;"><i class="ph ph-pencil"></i></button>
                         <form method="POST" action="{{ route('konven.v2.bedengan.destroy', $bedengan->id) }}" onsubmit="return confirm('Hapus bedengan ini?')" style="margin:0;">
                             @csrf @method('DELETE')
                             <button type="submit" style="padding:0.4rem 0.6rem; background:#fee2e2; border:1px solid #fca5a5; border-radius:6px; color:#dc2626; cursor:pointer;"><i class="ph ph-trash"></i></button>
@@ -138,10 +138,16 @@
                 <input type="number" id="editBedenganNomor" name="nomor" required min="1"
                        style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
             </div>
-            <div style="margin-bottom:1.25rem;">
+            <div style="margin-bottom:1rem;">
                 <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Nama Display</label>
                 <input type="text" id="editBedenganNama" name="nama_display"
                        style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:1.25rem;">
+                <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Jumlah Lubang Tanam</label>
+                <input type="number" id="editBedenganJumlah" name="jumlah_lubang" min="1"
+                       style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
+                <small style="color:var(--text-muted); display:block; margin-top:4px;">Ubah angka ini untuk menambah/mengurangi lubang pada bedengan ini.</small>
             </div>
             <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
                 <button type="button" onclick="document.getElementById('modalEditBedengan').style.display='none'"
@@ -153,7 +159,8 @@
 </div>
 
 <script>
-function openEditBedengan(id, nomor, nama) {
+function openEditBedengan(id, nomor, nama, jumlah) {
+    document.getElementById('editBedenganJumlah').value = jumlah;
     document.getElementById('editBedenganNomor').value = nomor;
     document.getElementById('editBedenganNama').value  = nama;
     document.getElementById('formEditBedengan').action = '/konvensional/v2/bedengan/' + id;
