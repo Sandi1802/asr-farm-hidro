@@ -106,7 +106,7 @@
                 <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Prefix Nama Zona *</label>
                 <input type="text" name="prefix_nama" required value="Zona" placeholder="Contoh: Zona"
                        style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
-                <small style="color:var(--text-muted); font-size:0.75rem;">Sistem akan menambahkan angka di belakangnya (Misal: Zona 1, Zona 2).</small>
+                <small style="color:var(--text-muted); font-size:0.75rem;">Sistem akan menambahkan abjad di belakangnya (Misal: Zona A, Zona B).</small>
             </div>
             <div style="margin-bottom:1rem; padding-top:1rem; border-top:1px dashed var(--border-color);">
                 <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Jumlah Bedengan per Zona</label>

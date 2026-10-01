@@ -232,18 +232,22 @@ class KonvenV2Controller extends Controller
             $jl = (int) $r->jumlah_lubang;
             $prefix = trim($r->prefix_nama);
 
+            $suffix = 'A';
+            for ($i = 0; $i < $currentZonesCount; $i++) {
+                $suffix++;
+            }
+
             for ($z = 1; $z <= $jz; $z++) {
-                $nomorZona = $currentZonesCount + $z;
-                // If only 1 zone and prefix is something like "Utara", we might just name it "Utara". 
-                // But appending the number is safer to avoid duplicates.
-                $namaZona = $jz == 1 && $prefix != 'Zona' && !preg_match('/[0-9]$/', $prefix) 
+                $namaZona = $jz == 1 && $prefix != 'Zona' && !preg_match('/[a-zA-Z]$/', $prefix) 
                             ? $prefix 
-                            : $prefix . ' ' . $nomorZona;
+                            : $prefix . ' ' . $suffix;
 
                 $zona = \App\Models\KonvenZonaV2::create([
                     'kode_id' => $kode_id,
                     'nama'    => $namaZona,
                 ]);
+                
+                $suffix++; // Increment for next zone
 
                 if ($jb > 0) {
                     for ($b = 1; $b <= $jb; $b++) {
