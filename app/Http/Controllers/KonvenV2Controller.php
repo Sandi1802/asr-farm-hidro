@@ -260,37 +260,42 @@ class KonvenV2Controller extends Controller
     {
         $zona = KonvenZonaV2::findOrFail($zona_id);
         $r->validate([
-            'nomor'                => 'required|integer|min:1',
-            'nama_display'         => 'nullable|string|max:100',
+            'jumlah_bedengan'      => 'required|integer|min:1|max:100',
             'jumlah_lubang_rencana'=> 'required|integer|min:0|max:500',
         ]);
 
         DB::transaction(function () use ($r, $zona_id) {
-            $bedengan = KonvenBedenganV2::create([
-                'zona_id'               => $zona_id,
-                'nomor'                 => $r->nomor,
-                'nama_display'          => $r->nama_display,
-                'jumlah_lubang_rencana' => $r->jumlah_lubang_rencana,
-            ]);
+            $currentMax = KonvenBedenganV2::where('zona_id', $zona_id)->max('nomor') ?? 0;
+            $jumlahBedengan = (int) $r->jumlah_bedengan;
+            $jumlahLubang = (int) $r->jumlah_lubang_rencana;
 
-            // Auto-generate lubang
-            $jumlah = (int) $r->jumlah_lubang_rencana;
-            if ($jumlah > 0) {
-                $rows = [];
-                for ($i = 1; $i <= $jumlah; $i++) {
-                    $rows[] = [
-                        'bedengan_id'  => $bedengan->id,
-                        'nomor_lubang' => $i,
-                        'status'       => 'kosong',
-                        'created_at'   => now(),
-                        'updated_at'   => now(),
-                    ];
+            for ($b = 1; $b <= $jumlahBedengan; $b++) {
+                $newNomor = $currentMax + $b;
+                
+                $bedengan = KonvenBedenganV2::create([
+                    'zona_id'               => $zona_id,
+                    'nomor'                 => $newNomor,
+                    'nama_display'          => null,
+                    'jumlah_lubang_rencana' => $jumlahLubang,
+                ]);
+
+                if ($jumlahLubang > 0) {
+                    $rows = [];
+                    for ($i = 1; $i <= $jumlahLubang; $i++) {
+                        $rows[] = [
+                            'bedengan_id'  => $bedengan->id,
+                            'nomor_lubang' => $i,
+                            'status'       => 'kosong',
+                            'created_at'   => now(),
+                            'updated_at'   => now(),
+                        ];
+                    }
+                    KonvenLubangTanamV2::insert($rows);
                 }
-                KonvenLubangTanamV2::insert($rows);
             }
         });
 
-        return back()->with('success', 'Bedengan berhasil ditambahkan beserta lubang tanam.');
+        return back()->with('success', $r->jumlah_bedengan . ' Bedengan berhasil ditambahkan beserta lubang tanam.');
     }
 
     public function bedenganUpdate(Request $r, $id)
