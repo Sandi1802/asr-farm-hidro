@@ -609,12 +609,15 @@ $harvestedTotals = [];
                 $det = json_decode($log->details);
                 $pName = $det->plant_name ?? 'Tidak Diketahui';
                 if ($pName !== 'Tidak Diketahui') {
-                    $qty = $det->jumlah ?? 0;
-                    $harvestedTotalsHist[$pName] = ($harvestedTotalsHist[$pName] ?? 0) + $qty;
+                    $qty = (int)($det->jumlah ?? 0);
+                    if (!isset($harvestedTotalsHist[$pName])) {
+                        $harvestedTotalsHist[$pName] = ['today' => '-', 'yesterday' => '-', 'month' => 0];
+                    }
+                    $harvestedTotalsHist[$pName]['month'] += $qty;
                 }
             }
             $harvestedByPlantHist = $harvestedTotalsHist;
-            $harvestedHoles = array_sum($harvestedTotalsHist);
+            $harvestedHoles = array_sum(array_column($harvestedTotalsHist, 'month'));
 
             // Historical damaged details
             $allRusakLogsHist = \App\Models\MaintenanceLog::where('action_type', 'rusak')->whereMonth('created_at', $month)->whereYear('created_at', $year)->get();
