@@ -206,7 +206,9 @@ class KonvenV2Controller extends Controller
     {
         $kode  = KonvenKodeV2::with('posisi.lahan', 'lahan')->findOrFail($kode_id);
         $zonas = KonvenZonaV2::where('kode_id', $kode_id)
-                              ->withCount('bedengans')
+                              ->withCount(['bedengans', 'lubangTanams as total_lubang', 'lubangTanams as terisi' => function ($q) {
+                                  $q->where('status', 'ditanam');
+                              }])
                               ->orderBy('nama')
                               ->get();
 

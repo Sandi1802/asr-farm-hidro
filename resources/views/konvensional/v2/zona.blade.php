@@ -40,6 +40,8 @@
             <tr>
                 <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Nama Zona</th>
                 <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Jumlah Bedengan</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Kapasitas / Ditanam</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Progress</th>
                 <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem; width:200px;">Aksi</th>
             </tr>
         </thead>
@@ -52,6 +54,20 @@
                     </div>
                 </td>
                 <td style="padding:1rem; color:var(--text-muted); font-size:0.85rem;">{{ $zona->bedengans_count }} bedengan</td>
+                <td style="padding:1rem; color:var(--text-muted); font-size:0.85rem;">
+                    <span style="color:var(--asr-green); font-weight:600;">{{ $zona->terisi }}</span> dari {{ $zona->total_lubang }} lubang
+                </td>
+                <td style="padding:1rem;">
+                    @php 
+                        $pct = $zona->total_lubang > 0 ? round(($zona->terisi / $zona->total_lubang)*100) : 0; 
+                    @endphp
+                    <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.75rem; color:var(--text-muted);">
+                        <div style="flex:1; height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden;">
+                            <div style="height:100%; width:{{ $pct }}%; background:var(--asr-green);"></div>
+                        </div>
+                        <span>{{ $pct }}%</span>
+                    </div>
+                </td>
                 <td style="padding:1rem;">
                     <div style="display:flex; gap:0.5rem;">
                         <a href="{{ route('konven.v2.bedengan', $zona->id) }}" style="padding:0.4rem 0.75rem; background:var(--asr-green); color:white; border-radius:6px; text-decoration:none; font-size:0.75rem; font-weight:600;"><i class="ph ph-rows"></i> Kelola Bedengan</a>
