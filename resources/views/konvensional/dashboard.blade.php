@@ -191,6 +191,8 @@
 
 
 
+        @endif
+
         {{-- GRAFIK TOP TANAMAN --}}
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem; margin-bottom:1rem;">
         
