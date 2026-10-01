@@ -226,7 +226,10 @@
                 <a href="/hydroponics/master-data/employees" class="submenu-item {{ request()->is('hydroponics/master-data/employees') ? 'active' : '' }}">
                     <i class="ph ph-identification-card" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Karyawan
                 </a>
-                  @endif
+                                  <a href="{{ route('settings.index') }}" class="submenu-item {{ request()->is('master-data/settings') ? 'active' : '' }}">
+                    <i class="ph ph-gear" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Pengaturan Umum
+                </a>
+                @endif
             </div>
 
             {{-- Diari IT (Hanya IT Admin) --}}
