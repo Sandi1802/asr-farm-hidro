@@ -185,8 +185,13 @@
         <form action="{{ route('konven.v2.tanam.massal', $bedengan->id) }}" method="POST">
             @csrf
             <div style="margin-bottom:1rem;">
-                <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Nama Tanaman *</label>
-                <input type="text" name="plant_name" required placeholder="Contoh: Pakcoy"
+                <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Tanaman Utama *</label>
+                <input type="text" name="plant_name_1" required placeholder="Contoh: Selada"
+                       style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:1rem;">
+                <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Tanaman Tumpang Sari (Opsional)</label>
+                <input type="text" name="plant_name_2" placeholder="Contoh: Daun Bawang"
                        style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1.25rem;">

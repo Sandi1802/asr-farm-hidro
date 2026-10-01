@@ -497,10 +497,16 @@ class KonvenV2Controller extends Controller
     public function tanamMassal(Request $r, $bedengan_id)
     {
         $r->validate([
-            'plant_name'           => 'required|string|max:100',
+            'plant_name_1'         => 'required|string|max:100',
+            'plant_name_2'         => 'nullable|string|max:100',
             'planted_at'           => 'required|date',
             'estimated_harvest_at' => 'nullable|date',
         ]);
+
+        $combinedPlantName = $r->plant_name_1;
+        if ($r->filled('plant_name_2')) {
+            $combinedPlantName .= ', ' . $r->plant_name_2;
+        }
 
         $bedengan = KonvenBedenganV2::findOrFail($bedengan_id);
         $lubangKosong = KonvenLubangTanamV2::where('bedengan_id', $bedengan_id)
@@ -508,11 +514,11 @@ class KonvenV2Controller extends Controller
             ->get();
 
         $updated = 0;
-        DB::transaction(function () use ($lubangKosong, $r, &$updated) {
+        DB::transaction(function () use ($lubangKosong, $r, $combinedPlantName, &$updated) {
             foreach ($lubangKosong as $lubang) {
                 $lubang->update([
                     'status'               => 'ditanam',
-                    'plant_name'           => $r->plant_name,
+                    'plant_name'           => $combinedPlantName,
                     'planted_at'           => $r->planted_at,
                     'estimated_harvest_at' => $r->estimated_harvest_at,
                 ]);
