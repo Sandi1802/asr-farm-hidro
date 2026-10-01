@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Kerusakan Tanaman')
+@section('title', 'Kerusakan Aset')
 @section('content')
 
 <style>
@@ -93,9 +93,9 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem;">
     <div>
         <h1 style="font-size:1.5rem;font-weight:700;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:0.5rem;">
-            <i class="ph ph-warning-octagon" style="color:#dc2626;"></i> Kerusakan Tanaman
+            <i class="ph ph-warning-octagon" style="color:#dc2626;"></i> Kerusakan Aset
         </h1>
-        <p style="color:#6b7280;font-size:0.85rem;margin:0.25rem 0 0;">Laporan dan pencatatan kerusakan tanaman di seluruh greenhouse</p>
+        <p style="color:#6b7280;font-size:0.85rem;margin:0.25rem 0 0;">Laporan dan pencatatan kerusakan aset (pompa, pipa, dll) di seluruh area</p>
     </div>
     <button onclick="document.getElementById('addModal').classList.add('open')"
         style="padding:0.6rem 1.25rem;background:linear-gradient(135deg,#dc2626,#b91c1c);color:white;border:none;border-radius:9px;font-weight:600;font-size:0.875rem;cursor:pointer;display:flex;align-items:center;gap:0.4rem;">
@@ -131,9 +131,9 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 </div>
 
 {{-- Filter bar --}}
-<form method="GET" action="{{ route('hydroponics.damage-notes') }}">
+<form method="GET" action="{{ route('hydroponics.asset-damage-notes') }}">
     <div class="filter-bar">
-        <input type="text" name="search" value="{{ request('search') }}" placeholder="🔍 Cari tanaman / lokasi..." style="flex:1;min-width:160px;">
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="🔍 Cari aset / lokasi..." style="flex:1;min-width:160px;">
         <select name="status">
             <option value="">Semua Status</option>
             <option value="open"     {{ request('status')=='open'?'selected':'' }}>❌ Belum Ditangani</option>
@@ -155,7 +155,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         <input type="date" name="date_from" value="{{ request('date_from') }}" title="Dari tanggal">
         <input type="date" name="date_to"   value="{{ request('date_to') }}"   title="Sampai tanggal">
         <button type="submit"><i class="ph ph-funnel"></i> Filter</button>
-        <a href="{{ route('hydroponics.damage-notes') }}" class="btn-sm" style="padding:0.45rem 0.85rem;background:#f3f4f6;color:#374151;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.82rem;">Reset</a>
+        <a href="{{ route('hydroponics.asset-damage-notes') }}" class="btn-sm" style="padding:0.45rem 0.85rem;background:#f3f4f6;color:#374151;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.82rem;">Reset</a>
     </div>
 </form>
 
@@ -163,7 +163,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 <div class="card">
     <div class="card-header">
         <i class="ph ph-table" style="color:#dc2626;font-size:1.1rem;"></i>
-        <h2>Daftar Kerusakan Tanaman</h2>
+        <h2>Daftar Kerusakan Aset</h2>
         <span style="margin-left:auto;background:#fee2e2;color:#dc2626;padding:0.2rem 0.65rem;border-radius:20px;font-size:0.75rem;font-weight:700;">
             {{ $notes->count() }} catatan
         </span>
@@ -174,7 +174,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
                 <tr>
                     <th class="dt-no">NO</th>
                     <th>Waktu</th>
-                    <th>Tanaman</th>
+                    <th>Aset</th>
                     <th>Lokasi</th>
                     <th>Jenis Kerusakan</th>
                     <th>Deskripsi</th>
@@ -259,7 +259,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
                                 <i class="ph ph-pencil-simple"></i>
                             </button>
                             <button class="dt-action-btn dt-btn-delete" title="Hapus"
-                                onclick="confirmAction('Hapus Catatan?', 'Yakin ingin menghapus catatan kerusakan ini?', '{{ route('hydroponics.damage-notes.destroy', $note->id) }}', 'DELETE')">
+                                onclick="confirmAction('Hapus Catatan?', 'Yakin ingin menghapus catatan kerusakan ini?', '{{ route('hydroponics.asset-damage-notes.destroy', $note->id) }}', 'DELETE')">
                                 <i class="ph ph-trash"></i>
                             </button>
                         </div>
@@ -275,11 +275,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 <div class="modal-overlay" id="addModal">
     <div class="modal-box" style="max-width:500px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
-            <h3 style="color:#dc2626;"><i class="ph ph-warning-octagon"></i> Tambah Kerusakan Tanaman</h3>
+            <h3 style="color:#dc2626;"><i class="ph ph-warning-octagon"></i> Tambah Kerusakan Aset</h3>
             <button onclick="document.getElementById('addModal').classList.remove('open')"
                 style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#6b7280;">×</button>
         </div>
-        <form method="POST" action="{{ route('hydroponics.damage-notes.store') }}">
+        <form method="POST" action="{{ route('hydroponics.asset-damage-notes.store') }}">
             @csrf
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 0.75rem;">
                 <div class="form-group">
@@ -315,7 +315,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
             </div>
             <div class="form-group">
                 <label>Lokasi (manual, opsional)</label>
-                <input type="text" name="location_manual" class="form-control" placeholder="cth: GH A › Rak 1 › L5">
+                <input type="text" name="location" class="form-control" placeholder="cth: GH A › Rak 1 › L5">
             </div>
             <div class="form-group">
                 <label>Deskripsi Kerusakan <span>*</span></label>
@@ -326,7 +326,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
                 <textarea name="action_taken" class="form-control" placeholder="Pestisida, pemisahan, penggantian nutrisi..."></textarea>
             </div>
             <button type="submit" class="btn-primary">
-                <i class="ph ph-plus"></i> Simpan Kerusakan Tanaman
+                <i class="ph ph-plus"></i> Simpan Kerusakan Aset
             </button>
         </form>
     </div>
@@ -370,7 +370,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 function openUpdateModal(id, status, action) {
     document.getElementById('updateStatus').value = status;
     document.getElementById('updateAction').value = action;
-    document.getElementById('updateForm').action = '/hydroponics/damage-notes/' + id;
+    document.getElementById('updateForm').action = '/hydroponics/asset-damages/' + id;
     document.getElementById('updateModal').classList.add('open');
 }
 // Close modals on overlay click

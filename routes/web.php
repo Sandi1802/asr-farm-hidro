@@ -186,11 +186,17 @@ Route::middleware('auth')->group(function () {
             Route::delete('/maintenance-logs/{id}', [\App\Http\Controllers\MaintenanceLogController::class, 'destroy'])->name('hydroponics.maintenance-logs.destroy');
             Route::put('/maintenance-logs/{id}', [\App\Http\Controllers\MaintenanceLogController::class, 'update'])->name('hydroponics.maintenance-logs.update');
 
-            // Damage Notes
+            // Damage Notes (Plants)
             Route::get('/damage-notes', [\App\Http\Controllers\DamageNoteController::class, 'index'])->name('hydroponics.damage-notes');
             Route::post('/damage-notes', [\App\Http\Controllers\DamageNoteController::class, 'store'])->name('hydroponics.damage-notes.store');
             Route::post('/damage-notes/{id}', [\App\Http\Controllers\DamageNoteController::class, 'update'])->name('hydroponics.damage-notes.update');
             Route::delete('/damage-notes/{id}', [\App\Http\Controllers\DamageNoteController::class, 'destroy'])->name('hydroponics.damage-notes.destroy');
+
+            // Asset Damage Notes
+            Route::get('/asset-damage-notes', [\App\Http\Controllers\AssetDamageNoteController::class, 'index'])->name('hydroponics.asset-damage-notes');
+            Route::post('/asset-damage-notes', [\App\Http\Controllers\AssetDamageNoteController::class, 'store'])->name('hydroponics.asset-damage-notes.store');
+            Route::post('/asset-damage-notes/{id}', [\App\Http\Controllers\AssetDamageNoteController::class, 'update'])->name('hydroponics.asset-damage-notes.update');
+            Route::delete('/asset-damage-notes/{id}', [\App\Http\Controllers\AssetDamageNoteController::class, 'destroy'])->name('hydroponics.asset-damage-notes.destroy');
 
             // Semai (Pembibitan)
             Route::get('/semai', [\App\Http\Controllers\SemaiController::class, 'index'])->name('hydroponics.semai');

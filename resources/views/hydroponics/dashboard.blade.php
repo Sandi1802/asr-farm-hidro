@@ -69,7 +69,7 @@ $plantStageJson = json_encode($plantStageData ?? []);
     </div>
     <div class="dashboard-stats">
         @php
-        $totalDamage = \App\Models\DamageNote::where('status','!=','resolved')->count();
+        $totalDamage = \App\Models\AssetDamageNote::where('status','!=','resolved')->count();
         $todayStr = \Carbon\Carbon::now()->format('Y-m-d');
         $todayActivities = isset($calendarEvents[$todayStr]) ? count($calendarEvents[$todayStr]) : 0;
         
@@ -87,7 +87,7 @@ $plantStageJson = json_encode($plantStageData ?? []);
             // Baris 3: Laporan & Isu
             ['id' => 'card-sudah-panen', 'label' => 'Sudah Panen',   'value' => number_format($harvestedHoles,0,',','.') . ' LT', 'icon' => 'ph-basket',        'class' => 'sbc-teal-farm', 'sub' => $harvestedTypesCount.' Jenis Tanaman', 'onClick' => 'showSudahPanenModal()'],
             ['id' => 'card-gagal-panen', 'label' => 'Gagal Panen',   'value' => number_format($damagedHoles,0,',','.') . ' LT',  'icon' => 'ph-warning',       'class' => 'sbc-earth',       'sub' => $damagedTypesCount.' Jenis Rusak', 'onClick' => 'showGagalPanenModal()'],
-            ['label' => 'Perbaikan Aset',   'value' => $totalDamage, 'icon' => 'ph-warning-octagon','class' => 'sbc-rust', 'link' => '/hydroponics/damage-notes', 'sub' => 'Kasus Menunggu'],
+            ['label' => 'Perbaikan Aset',   'value' => $totalDamage, 'icon' => 'ph-warning-octagon','class' => 'sbc-rust', 'link' => '/hydroponics/asset-damage-notes', 'sub' => 'Kasus Menunggu'],
             ['label' => 'Pengajuan Kebutuhan', 'value' => $pendingProcurements, 'icon' => 'ph-clipboard-text', 'class' => 'sbc-olive', 'sub' => 'Kasus Pembelian Aktif', 'link' => '/hydroponics/inventory'],
         ];
         @endphp

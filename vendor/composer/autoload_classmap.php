@@ -56,6 +56,7 @@ return array(
     'App\\Http\\Middleware\\VerifyCsrfToken' => $baseDir . '/app/Http/Middleware/VerifyCsrfToken.php',
     'App\\Listeners\\LogSuccessfulLogin' => $baseDir . '/app/Listeners/LogSuccessfulLogin.php',
     'App\\Models\\Activity' => $baseDir . '/app/Models/Activity.php',
+    'App\\Models\\AssetDamageNote' => $baseDir . '/app/Models/AssetDamageNote.php',
     'App\\Models\\BandarPartner' => $baseDir . '/app/Models/BandarPartner.php',
     'App\\Models\\BandarProduct' => $baseDir . '/app/Models/BandarProduct.php',
     'App\\Models\\BandarTransaction' => $baseDir . '/app/Models/BandarTransaction.php',

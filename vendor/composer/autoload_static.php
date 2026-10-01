@@ -575,6 +575,7 @@ class ComposerStaticInitfe33f98a750b8c5a51b30c78bd3fab21
         'App\\Http\\Middleware\\VerifyCsrfToken' => __DIR__ . '/../..' . '/app/Http/Middleware/VerifyCsrfToken.php',
         'App\\Listeners\\LogSuccessfulLogin' => __DIR__ . '/../..' . '/app/Listeners/LogSuccessfulLogin.php',
         'App\\Models\\Activity' => __DIR__ . '/../..' . '/app/Models/Activity.php',
+        'App\\Models\\AssetDamageNote' => __DIR__ . '/../..' . '/app/Models/AssetDamageNote.php',
         'App\\Models\\BandarPartner' => __DIR__ . '/../..' . '/app/Models/BandarPartner.php',
         'App\\Models\\BandarProduct' => __DIR__ . '/../..' . '/app/Models/BandarProduct.php',
         'App\\Models\\BandarTransaction' => __DIR__ . '/../..' . '/app/Models/BandarTransaction.php',
