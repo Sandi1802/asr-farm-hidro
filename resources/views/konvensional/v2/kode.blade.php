@@ -31,7 +31,7 @@
 @endif
 
 <div style="background:white; border-radius:12px; border:1px solid var(--border-color); overflow-x:auto;">
-    <table style="width:100%; border-collapse:collapse; text-align:left; min-width:600px;">
+    <table class="table datatable" style="width:100%; border-collapse:collapse; text-align:left; min-width:600px;">
         <thead style="background:#f8fafc; border-bottom:1px solid var(--border-color);">
             <tr>
                 <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Kode</th>
