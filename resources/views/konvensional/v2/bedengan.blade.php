@@ -106,14 +106,10 @@
         <form action="{{ route('konven.v2.bedengan.store', $zona->id) }}" method="POST">
             @csrf
             <div style="margin-bottom:1rem;">
-                <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Nomor Bedengan *</label>
-                <input type="number" name="nomor" required min="1" placeholder="1"
+                <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Jumlah Bedengan (Dibuat Sekaligus) *</label>
+                <input type="number" name="jumlah_bedengan" required min="1" max="500" value="1"
                        style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
-            </div>
-            <div style="margin-bottom:1rem;">
-                <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Nama Display <small style="color:var(--text-muted);">(opsional)</small></label>
-                <input type="text" name="nama_display" placeholder="Contoh: Bedengan Utara"
-                       style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
+                <small style="color:var(--text-muted); font-size:0.75rem;">Nomor bedengan akan otomatis meneruskan nomor terakhir.</small>
             </div>
             <div style="margin-bottom:1.25rem;">
                 <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">
