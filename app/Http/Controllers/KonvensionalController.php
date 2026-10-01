@@ -14,61 +14,54 @@ class KonvensionalController extends Controller
 {
     public function dashboard()
     {
-        // 1. Kapasitas & Aset
-        $totalLahan = Lahan::count();
-        $totalBedengan = Bedengan::count();
-        $totalTitik = TitikTanam::count();
-        $idleHolesCount = TitikTanam::where('status', 'kosong')
-            ->whereNotNull('kosong_sejak')
-            ->where('kosong_sejak', '<=', now()->subDays(5))
+        // 1. Kapasitas & Aset (V2)
+        $totalLahan = \App\Models\KonvenLahanV2::count();
+        $totalBedengan = \App\Models\KonvenBedenganV2::count();
+        $totalTitik = \App\Models\KonvenLubangTanamV2::count();
+        $idleHolesCount = \App\Models\KonvenLubangTanamV2::where('status', 'kosong')
+            ->where('updated_at', '<=', now()->subDays(5))
             ->count();
 
-        $titikKosong = TitikTanam::where('status', 'kosong')->count();
+        $titikKosong = \App\Models\KonvenLubangTanamV2::where('status', 'kosong')->count();
 
-        // 2. Status Produksi
-        $titikTerisi = TitikTanam::where('status', 'ditanam')->count();
+        // 2. Status Produksi (V2)
+        $titikTerisi = \App\Models\KonvenLubangTanamV2::where('status', 'ditanam')->count();
         
-        $totalJenisBibit = BibitKonvensional::count();
-        $rataPanenBibit = BibitKonvensional::avg('estimasi_panen_hari') ?? 0;
+        $totalJenisBibit = \App\Models\BibitKonvensional::count(); // Master lama
+        $rataPanenBibit = \App\Models\BibitKonvensional::avg('estimasi_panen_hari') ?? 0;
 
-        $siapPanen = TitikTanam::where('status', 'ditanam')
-            ->whereNotNull('tanggal_panen')
-            ->whereDate('tanggal_panen', '<=', now())
+        $siapPanen = \App\Models\KonvenLubangTanamV2::where('status', 'ditanam')
+            ->whereNotNull('estimated_harvest_at')
+            ->whereDate('estimated_harvest_at', '<=', now())
             ->count();
 
-        $panenBulanIni = \App\Models\KonvenLubangTanamV2::where('status', 'panen')->whereBetween('harvested_at', [$start, $end])->count();
-        $gagalPanen = \App\Models\KonvenLubangTanamV2::where('status', 'rusak')->whereBetween('updated_at', [$start, $end])->count();
-        $pemupukanCount = \App\Models\Pemupukan::whereBetween('tanggal', [$start, $end])->count();
-        $penyemprotanCount = \App\Models\Penyemprotan::whereBetween('tanggal', [$start, $end])->count();
-        $titikDitanam = \App\Models\KonvenLubangTanamV2::where('status', 'ditanam')->whereBetween('planted_at', [$start, $end])->count();
+        $panenBulanIni = \App\Models\KonvenLubangTanamV2::where('status', 'panen')
+            ->whereMonth('harvested_at', now()->month)
+            ->whereYear('harvested_at', now()->year)
+            ->count();
 
-        return response()->json([
-            'period_label' => $periodLabel,
-            'panen' => $panenBulanIni,
-            'gagal' => $gagalPanen,
-            'pemupukan' => $pemupukanCount,
-            'penyemprotan' => $penyemprotanCount,
-            'ditanam' => $titikDitanam,
-        ]);
-            
-            // Fase Panen (Hari ke-estimasiPanen)
-            $events->push([
-                'date' => $base->copy()->addDays($estimasiPanen)->format('Y-m-d'),
-                'type' => 'panen',
-                'plant_name' => $titik->nama_tanaman ?? 'Tanaman',
-                'location' => $location,
-                'location_base' => $locationBase,
-                'time' => '07:00', // Default morning harvest
-                'stage_day' => $estimasiPanen
-            ]);
-        }
-        
-        // Group by date
-        $grouped = $events->groupBy('date')->map(function ($items) {
-            return $items->toArray();
-        });
+        // 3. Perawatan & Kendala (V2)
+        $gagalPanen = \App\Models\KonvenLubangTanamV2::where('status', 'rusak')->count();
 
-        return $grouped->toArray();
+        $pemupukanBulanIni = \App\Models\Pemupukan::whereMonth('tanggal', now()->month)
+            ->whereYear('tanggal', now()->year)
+            ->count();
+
+        $penyemprotanBulanIni = \App\Models\Penyemprotan::whereMonth('tanggal', now()->month)
+            ->whereYear('tanggal', now()->year)
+            ->count();
+
+        // 4. Kalender (Mock for V2 since calendar logic might need full rewrite later, return empty for now)
+        $calendarJson = json_encode([]);
+        $chartKeterisian = ['labels' => [], 'terisi' => [], 'kosong' => []]; // Empty charts for now
+        $chartPerawatan = ['labels' => [], 'pemupukan' => [], 'penyemprotan' => []];
+
+        return view('konvensional.dashboard', compact(
+            'totalLahan', 'totalBedengan', 'totalTitik', 'titikKosong', 'idleHolesCount',
+            'titikTerisi', 'totalJenisBibit', 'rataPanenBibit', 'siapPanen', 'panenBulanIni',
+            'gagalPanen', 'pemupukanBulanIni', 'penyemprotanBulanIni',
+            'chartKeterisian', 'chartPerawatan', 'calendarJson'
+        ));
     }
 
     public function getDashboardPeriodStats(Request $request)
@@ -99,11 +92,11 @@ class KonvensionalController extends Controller
                 break;
         }
 
-        $panenBulanIni = \App\Models\TitikTanam::where('status', 'panen')->whereBetween('updated_at', [$start, $end])->count();
-        $gagalPanen = \App\Models\TitikTanam::where('status', 'gagal')->whereBetween('updated_at', [$start, $end])->count();
+        $panenBulanIni = \App\Models\KonvenLubangTanamV2::where('status', 'panen')->whereBetween('harvested_at', [$start, $end])->count();
+        $gagalPanen = \App\Models\KonvenLubangTanamV2::where('status', 'rusak')->whereBetween('updated_at', [$start, $end])->count();
         $pemupukanCount = \App\Models\Pemupukan::whereBetween('tanggal', [$start, $end])->count();
         $penyemprotanCount = \App\Models\Penyemprotan::whereBetween('tanggal', [$start, $end])->count();
-        $titikDitanam = \App\Models\TitikTanam::where('status', 'ditanam')->whereBetween('tanggal_tanam', [$start, $end])->count();
+        $titikDitanam = \App\Models\KonvenLubangTanamV2::where('status', 'ditanam')->whereBetween('planted_at', [$start, $end])->count();
 
         return response()->json([
             'period_label' => $periodLabel,
@@ -114,8 +107,7 @@ class KonvensionalController extends Controller
             'ditanam' => $titikDitanam,
         ]);
     }
-
-    public function lahanIndex()
+public function lahanIndex()
     {
         $lahans = Lahan::withCount('bedengan')->get();
         return view('konvensional.lahan', compact('lahans'));
