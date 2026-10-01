@@ -40,7 +40,7 @@ $harvestedTotals = [];
 
         foreach ($allPanenLogs as $log) {
             $det = json_decode($log->details);
-            $pName = $det->plant_name ?? 'Tidak Diketahui';
+            $pName = $this->normalizePlantName($det->plant_name ?? 'Tidak Diketahui');
             if ($pName == 'Tidak Diketahui' || !$pName) continue;
 
             $qty = (int) ($det->jumlah ?? 0);
@@ -69,7 +69,7 @@ $harvestedTotals = [];
         $damagedTotals = [];
         foreach ($allRusakLogs as $log) {
             $det = json_decode($log->details);
-            $pName = $det->plant_name ?? 'Tidak Diketahui';
+            $pName = $this->normalizePlantName($det->plant_name ?? 'Tidak Diketahui');
             $alasan = $det->alasan ?? 'Lainnya';
             $catatan = $det->catatan ?? null;
             $qty = $det->jumlah ?? 0;
@@ -472,7 +472,7 @@ $harvestedTotals = [];
     
             foreach ($allPanenLogs as $log) {
                 $det = json_decode($log->details);
-                $pName = $det->plant_name ?? 'Tidak Diketahui';
+                $pName = $this->normalizePlantName($det->plant_name ?? 'Tidak Diketahui');
                 if ($pName == 'Tidak Diketahui' || !$pName) continue;
     
                 $qty = (int) ($det->jumlah ?? 0);
@@ -502,7 +502,7 @@ $harvestedTotals = [];
         $damagedTotals = [];
         foreach ($allRusakLogs as $log) {
             $det = json_decode($log->details);
-            $pName = $det->plant_name ?? 'Tidak Diketahui';
+            $pName = $this->normalizePlantName($det->plant_name ?? 'Tidak Diketahui');
             $alasan = $det->alasan ?? 'Lainnya';
             $catatan = $det->catatan ?? null;
             $qty = $det->jumlah ?? 0;
@@ -607,7 +607,7 @@ $harvestedTotals = [];
             $allPanenLogsHist = \App\Models\MaintenanceLog::where('action_type', 'panen')->whereMonth('created_at', $month)->whereYear('created_at', $year)->get();
             foreach ($allPanenLogsHist as $log) {
                 $det = json_decode($log->details);
-                $pName = $det->plant_name ?? 'Tidak Diketahui';
+                $pName = $this->normalizePlantName($det->plant_name ?? 'Tidak Diketahui');
                 if ($pName !== 'Tidak Diketahui') {
                     $qty = (int)($det->jumlah ?? 0);
                     if (!isset($harvestedTotalsHist[$pName])) {
@@ -624,7 +624,7 @@ $harvestedTotals = [];
             $damagedTotalsHist = [];
             foreach ($allRusakLogsHist as $log) {
                 $det = json_decode($log->details);
-                $pName = $det->plant_name ?? 'Tidak Diketahui';
+                $pName = $this->normalizePlantName($det->plant_name ?? 'Tidak Diketahui');
                 $alasan = $det->alasan ?? 'Lainnya';
                 $catatan = $det->catatan ?? null;
                 $qty = $det->jumlah ?? 0;
@@ -904,7 +904,7 @@ $harvestedTotals = [];
         
         foreach ($readyHolesAgg as $r) {
             if (isset($ghReadyGrouped[$r->greenhouse_id])) {
-                $pName = $r->plant_name ?: 'Tidak Diketahui';
+                $pName = $this->normalizePlantName($r->plant_name ?: 'Tidak Diketahui');
                 if (!isset($ghReadyGrouped[$r->greenhouse_id][$pName])) {
                     $ghReadyGrouped[$r->greenhouse_id][$pName] = [
                         'total' => 0,
@@ -950,7 +950,7 @@ $harvestedTotals = [];
         }
         foreach ($ditanamHolesAgg as $r) {
             if (isset($ghDitanamGrouped[$r->greenhouse_id])) {
-                $pName = $r->plant_name ?: 'Tidak Diketahui';
+                $pName = $this->normalizePlantName($r->plant_name ?: 'Tidak Diketahui');
                 if (!isset($ghDitanamGrouped[$r->greenhouse_id][$pName])) {
                     $ghDitanamGrouped[$r->greenhouse_id][$pName] = [
                         'total' => 0,
@@ -1259,7 +1259,7 @@ $harvestedTotals = [];
         $oldStatus = $hole->status;
         $status = $request->status;
         
-        $pName = $request->filled('plant_name') ? $request->plant_name : $hole->plant_name;
+        $pName = $this->normalizePlantName($request->filled('plant_name') ? $request->plant_name : $hole->plant_name);
         
         if (in_array($status, ['ditanam', 'siap_panen']) && $oldStatus !== 'ditanam' && $pName) {
             $available = \App\Models\Semai::where('plant_name', $pName)->where('status', 'aktif')->sum('quantity');
@@ -1349,7 +1349,7 @@ $harvestedTotals = [];
             $holesToPlant = [];
             foreach ($holes as $hole) {
                 if ($hole->status !== 'ditanam') {
-                    $pName = $request->filled('plant_name') ? $request->plant_name : $hole->plant_name;
+                    $pName = $this->normalizePlantName($request->filled('plant_name') ? $request->plant_name : $hole->plant_name);
                     if ($pName) {
                         if (!isset($holesToPlant[$pName])) {
                             $holesToPlant[$pName] = 0;
@@ -1571,5 +1571,15 @@ $harvestedTotals = [];
             }
         }
         return $siapPanenHtml;
+    }
+
+    private function normalizePlantName($name)
+    {
+        if (empty($name)) return $name;
+        // Normalize Caisim/Sawi to Caisim
+        if (strtolower(trim($name)) === 'caisim/sawi') {
+            return 'Caisim';
+        }
+        return $name;
     }
 }
