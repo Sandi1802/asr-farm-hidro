@@ -39,6 +39,12 @@ class KonvenV2Controller extends Controller
 
             $lahan->total_lubang = $stats->total_lubang ?? 0;
             $lahan->terisi = $stats->terisi ?? 0;
+
+            $lahan->total_bedengan = \Illuminate\Support\Facades\DB::table('konven_bedengans')
+                ->join('konven_zonas', 'konven_bedengans.zona_id', '=', 'konven_zonas.id')
+                ->join('konven_kodes', 'konven_zonas.kode_id', '=', 'konven_kodes.id')
+                ->where('konven_kodes.lahan_id', $lahan->id)
+                ->count();
         }
 
         return view('konvensional.v2.lahan', compact('lahans'));

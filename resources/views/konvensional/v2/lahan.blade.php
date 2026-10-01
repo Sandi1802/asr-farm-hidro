@@ -28,7 +28,7 @@
         <thead style="background:#f8fafc; border-bottom:1px solid var(--border-color);">
             <tr>
                 <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Nama Lahan</th>
-                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Jumlah Kode</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Jumlah Bedengan</th>
                 <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem; width:200px;">Progres Keterisian Lahan</th>
                 <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem; width:200px;">Aksi</th>
             </tr>
@@ -41,7 +41,7 @@
                         <i class="ph ph-plant" style="color:var(--asr-green);"></i> {{ $lahan->nama }}
                     </div>
                 </td>
-                <td style="padding:1rem; color:var(--text-muted); font-size:0.85rem;">{{ $lahan->kodes_count }} kode</td>
+                <td style="padding:1rem; color:var(--text-muted); font-size:0.85rem;">{{ $lahan->total_bedengan }} bedengan</td>
                                 <td style="padding:1rem;">
                     @php
                         $pct = $lahan->total_lubang > 0 ? round(($lahan->terisi / $lahan->total_lubang)*100) : 0; 
