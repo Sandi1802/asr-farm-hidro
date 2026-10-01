@@ -216,10 +216,63 @@ class KonvenV2Controller extends Controller
     public function zonaStore(Request $r, $kode_id)
     {
         KonvenKodeV2::findOrFail($kode_id);
-        $r->validate(['nama' => 'required|string|max:100']);
+        $r->validate([
+            'prefix_nama'     => 'required|string|max:50',
+            'jumlah_zona'     => 'required|integer|min:1|max:20',
+            'jumlah_bedengan' => 'required|integer|min:0|max:50',
+            'jumlah_lubang'   => 'required|integer|min:0|max:500',
+        ]);
 
-        KonvenZonaV2::create(['kode_id' => $kode_id, 'nama' => $r->nama]);
-        return back()->with('success', 'Zona berhasil ditambahkan.');
+        DB::transaction(function () use ($r, $kode_id) {
+            $currentZonesCount = \App\Models\KonvenZonaV2::where('kode_id', $kode_id)->count();
+            $jz = (int) $r->jumlah_zona;
+            $jb = (int) $r->jumlah_bedengan;
+            $jl = (int) $r->jumlah_lubang;
+            $prefix = trim($r->prefix_nama);
+
+            for ($z = 1; $z <= $jz; $z++) {
+                $nomorZona = $currentZonesCount + $z;
+                // If only 1 zone and prefix is something like "Utara", we might just name it "Utara". 
+                // But appending the number is safer to avoid duplicates.
+                $namaZona = $jz == 1 && $prefix != 'Zona' && !preg_match('/[0-9]$/', $prefix) 
+                            ? $prefix 
+                            : $prefix . ' ' . $nomorZona;
+
+                $zona = \App\Models\KonvenZonaV2::create([
+                    'kode_id' => $kode_id,
+                    'nama'    => $namaZona,
+                ]);
+
+                if ($jb > 0) {
+                    for ($b = 1; $b <= $jb; $b++) {
+                        $bedengan = \App\Models\KonvenBedenganV2::create([
+                            'zona_id'               => $zona->id,
+                            'nomor'                 => $b,
+                            'nama_display'          => null,
+                            'jumlah_lubang_rencana' => $jl,
+                        ]);
+
+                        if ($jl > 0) {
+                            $rows = [];
+                            $now = now();
+                            for ($i = 1; $i <= $jl; $i++) {
+                                $rows[] = [
+                                    'bedengan_id'  => $bedengan->id,
+                                    'nomor_lubang' => $i,
+                                    'status'       => 'kosong',
+                                    'created_at'   => $now,
+                                    'updated_at'   => $now,
+                                ];
+                            }
+                            // Insert holes in bulk for performance
+                            \App\Models\KonvenLubangTanamV2::insert($rows);
+                        }
+                    }
+                }
+            }
+        });
+
+        return back()->with('success', $r->jumlah_zona . ' Zona berhasil ditambahkan beserta struktur bedengan & lubang.');
     }
 
     public function zonaUpdate(Request $r, $id)
