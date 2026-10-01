@@ -144,17 +144,21 @@ $harvestedTotals = [];
         $totalJenisSemaiBulanIni = $semaiThisMonth->unique('plant_name')->count();
         $totalBenihSemaiBulanIni = $semaiThisMonth->sum('quantity');
 
-        // Tanam / Pindah ke GH (Bulan ini) -> dari Activity
-        $tanamBulanIni = Activity::where('type', 'tanam')
+        // Tanam / Pindah ke GH (Bulan ini) -> dari MaintenanceLog
+        $tanamBulanIni = \App\Models\MaintenanceLog::where('action_type', 'pindah_tanam')
             ->whereMonth('created_at', $currentMonth)
             ->whereYear('created_at', $currentYear)
-            ->count();
+            ->get()->sum(function($log) {
+                return json_decode($log->details)->jumlah ?? 0;
+            });
 
-        // Panen (Bulan ini) -> dari Activity
-        $panenBulanIni = Activity::where('type', 'panen')
+        // Panen (Bulan ini) -> dari MaintenanceLog
+        $panenBulanIni = \App\Models\MaintenanceLog::where('action_type', 'panen')
             ->whereMonth('created_at', $currentMonth)
             ->whereYear('created_at', $currentYear)
-            ->count();
+            ->get()->sum(function($log) {
+                return json_decode($log->details)->jumlah ?? 0;
+            });
 
         $produksiBulanIni = [
             'jenis_semai' => $totalJenisSemaiBulanIni,
@@ -569,8 +573,12 @@ $harvestedTotals = [];
             }
             $lubangKosongHtml .= '</ul>';
 
-            $panenBulanIni = \App\Models\Activity::where('type', 'panen')->whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
-            $tanamBulanIni = \App\Models\Activity::where('type', 'tanam')->whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
+            $panenBulanIni = \App\Models\MaintenanceLog::where('action_type', 'panen')
+                ->whereMonth('created_at', $month)->whereYear('created_at', $year)
+                ->get()->sum(function($log) { return json_decode($log->details)->jumlah ?? 0; });
+            $tanamBulanIni = \App\Models\MaintenanceLog::where('action_type', 'pindah_tanam')
+                ->whereMonth('created_at', $month)->whereYear('created_at', $year)
+                ->get()->sum(function($log) { return json_decode($log->details)->jumlah ?? 0; });
             $semaiBulanIni = \App\Models\Semai::whereMonth('semai_date', $month)->whereYear('semai_date', $year)->sum('quantity');
 
             return response()->json([
@@ -592,13 +600,7 @@ $harvestedTotals = [];
                 'total_semai_bulan_ini' => number_format($semaiBulanIni,0,',','.'),
             ]);
         } else {
-            // Historical from Activity
-            $plantedHoles = \App\Models\Activity::where('type', 'tanam')->whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
-            $harvestedHoles = \App\Models\Activity::where('type', 'panen')->whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
-            $damagedHoles = \App\Models\Activity::where('type', 'rusak')->whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
-            
-            $emptyHolesCount = $totalHoles - $plantedHoles;
-            if ($emptyHolesCount < 0) $emptyHolesCount = 0;
+            // Historical from MaintenanceLog instead of Activity (since Activity is unused)
             
             // Historical harvested details
             $harvestedTotalsHist = [];
@@ -612,6 +614,7 @@ $harvestedTotals = [];
                 }
             }
             $harvestedByPlantHist = $harvestedTotalsHist;
+            $harvestedHoles = array_sum($harvestedTotalsHist);
 
             // Historical damaged details
             $allRusakLogsHist = \App\Models\MaintenanceLog::where('action_type', 'rusak')->whereMonth('created_at', $month)->whereYear('created_at', $year)->get();
@@ -630,6 +633,20 @@ $harvestedTotals = [];
                 $damagedTotalsHist[$key] = ($damagedTotalsHist[$key] ?? 0) + $qty;
             }
             $damagedByReasonHist = $damagedTotalsHist;
+            $damagedHoles = array_sum($damagedTotalsHist);
+
+            // Historical planted details
+            $allTanamLogsHist = \App\Models\MaintenanceLog::where('action_type', 'pindah_tanam')->whereMonth('created_at', $month)->whereYear('created_at', $year)->get();
+            $plantedHoles = 0;
+            foreach ($allTanamLogsHist as $log) {
+                $det = json_decode($log->details);
+                $qty = $det->jumlah ?? 0;
+                $plantedHoles += $qty;
+            }
+
+            // For empty holes, since we don't have historical snapshot, we just show the current empty holes
+            // so it doesn't look confusing on the dashboard where other current stats are displayed.
+            $emptyHolesCount = \App\Models\Hole::where('status', 'kosong')->count();
             
             // Siap panen logic (Projected from current planted holes)
             $defaultDays = 30;
@@ -644,8 +661,8 @@ $harvestedTotals = [];
             $readyTypesCount = $readyHolesHist->whereNotNull('plant_name')->groupBy('plant_name')->count();
             $siapPanenHtml = $this->buildSiapPanenHtml($readyHolesHist);
 
-            $panenBulanIniHist = \App\Models\Activity::where('type', 'panen')->whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
-            $tanamBulanIniHist = \App\Models\Activity::where('type', 'tanam')->whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
+            $panenBulanIniHist = $allPanenLogsHist->sum(function($log) { return json_decode($log->details)->jumlah ?? 0; });
+            $tanamBulanIniHist = $plantedHoles;
             $semaiBulanIniHist = \App\Models\Semai::whereMonth('semai_date', $month)->whereYear('semai_date', $year)->sum('quantity');
 
             return response()->json([
@@ -1290,11 +1307,18 @@ $harvestedTotals = [];
             $desc = ucfirst($status) . ' tanaman ' . $hole->plant_name;
         }
 
-        Activity::create([
-            'user_id' => auth()->id(),
-            'hole_id' => $hole->id,
-            'type' => $status == 'siap_panen' ? 'ditanam' : $status,
-            'description' => $desc,
+        $actType = $status == 'siap_panen' || $status == 'ditanam' ? 'pindah_tanam' : $status;
+        \App\Models\MaintenanceLog::create([
+            'loggable_type' => 'App\Models\Hole',
+            'loggable_id' => $hole->id,
+            'user_id' => auth()->id() ?? 1,
+            'action_type' => $actType,
+            'notes' => $desc,
+            'details' => json_encode([
+                'jumlah' => 1,
+                'plant_name' => $hole->plant_name,
+                'alasan' => $request->description ?? 'Update manual'
+            ])
         ]);
 
         return redirect()->back()->with('success', 'Status lubang diperbarui.');
@@ -1389,11 +1413,18 @@ $harvestedTotals = [];
                 $desc = ucfirst($st) . ' massal ' . $hole->plant_name;
             }
 
-            Activity::create([
-                'user_id' => auth()->id(),
-                'hole_id' => $hole->id,
-                'type' => $st == 'siap_panen' ? 'ditanam' : $st,
-                'description' => $desc,
+            $actType = $st == 'siap_panen' || $st == 'ditanam' ? 'pindah_tanam' : $st;
+            \App\Models\MaintenanceLog::create([
+                'loggable_type' => 'App\Models\Hole',
+                'loggable_id' => $hole->id,
+                'user_id' => auth()->id() ?? 1,
+                'action_type' => $actType,
+                'notes' => $desc,
+                'details' => json_encode([
+                    'jumlah' => 1,
+                    'plant_name' => $hole->plant_name,
+                    'alasan' => $request->description ?? 'Update masal'
+                ])
             ]);
         }
 

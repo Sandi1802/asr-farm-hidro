@@ -36,8 +36,12 @@ class ReportController extends Controller
         $recentActivities = $grouped->values()->take(30);
 
         $damagedHoles = Hole::where('status', 'rusak')->count();
-        $harvestedCount = Activity::where('type', 'panen')->count();
-        $plantedCount   = Activity::whereIn('type', ['tanam', 'ditanam'])->count();
+        $harvestedCount = \App\Models\MaintenanceLog::where('action_type', 'panen')->get()->sum(function($log) {
+            return json_decode($log->details)->jumlah ?? 0;
+        });
+        $plantedCount   = \App\Models\MaintenanceLog::where('action_type', 'pindah_tanam')->get()->sum(function($log) {
+            return json_decode($log->details)->jumlah ?? 0;
+        });
 
         return view('hydroponics.reports', compact('recentActivities', 'damagedHoles', 'harvestedCount', 'plantedCount'));
     }
