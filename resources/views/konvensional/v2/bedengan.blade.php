@@ -43,57 +43,54 @@
 </div>
 @endif
 
-<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:1rem;">
-    @forelse($bedengans as $bedengan)
-    @php
-        $pct = $bedengan->lubang_count > 0 ? round(($bedengan->terisi_count / $bedengan->lubang_count) * 100) : 0;
-    @endphp
-    <div class="card" style="padding:1.1rem; border:1px solid var(--border-color); border-radius:12px;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
-            <div style="font-size:1.6rem; font-weight:800; color:var(--text-main);">
-                #{{ $bedengan->nomor }}
-            </div>
-            <span style="background:#f1f5f9; color:#475569; padding:0.15rem 0.5rem; border-radius:50px; font-size:0.7rem; font-weight:600;">
-                {{ $bedengan->lubang_count }} lubang
-            </span>
-        </div>
-        @if($bedengan->nama_display)
-        <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.5rem;">{{ $bedengan->nama_display }}</div>
-        @endif
-        {{-- Progress bar --}}
-        <div style="margin-bottom:0.75rem;">
-            <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); margin-bottom:0.25rem;">
-                <span><span style="color:#16a34a; font-weight:600;">{{ $bedengan->terisi_count }}</span> ditanam</span>
-                <span>{{ $pct }}%</span>
-            </div>
-            <div style="background:#e2e8f0; border-radius:4px; height:6px; overflow:hidden;">
-                <div style="background:var(--asr-green); height:100%; width:{{ $pct }}%; border-radius:4px;"></div>
-            </div>
-        </div>
-        <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-            <a href="{{ route('konven.v2.bedengan.detail', $bedengan->id) }}"
-               style="flex:1; text-align:center; padding:0.45rem; background:var(--asr-green); color:white; border-radius:8px; text-decoration:none; font-size:0.75rem; font-weight:600;">
-                Detail
-            </a>
-            <button onclick="openEditBedengan({{ $bedengan->id }}, {{ $bedengan->nomor }}, '{{ addslashes($bedengan->nama_display ?? '') }}')"
-                    style="padding:0.45rem 0.6rem; background:#f1f5f9; border:1px solid var(--border-color); border-radius:8px; cursor:pointer; font-size:0.75rem;">
-                <i class="ph ph-pencil"></i>
-            </button>
-            <form method="POST" action="{{ route('konven.v2.bedengan.destroy', $bedengan->id) }}"
-                  onsubmit="return confirm('Hapus bedengan #{{ $bedengan->nomor }}?')" style="margin:0;">
-                @csrf @method('DELETE')
-                <button type="submit" style="padding:0.45rem 0.6rem; background:#fee2e2; border:1px solid #fca5a5; border-radius:8px; cursor:pointer; color:#dc2626; font-size:0.75rem;">
-                    <i class="ph ph-trash"></i>
-                </button>
-            </form>
-        </div>
-    </div>
-    @empty
-    <div style="grid-column:1/-1; text-align:center; padding:3rem; border:1px dashed var(--border-color); border-radius:12px;">
-        <i class="ph ph-rows" style="font-size:3rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;"></i>
-        <p style="color:var(--text-muted);">Belum ada bedengan. Tambahkan bedengan baru.</p>
-    </div>
-    @endforelse
+<div style="background:white; border-radius:12px; border:1px solid var(--border-color); overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse; text-align:left; min-width:600px;">
+        <thead style="background:#f8fafc; border-bottom:1px solid var(--border-color);">
+            <tr>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">No. Bedengan</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Nama Display</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Kapasitas / Ditanam</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Progress</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem; width:180px;">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($bedengans as $bedengan)
+            <tr style="border-bottom:1px solid var(--border-color);">
+                <td style="padding:1rem; font-weight:700; font-size:1.1rem; color:var(--text-main);">#{{ $bedengan->nomor }}</td>
+                <td style="padding:1rem; color:var(--text-muted); font-size:0.85rem;">{{ $bedengan->nama_display ?? '-' }}</td>
+                <td style="padding:1rem; color:var(--text-muted); font-size:0.85rem;">
+                    <span style="color:var(--asr-green); font-weight:600;">{{ $bedengan->terisi }}</span> dari {{ $bedengan->lubang_tanams_count }} lubang
+                </td>
+                <td style="padding:1rem;">
+                    @php 
+                        $pct = $bedengan->lubang_tanams_count > 0 ? round(($bedengan->terisi / $bedengan->lubang_tanams_count)*100) : 0; 
+                    @endphp
+                    <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.75rem; color:var(--text-muted);">
+                        <div style="flex:1; height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden;">
+                            <div style="height:100%; width:{{ $pct }}%; background:var(--asr-green);"></div>
+                        </div>
+                        <span>{{ $pct }}%</span>
+                    </div>
+                </td>
+                <td style="padding:1rem;">
+                    <div style="display:flex; gap:0.5rem;">
+                        <a href="{{ route('konven.v2.bedengan.detail', $bedengan->id) }}" style="padding:0.4rem 0.75rem; background:var(--asr-green); color:white; border-radius:6px; text-decoration:none; font-size:0.75rem; font-weight:600;">Detail Tanam</a>
+                        <button onclick="openEditBedengan({{ $bedengan->id }}, {{ $bedengan->nomor }}, '{{ addslashes($bedengan->nama_display ?? '') }}')" style="padding:0.4rem 0.6rem; background:#f1f5f9; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;"><i class="ph ph-pencil"></i></button>
+                        <form method="POST" action="{{ route('konven.v2.bedengan.destroy', $bedengan->id) }}" onsubmit="return confirm('Hapus bedengan ini?')" style="margin:0;">
+                            @csrf @method('DELETE')
+                            <button type="submit" style="padding:0.4rem 0.6rem; background:#fee2e2; border:1px solid #fca5a5; border-radius:6px; color:#dc2626; cursor:pointer;"><i class="ph ph-trash"></i></button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="5" style="padding:3rem; text-align:center; color:var(--text-muted);">Belum ada bedengan.</td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
 </div>
 
 {{-- Modal Tambah --}}

@@ -30,48 +30,40 @@
 </div>
 @endif
 
-<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:1rem;">
-    @forelse($kodes as $kode)
-    <div class="card" style="padding:1.25rem; border:1px solid var(--border-color); border-radius:12px; text-align:center;">
-        <div style="font-size:2rem; font-weight:800; color:var(--asr-green); margin-bottom:0.25rem;">
-            {{ $kode->kode }}
-        </div>
-        @if($kode->label_posisi)
-        <div style="margin-bottom:0.4rem;">
-            <span style="background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; padding:0.1rem 0.55rem; border-radius:50px; font-size:0.7rem; font-weight:600;">
-                {{ $kode->label_posisi }}
-            </span>
-        </div>
-        @endif
-        <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:1rem;">
-            {{ $kode->zonas_count }} zona
-        </div>
-        <div style="display:flex; flex-direction:column; gap:0.4rem;">
-            <a href="{{ route('konven.v2.zona', $kode->id) }}"
-               style="padding:0.45rem; background:var(--asr-green); color:white; border-radius:8px; text-decoration:none; font-size:0.78rem; font-weight:600;">
-                <i class="ph ph-grid-four"></i> Kelola Zona
-            </a>
-            <div style="display:flex; gap:0.4rem;">
-                <button onclick="openEditKode({{ $kode->id }}, {{ $kode->nomor_urut }}, '{{ addslashes($kode->label_posisi ?? '') }}')"
-                        style="flex:1; padding:0.4rem; background:#f1f5f9; border:1px solid var(--border-color); border-radius:8px; cursor:pointer; font-size:0.75rem;">
-                    <i class="ph ph-pencil"></i>
-                </button>
-                <form method="POST" action="{{ route('konven.v2.kode.destroy', $kode->id) }}"
-                      onsubmit="return confirm('Hapus kode {{ $kode->kode }}?')" style="flex:1; margin:0;">
-                    @csrf @method('DELETE')
-                    <button type="submit" style="width:100%; padding:0.4rem; background:#fee2e2; border:1px solid #fca5a5; border-radius:8px; cursor:pointer; color:#dc2626; font-size:0.75rem;">
-                        <i class="ph ph-trash"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-    @empty
-    <div style="grid-column:1/-1; text-align:center; padding:3rem; border:1px dashed var(--border-color); border-radius:12px;">
-        <i class="ph ph-list-numbers" style="font-size:3rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;"></i>
-        <p style="color:var(--text-muted);">Belum ada kode. Tambahkan kode baru.</p>
-    </div>
-    @endforelse
+<div style="background:white; border-radius:12px; border:1px solid var(--border-color); overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse; text-align:left; min-width:600px;">
+        <thead style="background:#f8fafc; border-bottom:1px solid var(--border-color);">
+            <tr>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Kode</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Posisi</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Jumlah Zona</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem; width:200px;">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($kodes as $kode)
+            <tr style="border-bottom:1px solid var(--border-color);">
+                <td style="padding:1rem; font-weight:700; font-size:1.1rem; color:var(--asr-green);">{{ $kode->kode }}</td>
+                <td style="padding:1rem; color:var(--text-muted); font-size:0.85rem;">{{ $kode->label_posisi ?? '-' }}</td>
+                <td style="padding:1rem; color:var(--text-muted); font-size:0.85rem;">{{ $kode->zonas_count }} zona</td>
+                <td style="padding:1rem;">
+                    <div style="display:flex; gap:0.5rem;">
+                        <a href="{{ route('konven.v2.zona', $kode->id) }}" style="padding:0.4rem 0.75rem; background:var(--asr-green); color:white; border-radius:6px; text-decoration:none; font-size:0.75rem; font-weight:600;"><i class="ph ph-squares-four"></i> Kelola Zona</a>
+                        <button onclick="openEditKode({{ $kode->id }}, '{{ preg_replace('/[0-9]/','',$kode->kode) }}', '{{ $kode->nomor_urut }}', '{{ addslashes($kode->label_posisi ?? '') }}')" style="padding:0.4rem 0.6rem; background:#f1f5f9; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;"><i class="ph ph-pencil"></i></button>
+                        <form method="POST" action="{{ route('konven.v2.kode.destroy', $kode->id) }}" onsubmit="return confirm('Hapus kode ini?')" style="margin:0;">
+                            @csrf @method('DELETE')
+                            <button type="submit" style="padding:0.4rem 0.6rem; background:#fee2e2; border:1px solid #fca5a5; border-radius:6px; color:#dc2626; cursor:pointer;"><i class="ph ph-trash"></i></button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="4" style="padding:3rem; text-align:center; color:var(--text-muted);">Belum ada kode lahan.</td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
 </div>
 
 {{-- Modal Tambah --}}

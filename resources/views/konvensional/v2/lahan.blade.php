@@ -23,45 +23,44 @@
 </div>
 @endif
 
-<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem;">
-    @forelse($lahans as $lahan)
-    <div class="card" style="padding:1.25rem; border:1px solid var(--border-color); border-radius:12px;">
-        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
-            <div style="width:42px; height:42px; background:var(--asr-green-light); border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                <i class="ph ph-plant" style="font-size:1.3rem; color:var(--asr-green);"></i>
-            </div>
-            <div>
-                <div style="font-weight:700; font-size:1rem; color:var(--text-main);">{{ $lahan->nama }}</div>
-                <div style="font-size:0.75rem; color:var(--text-muted);">{{ $lahan->kodes_count }} kode</div>
-            </div>
-        </div>
-        @if($lahan->catatan)
-        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem;">{{ $lahan->catatan }}</p>
-        @endif
-        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <a href="{{ route('konven.v2.kode.bylahan', $lahan->id) }}"
-               style="flex:1; text-align:center; padding:0.5rem; background:var(--asr-green); color:white; border-radius:8px; text-decoration:none; font-size:0.8rem; font-weight:600;">
-                <i class="ph ph-arrow-right"></i> Kelola Kode
-            </a>
-            <button onclick="openEditLahan({{ $lahan->id }}, '{{ addslashes($lahan->nama) }}', '{{ addslashes($lahan->catatan ?? '') }}')"
-                    style="padding:0.5rem 0.75rem; background:#f1f5f9; border:1px solid var(--border-color); border-radius:8px; cursor:pointer; font-size:0.8rem;">
-                <i class="ph ph-pencil"></i>
-            </button>
-            <form method="POST" action="{{ route('konven.v2.lahan.destroy', $lahan->id) }}"
-                  onsubmit="return confirm('Hapus lahan {{ $lahan->nama }}? Semua data di dalamnya akan terhapus.')" style="margin:0;">
-                @csrf @method('DELETE')
-                <button type="submit" style="padding:0.5rem 0.75rem; background:#fee2e2; border:1px solid #fca5a5; border-radius:8px; cursor:pointer; color:#dc2626; font-size:0.8rem;">
-                    <i class="ph ph-trash"></i>
-                </button>
-            </form>
-        </div>
-    </div>
-    @empty
-    <div style="grid-column:1/-1; text-align:center; padding:3rem; border:1px dashed var(--border-color); border-radius:12px;">
-        <i class="ph ph-plant" style="font-size:3rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;"></i>
-        <p style="color:var(--text-muted);">Belum ada lahan. Tambahkan lahan baru untuk memulai.</p>
-    </div>
-    @endforelse
+<div style="background:white; border-radius:12px; border:1px solid var(--border-color); overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse; text-align:left; min-width:600px;">
+        <thead style="background:#f8fafc; border-bottom:1px solid var(--border-color);">
+            <tr>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Nama Lahan</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Jumlah Kode</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Catatan</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem; width:200px;">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($lahans as $lahan)
+            <tr style="border-bottom:1px solid var(--border-color);">
+                <td style="padding:1rem; font-weight:600;">
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <i class="ph ph-plant" style="color:var(--asr-green);"></i> {{ $lahan->nama }}
+                    </div>
+                </td>
+                <td style="padding:1rem; color:var(--text-muted); font-size:0.85rem;">{{ $lahan->kodes_count }} kode</td>
+                <td style="padding:1rem; color:var(--text-muted); font-size:0.85rem;">{{ $lahan->catatan ?? '-' }}</td>
+                <td style="padding:1rem;">
+                    <div style="display:flex; gap:0.5rem;">
+                        <a href="{{ route('konven.v2.kode.bylahan', $lahan->id) }}" style="padding:0.4rem 0.75rem; background:var(--asr-green); color:white; border-radius:6px; text-decoration:none; font-size:0.75rem; font-weight:600;"><i class="ph ph-arrow-right"></i> Kelola Kode</a>
+                        <button onclick="openEditLahan({{ $lahan->id }}, '{{ addslashes($lahan->nama) }}', '{{ addslashes($lahan->catatan ?? '') }}')" style="padding:0.4rem 0.6rem; background:#f1f5f9; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;"><i class="ph ph-pencil"></i></button>
+                        <form method="POST" action="{{ route('konven.v2.lahan.destroy', $lahan->id) }}" onsubmit="return confirm('Hapus lahan?')" style="margin:0;">
+                            @csrf @method('DELETE')
+                            <button type="submit" style="padding:0.4rem 0.6rem; background:#fee2e2; border:1px solid #fca5a5; border-radius:6px; color:#dc2626; cursor:pointer;"><i class="ph ph-trash"></i></button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="4" style="padding:3rem; text-align:center; color:var(--text-muted);">Belum ada lahan. Tambahkan lahan baru untuk memulai.</td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
 </div>
 
 {{-- Modal Tambah --}}
