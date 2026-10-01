@@ -69,7 +69,11 @@ $plantStageJson = json_encode($plantStageData ?? []);
     </div>
     <div class="dashboard-stats">
         @php
-        $totalDamage = \App\Models\AssetDamageNote::where('status','!=','resolved')->count();
+        try {
+            $totalDamage = \App\Models\AssetDamageNote::where('status','!=','resolved')->count();
+        } catch (\Exception $e) {
+            $totalDamage = 0; // Fallback jika belum di-migrate
+        }
         $todayStr = \Carbon\Carbon::now()->format('Y-m-d');
         $todayActivities = isset($calendarEvents[$todayStr]) ? count($calendarEvents[$todayStr]) : 0;
         
