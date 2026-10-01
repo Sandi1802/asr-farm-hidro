@@ -37,9 +37,9 @@ return new class extends Migration
         // Update maintenance_logs details JSON
         // Since details is stored as JSON text, we can use simple REPLACE for the exact string
         DB::table('maintenance_logs')
-            ->where('details', 'LIKE', '%"Caisim/Sawi"%')
+            ->whereRaw("details::text LIKE '%\"Caisim/Sawi\"%'")
             ->update([
-                'details' => DB::raw("REPLACE(details, '\"Caisim/Sawi\"', '\"Caisim\"')")
+                'details' => DB::raw("REPLACE(details::text, '\"Caisim/Sawi\"', '\"Caisim\"')::json")
             ]);
             
         // Update maintenance_logs notes
