@@ -54,6 +54,10 @@ $plantStageJson = json_encode($plantStageData ?? []);
 .cal-year-scroller::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 .cal-scroll-wrapper::-webkit-scrollbar { height: 6px; }
 .cal-scroll-wrapper::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+@media (max-width: 600px) {
+    .cal-event-label { display: none !important; }
+    .cal-event-pill { justify-content: center !important; text-align: center; }
+}
 </style>
 
 <div style="display: flex; flex-direction: column; gap: 1.5rem;">
@@ -171,12 +175,16 @@ $plantStageJson = json_encode($plantStageData ?? []);
                     <span class="cal-legend-item" onclick="toggleCalFilter('harvest', this)" style="cursor:pointer; transition:all 0.2s;"><span class="cal-legend-swatch" style="background:#e11d48;"></span>Panen</span>
                     <span class="cal-legend-item" onclick="toggleCalFilter('custom', this)" style="cursor:pointer; transition:all 0.2s;"><span class="cal-legend-swatch" style="background:#0891b2;"></span>Kegiatan</span>
                 </div>
-                <div class="cal-grid" style="margin-bottom:6px;">
-                    @foreach(['Min','Sen','Sel','Rab','Kam','Jum','Sab'] as $d)
-                    <div class="cal-day-header">{{ $d }}</div>
-                    @endforeach
+                <div class="cal-scroll-wrapper" style="overflow-x: auto; padding-bottom: 0.5rem; width: 100%;">
+                    <div style="min-width: 500px;">
+                        <div class="cal-grid" style="margin-bottom:6px;">
+                            @foreach(['Min','Sen','Sel','Rab','Kam','Jum','Sab'] as $d)
+                            <div class="cal-day-header">{{ $d }}</div>
+                            @endforeach
+                        </div>
+                        <div class="cal-grid" id="calBody" style="flex: 1;"></div>
+                    </div>
                 </div>
-                <div class="cal-grid" id="calBody" style="flex: 1;"></div>
             </div>
         </div>
 
@@ -578,6 +586,10 @@ $plantStageJson = json_encode($plantStageData ?? []);
         }
     .cal-scroll-wrapper::-webkit-scrollbar { height: 6px; }
 .cal-scroll-wrapper::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+@media (max-width: 600px) {
+    .cal-event-label { display: none !important; }
+    .cal-event-pill { justify-content: center !important; text-align: center; }
+}
 </style>
     <div style="margin-top: 2rem;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
@@ -684,6 +696,10 @@ $plantStageJson = json_encode($plantStageData ?? []);
 </div>
 <style> .modal-overlay.open { display:flex !important; } .cal-scroll-wrapper::-webkit-scrollbar { height: 6px; }
 .cal-scroll-wrapper::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+@media (max-width: 600px) {
+    .cal-event-label { display: none !important; }
+    .cal-event-pill { justify-content: center !important; text-align: center; }
+}
 </style>
 
 <script>
@@ -872,9 +888,9 @@ function renderCalendar() {
             const color = typeColors[type] || '#9ca3af';
             const count = typeCounts[type];
             const label = typeLabels[type] || type;
-            dots += `<div style="font-size: 0.65rem; background: ${color}15; border-left: 2px solid ${color}; color: ${color}; padding: 2px 4px; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; justify-content: space-between; margin-bottom: 2px; font-weight: 700; line-height:1;">
-                <span>${label}</span>
-                <span style="opacity:0.8;">${count > 1 ? count : ''}</span>
+            dots += `<div class="cal-event-pill" style="font-size: 0.65rem; background: ${color}15; border-left: 2px solid ${color}; color: ${color}; padding: 2px 4px; border-radius: 3px; display: flex; justify-content: space-between; align-items:center; gap: 4px; margin-bottom: 2px; font-weight: 700; line-height:1; min-width:0;">
+                <span class="cal-event-label" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; text-align: left;">${label}</span>
+                <span style="opacity:0.9; flex-shrink: 0;">${count > 1 ? count : ''}</span>
             </div>`;
         });
         
