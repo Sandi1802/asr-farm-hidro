@@ -234,7 +234,8 @@
 </div>
 
 <!-- Memasukkan library Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
     if (typeof initCalendar === 'function') initCalendar();
 // ══════════════════════════════════════════════════════════════
 //  DATA FROM BLADE
