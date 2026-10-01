@@ -20,7 +20,7 @@ return new class extends Migration
             // Insert default marquee text
             DB::table('settings')->insert([
                 'key' => 'marquee_text',
-                'value' => 'Selamat Datang, {user}! Pantau perkembangbiakan, produksi, dan operasional ASR FARM dengan mudah di sini.',
+                'value' => 'Pantau perkembangbiakan, produksi, dan operasional ASR FARM dengan mudah di sini.',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

@@ -10,7 +10,7 @@ class SettingController extends Controller
     public function index()
     {
         $marqueeText = Setting::where('key', 'marquee_text')->value('value') 
-                       ?? 'Selamat Datang, {user}! Pantau perkembangbiakan, produksi, dan operasional ASR FARM dengan mudah di sini.';
+                       ?? 'Pantau perkembangbiakan, produksi, dan operasional ASR FARM dengan mudah di sini.';
                        
         return view('master-data.settings.index', compact('marqueeText'));
     }
