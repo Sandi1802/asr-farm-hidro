@@ -23,7 +23,7 @@ class KonvenV2Controller extends Controller
     {
         $lahans = KonvenLahanV2::with(['kodes' => fn($q) => $q->withCount('zonas')])
                                ->withCount('kodes')
-                               ->orderBy('nama')
+                               ->orderByRaw('LENGTH(nama), nama')
                                ->get();
         return view('konvensional.v2.lahan', compact('lahans'));
     }
@@ -65,7 +65,7 @@ class KonvenV2Controller extends Controller
         $lahan   = KonvenLahanV2::findOrFail($lahan_id);
         $posisis = KonvenPosisiV2::where('lahan_id', $lahan_id)
                                   ->withCount('kodes')
-                                  ->orderBy('nama')
+                                  ->orderByRaw('LENGTH(nama), nama')
                                   ->get();
 
         return view('konvensional.v2.posisi', compact('lahan', 'posisis'));
@@ -171,7 +171,7 @@ class KonvenV2Controller extends Controller
         $lahan = KonvenLahanV2::findOrFail($lahan_id);
         $kodes = KonvenKodeV2::where('lahan_id', $lahan_id)
                              ->withCount('zonas')
-                             ->orderBy('kode')
+                             ->orderByRaw('LENGTH(kode), kode')
                              ->get();
         return view('konvensional.v2.kode', compact('lahan', 'kodes'));
     }
@@ -209,7 +209,7 @@ class KonvenV2Controller extends Controller
                               ->withCount(['bedengans', 'lubangTanams as total_lubang', 'lubangTanams as terisi' => function ($q) {
                                   $q->where('status', 'ditanam');
                               }])
-                              ->orderBy('nama')
+                              ->orderByRaw('LENGTH(nama), nama')
                               ->get();
 
         return view('konvensional.v2.zona', compact('kode', 'zonas'));
