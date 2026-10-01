@@ -35,7 +35,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/greenhouses/{id}', [GreenhouseApiController::class, 'show']);
     Route::get('/racks', [RackApiController::class, 'index']);
     Route::get('/racks/{id}', [RackApiController::class, 'show']);
-    Route::get('/konvensional/dashboard', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'dashboard']);
+        Route::get('/konvensional/dashboard', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'dashboard']);
+    Route::get('/konvensional/lahan/{id}', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'detailLahan']);
+    Route::get('/konvensional/kode/{id}', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'detailKode']);
+    Route::get('/konvensional/zona/{id}', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'detailZona']);
+    Route::get('/konvensional/bedengan/{id}', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'detailBedengan']);
+    
+    // Write Endpoints
+    Route::post('/konvensional/bedengan/{id}/tanam', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'tanam']);
+    Route::post('/konvensional/bedengan/{id}/panen', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'panen']);
+    Route::post('/konvensional/bedengan/{id}/perawatan', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'perawatan']);
+    Route::post('/konvensional/bedengan/{id}/rusak', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'laporRusak']);
     Route::get('/semai', [SemaiApiController::class, 'index']);
     Route::get('/plant-types', [PlantTypeApiController::class, 'index']);
     Route::get('/damage-notes', [DamageApiController::class, 'index']);
