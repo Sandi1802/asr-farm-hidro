@@ -86,7 +86,7 @@ $plantStageJson = json_encode($plantStageData ?? []);
             
             // Baris 3: Laporan & Isu
             ['id' => 'card-sudah-panen', 'label' => 'Sudah Panen',   'value' => number_format($harvestedHoles,0,',','.') . ' LT', 'icon' => 'ph-basket',        'class' => 'sbc-teal-farm', 'sub' => $harvestedTypesCount.' Jenis Tanaman', 'onClick' => 'showSudahPanenModal()'],
-            ['id' => 'card-gagal-panen', 'label' => 'Gagal Panen',   'value' => number_format($damagedHoles,0,',','.') . ' LT',  'icon' => 'ph-warning',       'class' => 'sbc-earth',       'sub' => $damagedTypesCount.' Jenis Rusak', 'onClick' => 'showGagalPanenModal()'],
+            ['id' => 'card-gagal-panen', 'label' => 'Rusak Tanaman',   'value' => number_format($damagedHoles,0,',','.') . ' LT',  'icon' => 'ph-warning',       'class' => 'sbc-earth',       'sub' => $damagedTypesCount.' Jenis Rusak', 'onClick' => 'showGagalPanenModal()'],
             ['label' => 'Perbaikan Aset',   'value' => $totalDamage, 'icon' => 'ph-warning-octagon','class' => 'sbc-rust', 'link' => '/hydroponics/asset-damage-notes', 'sub' => 'Kasus Menunggu'],
             ['label' => 'Pengajuan Kebutuhan', 'value' => $pendingProcurements, 'icon' => 'ph-clipboard-text', 'class' => 'sbc-olive', 'sub' => 'Kasus Pembelian Aktif', 'link' => '/hydroponics/inventory'],
         ];
@@ -484,7 +484,7 @@ $plantStageJson = json_encode($plantStageData ?? []);
     <div id="gagalPanenModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); backdrop-filter: blur(2px);">
         <div style="background:var(--card-bg, #ffffff); width:500px; max-width:95%; margin: 60px auto; border-radius:12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; max-height:85vh;">
             <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
-                <h3 style="margin:0; color:var(--text-main); font-size: 1.15rem; font-weight: 700;"><i class="ph ph-warning" style="color:#b45309; margin-right:8px;"></i> Laporan Gagal Panen (Rusak)</h3>
+                <h3 style="margin:0; color:var(--text-main); font-size: 1.15rem; font-weight: 700;"><i class="ph ph-warning" style="color:#b45309; margin-right:8px;"></i> Laporan Rusak Tanaman</h3>
                 <button onclick="document.getElementById('gagalPanenModal').style.display='none'" style="border:none; background:transparent; font-size:1.2rem; cursor:pointer; color: var(--text-muted);"><i class="ph ph-x"></i></button>
             </div>
             <div style="padding: 1.5rem; overflow-y:auto;">
