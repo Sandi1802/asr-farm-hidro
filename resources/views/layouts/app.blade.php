@@ -262,7 +262,12 @@
                         }
                     });
 
+                    if ($.fn.DataTable.isDataTable(this)) {
+                        $(this).DataTable().destroy();
+                    }
+
                     var t = $(this).DataTable({
+                        destroy: true,
                         dom: '<"dt-buttons-wrapper"B><"dt-controls-wrapper"lf>rt<"dt-bottom-container"<"dt-info"i><"dt-pagination"p>><"clear">',
                         buttons: [
                             { extend: 'copy', text: '<i class="ph ph-copy"></i> Copy', className: 'dt-btn dt-btn-copy' },
