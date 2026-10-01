@@ -37,10 +37,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
     <style>
-        .global-marquee-wrapper { overflow: hidden; white-space: nowrap; box-sizing: border-box; width: 100%; }
-        .global-marquee-content { display: inline-flex; align-items: center; white-space: nowrap; padding-left: 100%; animation: global-marquee-anim 25s linear infinite; }
+        .global-marquee-wrapper { overflow: hidden; display: flex; width: 100%; }
+        .global-marquee-content { display: flex; flex-shrink: 0; align-items: center; white-space: nowrap; animation: global-marquee-anim 25s linear infinite; }
         .global-marquee-content:hover { animation-play-state: paused; }
-        @keyframes global-marquee-anim { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+        .global-marquee-item { display: flex; align-items: center; padding-right: 3rem; } @keyframes global-marquee-anim { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } } 100% { transform: translate(-100%, 0); } }
         
         /* Core DataTables overriding */
         table.dataTable thead th, table.dataTable thead td {
@@ -114,11 +114,17 @@
 
                 <div style="flex: 1; overflow: hidden; display: flex; align-items: center; background: transparent; padding: 0.2rem 0;">
                     <div class="global-marquee-wrapper">
-                        <div class="global-marquee-content">
+                    <div class="global-marquee-content">
+                        <div class="global-marquee-item">
+                            <img src="{{ asset('images/logo-asr.png') }}" alt="Logo" style="height: 24px; width: 24px; object-fit: cover; margin-right: 10px; background-color: #ffffff; border-radius: 50%; padding: 1px;">
+                            <span style="font-weight: 500; color: var(--text-main); font-size: 0.9rem;">Selamat Datang, {{ Auth::user()->name ?? 'Super Admin' }}! Pantau perkembangbiakan, produksi, dan operasional ASR FARM dengan mudah di sini.</span>
+                        </div>
+                        <div class="global-marquee-item">
                             <img src="{{ asset('images/logo-asr.png') }}" alt="Logo" style="height: 24px; width: 24px; object-fit: cover; margin-right: 10px; background-color: #ffffff; border-radius: 50%; padding: 1px;">
                             <span style="font-weight: 500; color: var(--text-main); font-size: 0.9rem;">Selamat Datang, {{ Auth::user()->name ?? 'Super Admin' }}! Pantau perkembangbiakan, produksi, dan operasional ASR FARM dengan mudah di sini.</span>
                         </div>
                     </div>
+                </div>
                 </div>
             </div>
             
