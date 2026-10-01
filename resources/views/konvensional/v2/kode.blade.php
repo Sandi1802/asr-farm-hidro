@@ -116,10 +116,17 @@
         </div>
         <form id="formEditKode" method="POST">
             @csrf @method('PUT')
-            <div style="margin-bottom:1rem;">
-                <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Nomor Urut *</label>
-                <input type="number" id="editKodeNomor" name="nomor_urut" required min="1"
-                       style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
+            <div style="display:flex; gap:1rem; margin-bottom:1rem;">
+                <div style="flex:1;">
+                    <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Prefix (A-Z) *</label>
+                    <input type="text" id="editKodePrefix" name="prefix_kode" required maxlength="1" style="text-transform:uppercase;"
+                           style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
+                </div>
+                <div style="flex:1;">
+                    <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Nomor Urut *</label>
+                    <input type="number" id="editKodeNomor" name="nomor_urut" required min="1"
+                           style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
+                </div>
             </div>
             <div style="margin-bottom:1.25rem;">
                 <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Label Posisi</label>
@@ -136,7 +143,8 @@
 </div>
 
 <script>
-function openEditKode(id, nomor, labelPosisi) {
+function openEditKode(id, prefix, nomor, labelPosisi) {
+    document.getElementById('editKodePrefix').value        = prefix;
     document.getElementById('editKodeNomor').value         = nomor;
     document.getElementById('editKodeLabelPosisi').value   = labelPosisi;
     document.getElementById('formEditKode').action         = '/konvensional/v2/kode/' + id;

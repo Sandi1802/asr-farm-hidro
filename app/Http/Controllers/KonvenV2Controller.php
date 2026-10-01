@@ -143,14 +143,19 @@ class KonvenV2Controller extends Controller
 
     public function kodeUpdate(Request $r, $id)
     {
-        $r->validate(['nomor_urut' => 'required|integer|min:1']);
+        $r->validate([
+            'prefix_kode'  => 'required|alpha|size:1',
+            'nomor_urut'   => 'required|integer|min:1',
+            'label_posisi' => 'nullable|string|max:50',
+        ]);
 
-        $kodeModel  = KonvenKodeV2::with('posisi')->findOrFail($id);
-        $kodeBaru   = $kodeModel->posisi->prefix_kode . $r->nomor_urut;
+        $kodeModel = KonvenKodeV2::findOrFail($id);
+        $kodeBaru  = strtoupper($r->prefix_kode) . $r->nomor_urut;
 
         $kodeModel->update([
-            'kode'       => $kodeBaru,
-            'nomor_urut' => $r->nomor_urut,
+            'kode'         => $kodeBaru,
+            'nomor_urut'   => $r->nomor_urut,
+            'label_posisi' => $r->label_posisi,
         ]);
 
         return back()->with('success', "Kode berhasil diperbarui menjadi {$kodeBaru}.");
