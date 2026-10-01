@@ -111,6 +111,7 @@ class KonvensionalApiController extends Controller
             return [
                 'id' => $b->id,
                 'nomor' => $b->nomor,
+                'name' => 'Bedengan ' . $b->nomor,
                 'total_lubang' => $total,
                 'ditanam' => $ditanam
             ];
