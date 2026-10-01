@@ -358,6 +358,20 @@ Route::middleware('auth')->group(function () {
     });
 
 
+    // Mobile Konven V2
+    Route::group(['prefix' => 'm/konven', 'middleware' => ['role:it_admin,produksi_gh,kepala_produksi,produksi_konvensional']], function () {
+        Route::get('/', [\App\Http\Controllers\MobileKonvenController::class, 'index'])->name('m.konven.index');
+        Route::get('/lahan/{id}', [\App\Http\Controllers\MobileKonvenController::class, 'lahan'])->name('m.konven.lahan');
+        Route::get('/kode/{id}', [\App\Http\Controllers\MobileKonvenController::class, 'kode'])->name('m.konven.kode');
+        Route::get('/zona/{id}', [\App\Http\Controllers\MobileKonvenController::class, 'zona'])->name('m.konven.zona');
+        Route::get('/bedengan/{id}', [\App\Http\Controllers\MobileKonvenController::class, 'bedengan'])->name('m.konven.bedengan');
+
+        Route::post('/bedengan/{id}/tanam', [\App\Http\Controllers\MobileKonvenController::class, 'tanamMassal'])->name('m.konven.tanam');
+        Route::post('/bedengan/{id}/panen', [\App\Http\Controllers\MobileKonvenController::class, 'panen'])->name('m.konven.panen');
+        Route::post('/bedengan/{id}/perawatan', [\App\Http\Controllers\MobileKonvenController::class, 'perawatan'])->name('m.konven.perawatan');
+        Route::post('/bedengan/{id}/kerusakan', [\App\Http\Controllers\MobileKonvenController::class, 'kerusakan'])->name('m.konven.kerusakan');
+    });
+
     // Paprika Routes
     Route::prefix('paprika')->middleware('role:produksi,produksi_paprika,packing,keuangan,pemasaran')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\PaprikaController::class, 'dashboard'])->name('paprika.dashboard');
@@ -370,5 +384,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/penyemprotan', [\App\Http\Controllers\PaprikaController::class, 'storePenyemprotan'])->name('paprika.penyemprotan.store');
     });
 });
+
 
 
