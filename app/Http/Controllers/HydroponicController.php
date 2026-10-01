@@ -1567,8 +1567,8 @@ $harvestedTotals = [];
                 // Sort locations naturally by GH and Rack
                 $locations = $items->mapWithKeys(function($item) {
                     $locKey = $item->gh_name . ' - ' . $item->rack_name;
-                    $minAge = \Carbon\Carbon::parse($item->max_planted)->diffInDays(now()); // max planted_at = youngest
-                    $maxAge = \Carbon\Carbon::parse($item->min_planted)->diffInDays(now()); // min planted_at = oldest
+                    $minAge = \Carbon\Carbon::parse($item->max_planted)->startOfDay()->diffInDays(now()->startOfDay()); // max planted_at = youngest
+                    $maxAge = \Carbon\Carbon::parse($item->min_planted)->startOfDay()->diffInDays(now()->startOfDay()); // min planted_at = oldest
                     return [$locKey => [
                         'count' => $item->hole_count,
                         'catatan' => $item->catatan_lapangan ?? '-',
