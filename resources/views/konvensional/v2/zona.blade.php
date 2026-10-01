@@ -83,7 +83,7 @@
             @csrf
             <div style="margin-bottom:1rem;">
                 <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Jumlah Zona yang Dibuat *</label>
-                <input type="number" name="jumlah_zona" required min="1" max="20" value="1"
+                <input type="number" name="jumlah_zona" required min="1" max="500" value="1"
                        style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
             </div>
             <div style="margin-bottom:1rem;">
@@ -94,12 +94,12 @@
             </div>
             <div style="margin-bottom:1rem; padding-top:1rem; border-top:1px dashed var(--border-color);">
                 <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Jumlah Bedengan per Zona</label>
-                <input type="number" name="jumlah_bedengan" required min="0" max="50" value="5"
+                <input type="number" name="jumlah_bedengan" required min="0" max="500" value="5"
                        style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
             </div>
             <div style="margin-bottom:1.5rem;">
                 <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Jumlah Lubang per Bedengan</label>
-                <input type="number" name="jumlah_lubang" required min="0" max="500" value="50"
+                <input type="number" name="jumlah_lubang" required min="0" max="2000" value="50"
                        style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
             </div>
             <div style="display:flex; justify-content:flex-end; gap:0.5rem;">

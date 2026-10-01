@@ -218,9 +218,9 @@ class KonvenV2Controller extends Controller
         KonvenKodeV2::findOrFail($kode_id);
         $r->validate([
             'prefix_nama'     => 'required|string|max:50',
-            'jumlah_zona'     => 'required|integer|min:1|max:20',
-            'jumlah_bedengan' => 'required|integer|min:0|max:50',
-            'jumlah_lubang'   => 'required|integer|min:0|max:500',
+            'jumlah_zona'     => 'required|integer|min:1|max:500',
+            'jumlah_bedengan' => 'required|integer|min:0|max:500',
+            'jumlah_lubang'   => 'required|integer|min:0|max:2000',
         ]);
 
         DB::transaction(function () use ($r, $kode_id) {
