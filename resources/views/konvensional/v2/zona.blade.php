@@ -20,7 +20,7 @@
         <h2 style="margin:0; font-size:1.2rem; font-weight:600; color:var(--text-main);">
             <i class="ph ph-grid-four"></i> Zona — {{ $kode->lahan ? $kode->lahan->nama : ($kode->posisi ? $kode->posisi->lahan->nama : "Kode " . $kode->kode) }}
         </h2>
-        <p style="color:var(--text-muted); font-size:0.8rem; margin-top:0.25rem;">Kelola zona dalam kode {{ $kode->kode }}</p>
+        <p style="color:var(--text-muted); font-size:0.8rem; margin-top:0.25rem;">Kelola zona di lahan {{ $kode->lahan ? $kode->lahan->nama : ($kode->posisi ? $kode->posisi->lahan->nama : $kode->kode) }}</p>
     </div>
     <button onclick="document.getElementById('modalTambahZona').style.display='flex'"
             style="background:var(--asr-green); color:white; border:none; padding:0.6rem 1.2rem; border-radius:8px; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:0.5rem;">
