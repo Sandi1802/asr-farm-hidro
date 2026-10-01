@@ -1,26 +1,88 @@
 <?php
-$hydroponicPath = resource_path('views/hydroponics/dashboard.blade.php');
-$konvensionalPath = resource_path('views/konvensional/dashboard.blade.php');
+$f = 'app/Http/Controllers/KonvensionalController.php';
+$c = file_get_contents($f);
 
-$hydroContent = file_get_contents($hydroponicPath);
-$konvContent = file_get_contents($konvensionalPath);
+// 1. Fix dashboard()
+$pattern1 = '/public function dashboard\(\).*?\/\/\s+4\.\s+Kalender/s';
+preg_match($pattern1, $c, $matches);
 
-// Extract the calendar style block from hydroponics dashboard
-// It's the one containing .cal-grid
-preg_match('/<style>.*?\.cal-grid.*?<\/style>/s', $hydroContent, $matches);
-if (!empty($matches)) {
-    $calendarStyle = $matches[0];
-    // Strip <style> and </style> from it
-    $calendarStyle = str_replace(['<style>', '</style>'], '', $calendarStyle);
+if(isset($matches[0])) {
+    $oldDashboardStart = $matches[0];
     
-    // Inject it into konvensional's existing <style> block
-    if (strpos($konvContent, $calendarStyle) === false) {
-        $konvContent = str_replace('</style>', "\n" . $calendarStyle . "\n</style>", $konvContent);
-    }
+    $newDashboardStart = <<<'EOF'
+public function dashboard()
+    {
+        // 1. Kapasitas & Aset (V2)
+        $totalLahan = \App\Models\KonvenLahanV2::count();
+        $totalBedengan = \App\Models\KonvenBedenganV2::count();
+        $totalTitik = \App\Models\KonvenLubangTanamV2::count();
+        $idleHolesCount = \App\Models\KonvenLubangTanamV2::where('status', 'kosong')
+            ->where('updated_at', '<=', now()->subDays(5))
+            ->count();
+
+        $titikKosong = \App\Models\KonvenLubangTanamV2::where('status', 'kosong')->count();
+
+        // 2. Status Produksi (V2)
+        $titikTerisi = \App\Models\KonvenLubangTanamV2::where('status', 'ditanam')->count();
+        
+        $totalJenisBibit = \App\Models\BibitKonvensional::count(); // Master lama
+        $rataPanenBibit = \App\Models\BibitKonvensional::avg('estimasi_panen_hari') ?? 0;
+
+        $siapPanen = \App\Models\KonvenLubangTanamV2::where('status', 'ditanam')
+            ->whereNotNull('estimated_harvest_at')
+            ->whereDate('estimated_harvest_at', '<=', now())
+            ->count();
+
+        $panenBulanIni = \App\Models\KonvenLubangTanamV2::where('status', 'panen')
+            ->whereMonth('harvested_at', now()->month)
+            ->whereYear('harvested_at', now()->year)
+            ->count();
+
+        // 3. Perawatan & Kendala (V2)
+        $gagalPanen = \App\Models\KonvenLubangTanamV2::where('status', 'rusak')->count();
+
+        $pemupukanBulanIni = \App\Models\Pemupukan::whereMonth('tanggal', now()->month)
+            ->whereYear('tanggal', now()->year)
+            ->count();
+
+        $penyemprotanBulanIni = \App\Models\Penyemprotan::whereMonth('tanggal', now()->month)
+            ->whereYear('tanggal', now()->year)
+            ->count();
+
+        // 4. Kalender
+EOF;
+
+    $c = str_replace($oldDashboardStart, $newDashboardStart, $c);
+    echo "Dashboard updated to V2.\n";
 }
 
-// Clean up duplicate responsive-grid-cal
-$konvContent = preg_replace('/<div class="responsive-grid-cal">\s*{{-- CALENDAR \+ DAILY SCHEDULE \(2-col\) AT TOP --}}\s*<div class="responsive-grid-cal">/', '{{-- CALENDAR + DAILY SCHEDULE (2-col) AT TOP --}}'."\n".'<div class="responsive-grid-cal">', $konvContent);
+// 2. Fix getDashboardPeriodStats()
+$pattern2 = '/\$panenBulanIni = .*?\]\);/s';
+preg_match($pattern2, $c, $matches2);
 
-file_put_contents($konvensionalPath, $konvContent);
-echo "Fixed successfully\n";
+if (isset($matches2[0])) {
+    $oldStats = $matches2[0];
+    
+    $newStats = <<<'EOF'
+$panenBulanIni = \App\Models\KonvenLubangTanamV2::where('status', 'panen')->whereBetween('harvested_at', [$start, $end])->count();
+        $gagalPanen = \App\Models\KonvenLubangTanamV2::where('status', 'rusak')->whereBetween('updated_at', [$start, $end])->count();
+        $pemupukanCount = \App\Models\Pemupukan::whereBetween('tanggal', [$start, $end])->count();
+        $penyemprotanCount = \App\Models\Penyemprotan::whereBetween('tanggal', [$start, $end])->count();
+        $titikDitanam = \App\Models\KonvenLubangTanamV2::where('status', 'ditanam')->whereBetween('planted_at', [$start, $end])->count();
+
+        return response()->json([
+            'period_label' => $periodLabel,
+            'panen' => $panenBulanIni,
+            'gagal' => $gagalPanen,
+            'pemupukan' => $pemupukanCount,
+            'penyemprotan' => $penyemprotanCount,
+            'ditanam' => $titikDitanam,
+        ]);
+EOF;
+
+    $c = str_replace($oldStats, $newStats, $c);
+    echo "Dashboard period stats updated to V2.\n";
+}
+
+file_put_contents($f, $c);
+

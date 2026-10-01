@@ -36,98 +36,20 @@ class KonvensionalController extends Controller
             ->whereDate('tanggal_panen', '<=', now())
             ->count();
 
-        $panenBulanIni = TitikTanam::where('status', 'panen')
-            ->whereMonth('updated_at', now()->month)
-            ->whereYear('updated_at', now()->year)
-            ->count();
+        $panenBulanIni = \App\Models\KonvenLubangTanamV2::where('status', 'panen')->whereBetween('harvested_at', [$start, $end])->count();
+        $gagalPanen = \App\Models\KonvenLubangTanamV2::where('status', 'rusak')->whereBetween('updated_at', [$start, $end])->count();
+        $pemupukanCount = \App\Models\Pemupukan::whereBetween('tanggal', [$start, $end])->count();
+        $penyemprotanCount = \App\Models\Penyemprotan::whereBetween('tanggal', [$start, $end])->count();
+        $titikDitanam = \App\Models\KonvenLubangTanamV2::where('status', 'ditanam')->whereBetween('planted_at', [$start, $end])->count();
 
-        // 3. Perawatan & Kendala
-        $gagalPanen = TitikTanam::where('status', 'gagal')->count();
-        
-        $pemupukanBulanIni = Pemupukan::whereMonth('tanggal', now()->month)
-            ->whereYear('tanggal', now()->year)
-            ->count();
-            
-        $penyemprotanBulanIni = Penyemprotan::whereMonth('tanggal', now()->month)
-            ->whereYear('tanggal', now()->year)
-            ->count();
-
-        // Data untuk Grafik Keterisian per Lahan
-        $lahanList = Lahan::all();
-        $chartKeterisian = [
-            'labels' => [],
-            'terisi' => [],
-            'kosong' => []
-        ];
-
-        foreach ($lahanList as $lahan) {
-            $chartKeterisian['labels'][] = $lahan->nama_lahan;
-            $terisi = TitikTanam::whereHas('bedengan', function($q) use ($lahan) {
-                $q->where('lahan_id', $lahan->id);
-            })->where('status', 'ditanam')->count();
-            
-            $kosong = TitikTanam::whereHas('bedengan', function($q) use ($lahan) {
-                $q->where('lahan_id', $lahan->id);
-            })->where('status', 'kosong')->count();
-
-            $chartKeterisian['terisi'][] = $terisi;
-            $chartKeterisian['kosong'][] = $kosong;
-        }
-
-        // Data untuk Grafik Tren Perawatan (4 minggu terakhir)
-        $chartPerawatan = [
-            'labels' => [],
-            'pemupukan' => [],
-            'penyemprotan' => []
-        ];
-        
-        for ($i = 3; $i >= 0; $i--) {
-            $startDate = now()->subWeeks($i)->startOfWeek();
-            $endDate = now()->subWeeks($i)->endOfWeek();
-            $label = $startDate->format('d M') . ' - ' . $endDate->format('d M');
-            
-            $chartPerawatan['labels'][] = $label;
-            $chartPerawatan['pemupukan'][] = Pemupukan::whereBetween('tanggal', [$startDate, $endDate])->count();
-            $chartPerawatan['penyemprotan'][] = Penyemprotan::whereBetween('tanggal', [$startDate, $endDate])->count();
-        }
-
-        $calendarJson = json_encode($this->buildCalendarEvents());
-
-        return view('konvensional.dashboard', compact(
-            'totalLahan', 'totalBedengan', 'totalTitik', 'titikKosong', 'idleHolesCount',
-            'titikTerisi', 'totalJenisBibit', 'rataPanenBibit', 'siapPanen', 'panenBulanIni',
-            'gagalPanen', 'pemupukanBulanIni', 'penyemprotanBulanIni',
-            'chartKeterisian', 'chartPerawatan', 'calendarJson'
-        ));
-    }
-
-    private function buildCalendarEvents()
-    {
-        $bibits = BibitKonvensional::all()->keyBy('nama_bibit');
-        $events = collect();
-        
-        $titikTanam = TitikTanam::with(['bedengan.lahan'])->where('status', 'ditanam')->whereNotNull('tanggal_tanam')->get();
-        
-        foreach ($titikTanam as $titik) {
-            $bibit = $bibits->get($titik->nama_tanaman);
-            $estimasiPanen = $bibit ? (int)$bibit->estimasi_panen_hari : 30; // default 30 hari if not found
-            
-            $base = \Carbon\Carbon::parse($titik->tanggal_tanam);
-            $lahanName = optional(optional($titik->bedengan)->lahan)->nama_lahan ?? 'Lahan';
-            $bedenganName = optional($titik->bedengan)->nama_bedengan ?? 'Bedengan';
-            $locationBase = $lahanName . ' › ' . $bedenganName;
-            $location = $locationBase . ' › ' . $titik->nama_titik;
-            
-            // Fase Semai/Tanam (Hari ke-0)
-            $events->push([
-                'date' => $base->format('Y-m-d'),
-                'type' => 'semai',
-                'plant_name' => $titik->nama_tanaman ?? 'Tanaman',
-                'location' => $location,
-                'location_base' => $locationBase,
-                'time' => $base->format('H:i'),
-                'stage_day' => 0
-            ]);
+        return response()->json([
+            'period_label' => $periodLabel,
+            'panen' => $panenBulanIni,
+            'gagal' => $gagalPanen,
+            'pemupukan' => $pemupukanCount,
+            'penyemprotan' => $penyemprotanCount,
+            'ditanam' => $titikDitanam,
+        ]);
             
             // Fase Panen (Hari ke-estimasiPanen)
             $events->push([
