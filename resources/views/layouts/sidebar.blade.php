@@ -92,7 +92,7 @@
             </div>
             
             <div class="nav-submenu {{ $konvensionalActive ? 'open' : '' }}">
-                <a href="{{ route('konvensional.lahan') }}" class="submenu-item {{ request()->is('konvensional/lahan*') || request()->is('konvensional/bedengan*') || request()->is('konvensional/titik-tanam*') ? 'active' : '' }}">
+                <a href="{{ route('konven.v2.lahan') }}" class="submenu-item {{ request()->is('konvensional/v2*') ? 'active' : '' }}">
                     <i class="ph ph-map-trifold" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Manajemen Lahan
                 </a>
                 <a href="{{ route('konvensional.pemupukan') }}" class="submenu-item {{ request()->is('konvensional/pemupukan*') ? 'active' : '' }}">
@@ -100,15 +100,6 @@
                 </a>
                 <a href="{{ route('konvensional.penyemprotan') }}" class="submenu-item {{ request()->is('konvensional/penyemprotan*') ? 'active' : '' }}">
                     <i class="ph ph-drop" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Jadwal Penyemprotan
-                </a>
-                <a href="/konvensional/kebun" class="submenu-item {{ request()->is('konvensional/kebun') ? 'active' : '' }}">
-                    <i class="ph ph-squares-four" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Peta Bedeng
-                </a>
-                <a href="/konvensional/kebun/tanam" class="submenu-item {{ request()->is('konvensional/kebun/tanam*') ? 'active' : '' }}">
-                    <i class="ph ph-plant" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Tanam Baru
-                </a>
-                <a href="/konvensional/kebun/panen" class="submenu-item {{ request()->is('konvensional/kebun/panen*') ? 'active' : '' }}">
-                    <i class="ph ph-basket" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Catat Panen
                 </a>
                 <a href="/konvensional/kebun/master-tanaman" class="submenu-item {{ request()->is('konvensional/kebun/master-tanaman*') ? 'active' : '' }}">
                     <i class="ph ph-list-bullets" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Master Tanaman
