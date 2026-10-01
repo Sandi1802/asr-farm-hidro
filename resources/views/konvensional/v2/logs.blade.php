@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Laporan Aktivitas Konvensional')
+@section('title', 'Laporan Pemeliharaan Konvensional')
 
 @section('content')
 <div class="container-fluid" style="padding: 2rem;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
-        <h1 style="margin:0; font-weight:700; color:var(--text-main);">Laporan Aktivitas Harian (Logs)</h1>
+        <h1 style="margin:0; font-weight:700; color:var(--text-main);">Laporan Pemeliharaan & Aktivitas Harian (Logs)</h1>
         
         <form method="GET" action="{{ route('konven.v2.logs') }}" style="display:flex; gap:0.5rem; align-items:center;">
             <input type="date" name="start_date" value="{{ $dateStart }}" class="form-control" style="border-radius:8px; padding:0.5rem; border:1px solid var(--border-color);">
@@ -25,6 +25,7 @@
                         <th style="padding:1rem;">Tindakan</th>
                         <th style="padding:1rem;">Lokasi Lahan</th>
                         <th style="padding:1rem;">Keterangan / Detail</th>
+                        <th style="padding:1rem;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -54,6 +55,14 @@
                         </td>
                         <td style="padding:1rem; font-size:0.85rem; color:var(--text-muted);">{{ $log['lokasi'] }}</td>
                         <td style="padding:1rem; font-size:0.85rem; color:var(--text-main);">{{ $log['detail'] }}</td>
+                        <td style="padding:1rem;">
+                            <form method="POST" action="{{ route('konven.v2.logs.destroy', $log['id']) }}" onsubmit="return confirm('Yakin ingin menghapus riwayat ini?');" style="margin:0;">
+                                @csrf @method('DELETE')
+                                <button type="submit" style="background:#fee2e2; border:1px solid #fca5a5; color:#dc2626; padding:0.4rem 0.6rem; border-radius:6px; cursor:pointer;" title="Hapus Log">
+                                    <i class="ph ph-trash"></i>
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>

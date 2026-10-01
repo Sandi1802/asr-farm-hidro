@@ -67,4 +67,20 @@ class KonvenLogController extends Controller
 
         return view('konvensional.v2.logs', compact('allLogs', 'dateStart', 'dateEnd'));
     }
+
+    public function destroy($id)
+    {
+        $type = substr($id, 0, 1);
+        $realId = substr($id, 1);
+
+        if ($type === 'T') {
+            KonvenTanamLogV2::findOrFail($realId)->delete();
+            return back()->with('success', 'Log aktivitas tanam berhasil dihapus.');
+        } elseif ($type === 'P') {
+            KonvenPerawatanV2::findOrFail($realId)->delete();
+            return back()->with('success', 'Log pemeliharaan berhasil dihapus.');
+        }
+
+        return back()->with('error', 'Format ID log tidak valid.');
+    }
 }

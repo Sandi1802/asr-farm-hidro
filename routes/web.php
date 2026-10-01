@@ -318,6 +318,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('v2')->group(function () {
             // Lahan
             Route::get('/logs', [\App\Http\Controllers\KonvenLogController::class, 'index'])->name('konven.v2.logs');
+            Route::delete('/logs/{id}', [\App\Http\Controllers\KonvenLogController::class, 'destroy'])->name('konven.v2.logs.destroy');
     Route::get('/lahan', [\App\Http\Controllers\KonvenV2Controller::class, 'lahanIndex'])->name('konven.v2.lahan');
             Route::post('/lahan', [\App\Http\Controllers\KonvenV2Controller::class, 'lahanStore'])->name('konven.v2.lahan.store');
             Route::put('/lahan/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'lahanUpdate'])->name('konven.v2.lahan.update');

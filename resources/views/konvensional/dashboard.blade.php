@@ -115,6 +115,7 @@
     </div>
 
     {{-- CALENDAR + DAILY SCHEDULE (2-col) AT TOP --}}
+    @if(in_array(Auth::user()?->role_agri, ['it_admin', 'produksi', 'produksi_gh', 'produksi_konvensional', 'kepala_produksi', 'produksi_paprika']))
 <div class="responsive-grid-cal">
 
         {{-- HARVEST CALENDAR --}}
