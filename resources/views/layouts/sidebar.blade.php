@@ -101,9 +101,6 @@
                 <a href="{{ route('konvensional.penyemprotan') }}" class="submenu-item {{ request()->is('konvensional/penyemprotan*') ? 'active' : '' }}">
                     <i class="ph ph-drop" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Jadwal Penyemprotan
                 </a>
-                <a href="/konvensional/kebun/master-tanaman" class="submenu-item {{ request()->is('konvensional/kebun/master-tanaman*') ? 'active' : '' }}">
-                    <i class="ph ph-list-bullets" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Master Tanaman
-                </a>
             </div>
             @endif
 
@@ -197,7 +194,7 @@
             @endif
 
             @php
-                $masterDataActive = request()->is('hydroponics/master-data/*');
+                $masterDataActive = request()->is('hydroponics/master-data/*') || request()->is('master-data/*') || request()->is('konvensional/kebun/master-tanaman*');
             @endphp
             {{-- Master Data Dropdown --}}
             @if(in_array(Auth::user()?->role_agri, ['it_admin', 'produksi']))
@@ -218,6 +215,9 @@
                 </a>
                 <a href="/hydroponics/master-data/plants" class="submenu-item {{ request()->is('hydroponics/master-data/plants') ? 'active' : '' }}">
                     <i class="ph ph-list-bullets" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Jenis Tanaman
+                </a>
+                <a href="/konvensional/kebun/master-tanaman" class="submenu-item {{ request()->is('konvensional/kebun/master-tanaman*') ? 'active' : '' }}">
+                    <i class="ph ph-list-bullets" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Master Tanaman
                 </a>
                 @if(Auth::user()?->role_agri === 'it_admin')
                   <a href="/hydroponics/master-data/users" class="submenu-item {{ request()->is('hydroponics/master-data/users') ? 'active' : '' }}">
