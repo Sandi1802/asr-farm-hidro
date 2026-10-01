@@ -7,7 +7,7 @@
     <a href="{{ route('konven.v2.lahan') }}" style="color:var(--asr-green); text-decoration:none;">Lahan</a>
     <i class="ph ph-caret-right"></i>
     @if($kode->lahan)
-    <a href="{{ route('konven.v2.kode.bylahan', $kode->lahan->id) }}" style="color:var(--asr-green); text-decoration:none;">{{ $kode->lahan->nama }}</a>
+    <a href="{{ route('konven.v2.kode.bylahan', $kode->lahan->id) . '?manage=1' }}" style="color:var(--asr-green); text-decoration:none;">{{ $kode->lahan->nama }}</a>
     @elseif($kode->posisi)
     <a href="{{ route('konven.v2.posisi', $kode->posisi->lahan_id) }}" style="color:var(--asr-green); text-decoration:none;">{{ $kode->posisi->lahan->nama }}</a>
     @endif

@@ -178,6 +178,10 @@ class KonvenV2Controller extends Controller
                              ->withCount('zonas')
                              ->orderByRaw('LENGTH(kode), kode')
                              ->get();
+
+        if ($kodes->count() === 1 && !request()->has('manage')) {
+            return redirect()->route('konven.v2.zona', $kodes->first()->id);
+        }
         return view('konvensional.v2.kode', compact('lahan', 'kodes'));
     }
 
