@@ -111,9 +111,7 @@
 
                 <div style="flex: 1; overflow: hidden; display: flex; align-items: center; background: transparent; padding: 0.2rem 0;">
                                         @php
-                        $rawMarquee = \App\Models\Setting::where('key', 'marquee_text')->value('value') ?? 'Selamat Datang, {user}! Pantau perkembangbiakan, produksi, dan operasional ASR FARM dengan mudah di sini.';
-                        $userName = Auth::user()->name ?? 'Super Admin';
-                        $marqueeText = str_replace('{user}', $userName, $rawMarquee);
+                        $marqueeText = \App\Models\Setting::where('key', 'marquee_text')->value('value') ?? 'Selamat Datang! Pantau perkembangbiakan, produksi, dan operasional ASR FARM dengan mudah di sini.';
                     @endphp
                     <marquee behavior="scroll" direction="left" scrollamount="6" onmouseover="this.stop();" onmouseout="this.start();" style="width: 100%; display: flex; align-items: center;">
                         <div style="display: inline-flex; align-items: center;">

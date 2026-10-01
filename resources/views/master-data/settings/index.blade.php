@@ -23,7 +23,7 @@
             <label style="display:block; margin-bottom:0.5rem; font-weight:600; color:var(--text-main);">Teks Pengumuman Berjalan (Marquee)</label>
             <textarea name="marquee_text" rows="3" required
                       style="width:100%; padding:0.75rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box; font-family:inherit;">{{ $marqueeText }}</textarea>
-            <small style="color:var(--text-muted); display:block; margin-top:0.5rem;">Gunakan <code>{user}</code> untuk memunculkan nama pengguna yang sedang login secara otomatis.</small>
+            
         </div>
 
         <button type="submit" style="padding:0.75rem 1.5rem; background:var(--asr-green); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;">
