@@ -37,10 +37,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
     <style>
-        .global-marquee-wrapper { overflow: hidden; display: flex; width: 100%; }
-        .global-marquee-content { display: flex; flex-shrink: 0; align-items: center; white-space: nowrap; animation: global-marquee-anim 25s linear infinite; }
-        .global-marquee-content:hover { animation-play-state: paused; }
-        .global-marquee-item { display: flex; align-items: center; padding-right: 3rem; } @keyframes global-marquee-anim { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } } 100% { transform: translate(-100%, 0); } }
+         100% { transform: translateX(-50%); } } 100% { transform: translate(-100%, 0); } }
         
         /* Core DataTables overriding */
         table.dataTable thead th, table.dataTable thead td {
@@ -113,23 +110,17 @@
                 </button>
 
                 <div style="flex: 1; overflow: hidden; display: flex; align-items: center; background: transparent; padding: 0.2rem 0;">
-                    <div class="global-marquee-wrapper">
-                                        <div class="global-marquee-content">
-                        @php
-                            $rawMarquee = \App\Models\Setting::where('key', 'marquee_text')->value('value') ?? 'Selamat Datang, {user}! Pantau perkembangbiakan, produksi, dan operasional ASR FARM dengan mudah di sini.';
-                            $userName = Auth::user()->name ?? 'Super Admin';
-                            $marqueeText = str_replace('{user}', $userName, $rawMarquee);
-                        @endphp
-                        <div class="global-marquee-item">
+                                        @php
+                        $rawMarquee = \App\Models\Setting::where('key', 'marquee_text')->value('value') ?? 'Selamat Datang, {user}! Pantau perkembangbiakan, produksi, dan operasional ASR FARM dengan mudah di sini.';
+                        $userName = Auth::user()->name ?? 'Super Admin';
+                        $marqueeText = str_replace('{user}', $userName, $rawMarquee);
+                    @endphp
+                    <marquee behavior="scroll" direction="left" scrollamount="6" onmouseover="this.stop();" onmouseout="this.start();" style="width: 100%; display: flex; align-items: center;">
+                        <div style="display: inline-flex; align-items: center;">
                             <img src="{{ asset('images/logo-asr.png') }}" alt="Logo" style="height: 24px; width: 24px; object-fit: cover; margin-right: 10px; background-color: #ffffff; border-radius: 50%; padding: 1px;">
                             <span style="font-weight: 500; color: var(--text-main); font-size: 0.9rem;">{{ $marqueeText }}</span>
                         </div>
-                        <div class="global-marquee-item">
-                            <img src="{{ asset('images/logo-asr.png') }}" alt="Logo" style="height: 24px; width: 24px; object-fit: cover; margin-right: 10px; background-color: #ffffff; border-radius: 50%; padding: 1px;">
-                            <span style="font-weight: 500; color: var(--text-main); font-size: 0.9rem;">{{ $marqueeText }}</span>
-                        </div>
-                    </div>
-                </div>
+                    </marquee>
                 </div>
             </div>
             
