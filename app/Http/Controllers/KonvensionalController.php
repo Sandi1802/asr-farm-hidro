@@ -59,20 +59,20 @@ class KonvensionalController extends Controller
             $chartKeterisian['labels'][] = $lahan->nama;
             
             // Get all hole counts for this lahan
-            $terisi = \Illuminate\Support\Facades\DB::table('konven_lubang_tanams_v2')
-                ->join('konven_bedengans_v2', 'konven_lubang_tanams_v2.bedengan_id', '=', 'konven_bedengans_v2.id')
-                ->join('konven_zonas_v2', 'konven_bedengans_v2.zona_id', '=', 'konven_zonas_v2.id')
-                ->join('konven_kodes_v2', 'konven_zonas_v2.kode_id', '=', 'konven_kodes_v2.id')
-                ->where('konven_kodes_v2.lahan_id', $lahan->id)
-                ->where('konven_lubang_tanams_v2.status', 'ditanam')
+            $terisi = \Illuminate\Support\Facades\DB::table('konven_lubang_tanams')
+                ->join('konven_bedengans', 'konven_lubang_tanams.bedengan_id', '=', 'konven_bedengans.id')
+                ->join('konven_zonas', 'konven_bedengans.zona_id', '=', 'konven_zonas.id')
+                ->join('konven_kodes', 'konven_zonas.kode_id', '=', 'konven_kodes.id')
+                ->where('konven_kodes.lahan_id', $lahan->id)
+                ->where('konven_lubang_tanams.status', 'ditanam')
                 ->count();
                 
-            $kosong = \Illuminate\Support\Facades\DB::table('konven_lubang_tanams_v2')
-                ->join('konven_bedengans_v2', 'konven_lubang_tanams_v2.bedengan_id', '=', 'konven_bedengans_v2.id')
-                ->join('konven_zonas_v2', 'konven_bedengans_v2.zona_id', '=', 'konven_zonas_v2.id')
-                ->join('konven_kodes_v2', 'konven_zonas_v2.kode_id', '=', 'konven_kodes_v2.id')
-                ->where('konven_kodes_v2.lahan_id', $lahan->id)
-                ->where('konven_lubang_tanams_v2.status', 'kosong')
+            $kosong = \Illuminate\Support\Facades\DB::table('konven_lubang_tanams')
+                ->join('konven_bedengans', 'konven_lubang_tanams.bedengan_id', '=', 'konven_bedengans.id')
+                ->join('konven_zonas', 'konven_bedengans.zona_id', '=', 'konven_zonas.id')
+                ->join('konven_kodes', 'konven_zonas.kode_id', '=', 'konven_kodes.id')
+                ->where('konven_kodes.lahan_id', $lahan->id)
+                ->where('konven_lubang_tanams.status', 'kosong')
                 ->count();
                 
             $chartKeterisian['terisi'][] = $terisi;
@@ -95,7 +95,7 @@ class KonvensionalController extends Controller
         $calendarData = [];
 
         // Penanaman
-        $tanamGroups = \Illuminate\Support\Facades\DB::table('konven_lubang_tanams_v2')
+        $tanamGroups = \Illuminate\Support\Facades\DB::table('konven_lubang_tanams')
             ->where('status', 'ditanam')
             ->whereNotNull('planted_at')
             ->select(\Illuminate\Support\Facades\DB::raw('DATE(planted_at) as date'), 'plant_name', \Illuminate\Support\Facades\DB::raw('COUNT(*) as count'))
@@ -113,7 +113,7 @@ class KonvensionalController extends Controller
         }
         
         // Panen
-        $panenGroups = \Illuminate\Support\Facades\DB::table('konven_lubang_tanams_v2')
+        $panenGroups = \Illuminate\Support\Facades\DB::table('konven_lubang_tanams')
             ->where('status', 'ditanam')
             ->whereNotNull('estimated_harvest_at')
             ->select(\Illuminate\Support\Facades\DB::raw('DATE(estimated_harvest_at) as date'), 'plant_name', \Illuminate\Support\Facades\DB::raw('COUNT(*) as count'))
