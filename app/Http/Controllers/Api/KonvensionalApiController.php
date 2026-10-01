@@ -260,4 +260,13 @@ class KonvensionalApiController extends Controller
         }
         return response()->json(['success' => true, 'message' => 'Kerusakan berhasil dicatat']);
     }
+
+    public function masterTanaman()
+    {
+        $master = \App\Models\KonvenTanaman::orderBy('nama')->get();
+        return response()->json([
+            'success' => true,
+            'data' => $master
+        ]);
+    }
 }

@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/racks', [RackApiController::class, 'index']);
     Route::get('/racks/{id}', [RackApiController::class, 'show']);
         Route::get('/konvensional/dashboard', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'dashboard']);
+    Route::get('/konvensional/master-tanaman', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'masterTanaman']);
     Route::get('/konvensional/lahan/{id}', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'detailLahan']);
     Route::get('/konvensional/kode/{id}', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'detailKode']);
     Route::get('/konvensional/zona/{id}', [\App\Http\Controllers\Api\KonvensionalApiController::class, 'detailZona']);
