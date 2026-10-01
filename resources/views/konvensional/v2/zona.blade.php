@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Zona – ' . $kode->kode)
+@section('title', 'Zona — ' . ($kode->lahan ? $kode->lahan->nama : ($kode->posisi ? $kode->posisi->lahan->nama : $kode->kode)))
 @section('content')
 
 {{-- Breadcrumb --}}
@@ -18,7 +18,7 @@
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
     <div>
         <h2 style="margin:0; font-size:1.2rem; font-weight:600; color:var(--text-main);">
-            <i class="ph ph-grid-four"></i> Zona – Kode {{ $kode->kode }}
+            <i class="ph ph-grid-four"></i> Zona — {{ $kode->lahan ? $kode->lahan->nama : ($kode->posisi ? $kode->posisi->lahan->nama : "Kode " . $kode->kode) }}
         </h2>
         <p style="color:var(--text-muted); font-size:0.8rem; margin-top:0.25rem;">Kelola zona dalam kode {{ $kode->kode }}</p>
     </div>
