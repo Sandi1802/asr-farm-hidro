@@ -97,7 +97,7 @@ $harvestedTotals = [];
         // Siap Panen — per-plant dynamic threshold
         $readyIds = \App\Models\Hole::leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
             ->where('holes.status', 'ditanam')
-            ->whereRaw("holes.planted_at <= NOW() - (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day')", [$defaultDays])
+            ->whereRaw("holes.planted_at <= NOW() - ((COALESCE(plant_types.growth_days, ?) - COALESCE(plant_types.semai_days, 0)) * INTERVAL '1 day')", [$defaultDays])
             ->pluck('holes.id');
 
         $readyToHarvestCount = $readyIds->count();
@@ -541,7 +541,7 @@ $harvestedTotals = [];
                 ->leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
                 ->where('holes.status', 'ditanam')
                 ->whereNotNull('holes.planted_at')
-                ->whereRaw("holes.planted_at <= NOW() - (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day')", [$defaultDays])
+                ->whereRaw("holes.planted_at <= NOW() - ((COALESCE(plant_types.growth_days, ?) - COALESCE(plant_types.semai_days, 0)) * INTERVAL '1 day')", [$defaultDays])
                 ->select('holes.*')
                 ->get();
             
@@ -673,7 +673,7 @@ $harvestedTotals = [];
             $readyIds = \App\Models\Hole::leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
                 ->where('holes.status', 'ditanam')
                 ->whereNotNull('holes.planted_at')
-                ->whereRaw("holes.planted_at <= NOW() - (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day')", [$defaultDays])
+                ->whereRaw("holes.planted_at <= NOW() - ((COALESCE(plant_types.growth_days, ?) - COALESCE(plant_types.semai_days, 0)) * INTERVAL '1 day')", [$defaultDays])
                 ->pluck('holes.id');
             
             $readyToHarvestCount = $readyIds->count();
@@ -902,7 +902,7 @@ $harvestedTotals = [];
             ->leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
             ->where('holes.status', 'ditanam')
             ->whereNotNull('holes.planted_at')
-            ->whereRaw("holes.planted_at <= NOW() - (COALESCE(plant_types.growth_days, 30) * INTERVAL '1 day')")
+            ->whereRaw("holes.planted_at <= NOW() - ((COALESCE(plant_types.growth_days, 30) - COALESCE(plant_types.semai_days, 0)) * INTERVAL '1 day')")
             ->select(
                 'racks.greenhouse_id',
                 'holes.plant_name',
@@ -950,7 +950,7 @@ $harvestedTotals = [];
             ->where('holes.status', 'ditanam')
             ->where(function($q) {
                 $q->whereNull('holes.planted_at')
-                  ->orWhereRaw("holes.planted_at > NOW() - (COALESCE(plant_types.growth_days, 30) * INTERVAL '1 day')");
+                  ->orWhereRaw("holes.planted_at > NOW() - ((COALESCE(plant_types.growth_days, 30) - COALESCE(plant_types.semai_days, 0)) * INTERVAL '1 day')");
             })
             ->select(
                 'racks.greenhouse_id',
@@ -1044,7 +1044,7 @@ $harvestedTotals = [];
         })->leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
           ->where('holes.status', 'ditanam')
           ->whereNotNull('holes.planted_at')
-          ->whereRaw("holes.planted_at <= NOW() - (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day')", [$defaultDays])
+          ->whereRaw("holes.planted_at <= NOW() - ((COALESCE(plant_types.growth_days, ?) - COALESCE(plant_types.semai_days, 0)) * INTERVAL '1 day')", [$defaultDays])
           ->count();
 
         return view('hydroponics.greenhouse-detail', compact('greenhouse', 'totalHoles', 'harvestedHoles', 'damagedHoles', 'readyToHarvestCount'));
@@ -1462,7 +1462,7 @@ $harvestedTotals = [];
             ->leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
             ->where('holes.status', 'ditanam')
             ->whereNotNull('holes.planted_at')
-            ->whereRaw("holes.planted_at <= NOW() - (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day')", [$defaultDays])
+            ->whereRaw("holes.planted_at <= NOW() - ((COALESCE(plant_types.growth_days, ?) - COALESCE(plant_types.semai_days, 0)) * INTERVAL '1 day')", [$defaultDays])
             ->select('holes.*')
             ->get();
 
@@ -1504,7 +1504,7 @@ $harvestedTotals = [];
         $count = \App\Models\Hole::leftJoin('plant_types', 'holes.plant_name', '=', 'plant_types.name')
             ->where('holes.status', 'ditanam')
             ->whereNotNull('holes.planted_at')
-            ->whereRaw("holes.planted_at <= NOW() - (COALESCE(plant_types.growth_days, ?) * INTERVAL '1 day')", [$defaultDays])
+            ->whereRaw("holes.planted_at <= NOW() - ((COALESCE(plant_types.growth_days, ?) - COALESCE(plant_types.semai_days, 0)) * INTERVAL '1 day')", [$defaultDays])
             ->count();
 
         session(['harvest_notif_read_count' => $count]);
