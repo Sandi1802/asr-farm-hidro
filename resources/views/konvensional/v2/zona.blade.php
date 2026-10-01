@@ -6,9 +6,11 @@
 <nav style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1.25rem;">
     <a href="{{ route('konven.v2.lahan') }}" style="color:var(--asr-green); text-decoration:none;">Lahan</a>
     <i class="ph ph-caret-right"></i>
+    @if($kode->lahan)
+    <a href="{{ route('konven.v2.kode.bylahan', $kode->lahan->id) }}" style="color:var(--asr-green); text-decoration:none;">{{ $kode->lahan->nama }}</a>
+    @elseif($kode->posisi)
     <a href="{{ route('konven.v2.posisi', $kode->posisi->lahan_id) }}" style="color:var(--asr-green); text-decoration:none;">{{ $kode->posisi->lahan->nama }}</a>
-    <i class="ph ph-caret-right"></i>
-    <a href="{{ route('konven.v2.kode', $kode->posisi_id) }}" style="color:var(--asr-green); text-decoration:none;">{{ $kode->posisi->nama }}</a>
+    @endif
     <i class="ph ph-caret-right"></i>
     <span style="color:var(--text-main); font-weight:600;">{{ $kode->kode }}</span>
 </nav>

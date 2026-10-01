@@ -21,7 +21,10 @@ class KonvenV2Controller extends Controller
 
     public function lahanIndex()
     {
-        $lahans = KonvenLahanV2::withCount('posisis')->orderBy('nama')->get();
+        $lahans = KonvenLahanV2::with(['kodes' => fn($q) => $q->withCount('zonas')])
+                               ->withCount('kodes')
+                               ->orderBy('nama')
+                               ->get();
         return view('konvensional.v2.lahan', compact('lahans'));
     }
 
@@ -160,12 +163,48 @@ class KonvenV2Controller extends Controller
     }
 
     // ══════════════════════════════════════════════════════════════════════════
+    // KODE LANGSUNG DARI LAHAN (tanpa Posisi) – metode baru
+    // ══════════════════════════════════════════════════════════════════════════
+
+    public function kodeByLahan($lahan_id)
+    {
+        $lahan = KonvenLahanV2::findOrFail($lahan_id);
+        $kodes = KonvenKodeV2::where('lahan_id', $lahan_id)
+                             ->withCount('zonas')
+                             ->orderBy('kode')
+                             ->get();
+        return view('konvensional.v2.kode', compact('lahan', 'kodes'));
+    }
+
+    public function kodeStoreDirect(Request $r, $lahan_id)
+    {
+        KonvenLahanV2::findOrFail($lahan_id);
+        $r->validate([
+            'prefix_kode'  => 'required|alpha|size:1',
+            'nomor_urut'   => 'required|integer|min:1',
+            'label_posisi' => 'nullable|string|max:50',
+        ]);
+
+        $kode = strtoupper($r->prefix_kode) . $r->nomor_urut;
+
+        KonvenKodeV2::create([
+            'lahan_id'     => $lahan_id,
+            'posisi_id'    => null,
+            'kode'         => $kode,
+            'nomor_urut'   => $r->nomor_urut,
+            'label_posisi' => $r->label_posisi,
+        ]);
+
+        return back()->with('success', "Kode {$kode} berhasil ditambahkan.");
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
     // ZONA (dalam kode)
     // ══════════════════════════════════════════════════════════════════════════
 
     public function zonaIndex($kode_id)
     {
-        $kode  = KonvenKodeV2::with('posisi.lahan')->findOrFail($kode_id);
+        $kode  = KonvenKodeV2::with('posisi.lahan', 'lahan')->findOrFail($kode_id);
         $zonas = KonvenZonaV2::where('kode_id', $kode_id)
                               ->withCount('bedengans')
                               ->orderBy('nama')
@@ -202,7 +241,7 @@ class KonvenV2Controller extends Controller
 
     public function bedenganIndex($zona_id)
     {
-        $zona      = KonvenZonaV2::with('kode.posisi.lahan')->findOrFail($zona_id);
+        $zona      = KonvenZonaV2::with('kode.posisi.lahan', 'kode.lahan')->findOrFail($zona_id);
         $bedengans = KonvenBedenganV2::where('zona_id', $zona_id)
             ->with(['lubangTanams'])
             ->orderBy('nomor')
@@ -279,6 +318,7 @@ class KonvenV2Controller extends Controller
     {
         $bedengan = KonvenBedenganV2::with([
             'zona.kode.posisi.lahan',
+            'zona.kode.lahan',
             'lubangTanams' => fn($q) => $q->orderBy('nomor_lubang'),
         ])->findOrFail($bedengan_id);
 

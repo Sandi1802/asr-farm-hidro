@@ -1,26 +1,21 @@
 @extends('layouts.app')
-@section('title', 'Kode – ' . $posisi->nama)
+@section('title', 'Kode – ' . $lahan->nama)
 @section('content')
 
 {{-- Breadcrumb --}}
 <nav style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1.25rem;">
     <a href="{{ route('konven.v2.lahan') }}" style="color:var(--asr-green); text-decoration:none;">Lahan</a>
     <i class="ph ph-caret-right"></i>
-    <a href="{{ route('konven.v2.posisi', $posisi->lahan_id) }}" style="color:var(--asr-green); text-decoration:none;">{{ $posisi->lahan->nama }}</a>
-    <i class="ph ph-caret-right"></i>
-    <span style="color:var(--text-main); font-weight:600;">{{ $posisi->nama }}</span>
+    <span style="color:var(--text-main); font-weight:600;">{{ $lahan->nama }}</span>
 </nav>
 
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
     <div>
         <h2 style="margin:0; font-size:1.2rem; font-weight:600; color:var(--text-main);">
-            <i class="ph ph-list-numbers"></i> Kode – {{ $posisi->nama }}
-            <span style="background:var(--asr-green-light); color:var(--asr-green); padding:0.15rem 0.6rem; border-radius:50px; font-size:0.75rem; font-weight:700; margin-left:0.5rem;">
-                Prefix: {{ $posisi->prefix_kode }}
-            </span>
+            <i class="ph ph-list-numbers"></i> Kode – {{ $lahan->nama }}
         </h2>
         <p style="color:var(--text-muted); font-size:0.8rem; margin-top:0.25rem;">
-            Kode urutan dalam posisi ({{ $posisi->prefix_kode }}1, {{ $posisi->prefix_kode }}2, ...)
+            Kelola kode lahan (A1, B1, C2, dst.) langsung di bawah lahan
         </p>
     </div>
     <button onclick="document.getElementById('modalTambahKode').style.display='flex'"
@@ -41,6 +36,13 @@
         <div style="font-size:2rem; font-weight:800; color:var(--asr-green); margin-bottom:0.25rem;">
             {{ $kode->kode }}
         </div>
+        @if($kode->label_posisi)
+        <div style="margin-bottom:0.4rem;">
+            <span style="background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; padding:0.1rem 0.55rem; border-radius:50px; font-size:0.7rem; font-weight:600;">
+                {{ $kode->label_posisi }}
+            </span>
+        </div>
+        @endif
         <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:1rem;">
             {{ $kode->zonas_count }} zona
         </div>
@@ -50,7 +52,7 @@
                 <i class="ph ph-grid-four"></i> Kelola Zona
             </a>
             <div style="display:flex; gap:0.4rem;">
-                <button onclick="openEditKode({{ $kode->id }}, {{ $kode->nomor_urut }})"
+                <button onclick="openEditKode({{ $kode->id }}, {{ $kode->nomor_urut }}, '{{ addslashes($kode->label_posisi ?? '') }}')"
                         style="flex:1; padding:0.4rem; background:#f1f5f9; border:1px solid var(--border-color); border-radius:8px; cursor:pointer; font-size:0.75rem;">
                     <i class="ph ph-pencil"></i>
                 </button>
@@ -74,18 +76,34 @@
 
 {{-- Modal Tambah --}}
 <div id="modalTambahKode" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:white; border-radius:12px; width:100%; max-width:420px; padding:1.5rem; margin:1rem;">
+    <div style="background:white; border-radius:12px; width:100%; max-width:440px; padding:1.5rem; margin:1rem;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
             <h3 style="margin:0; font-size:1rem; font-weight:600;">Tambah Kode Baru</h3>
             <button onclick="document.getElementById('modalTambahKode').style.display='none'" style="background:none; border:none; font-size:1.25rem; cursor:pointer;"><i class="ph ph-x"></i></button>
         </div>
-        <form action="{{ route('konven.v2.kode.store', $posisi->id) }}" method="POST">
+        <form action="{{ route('konven.v2.kode.store.direct', $lahan->id) }}" method="POST">
             @csrf
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+                <div>
+                    <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">
+                        Prefix * <small style="color:var(--text-muted);">(1 huruf, mis. A)</small>
+                    </label>
+                    <input type="text" name="prefix_kode" required maxlength="1" placeholder="A"
+                           style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box; text-transform:uppercase;">
+                </div>
+                <div>
+                    <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">
+                        Nomor Urut *
+                    </label>
+                    <input type="number" name="nomor_urut" required min="1" placeholder="1"
+                           style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
+                </div>
+            </div>
             <div style="margin-bottom:1.25rem;">
                 <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">
-                    Nomor Urut * <small style="color:var(--text-muted);">(akan jadi {{ $posisi->prefix_kode }}[nomor])</small>
+                    Label Posisi <small style="color:var(--text-muted);">(opsional, mis. Atas, Bawah)</small>
                 </label>
-                <input type="number" name="nomor_urut" required min="1" placeholder="1"
+                <input type="text" name="label_posisi" maxlength="50" placeholder="Atas"
                        style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
             </div>
             <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
@@ -99,16 +117,21 @@
 
 {{-- Modal Edit --}}
 <div id="modalEditKode" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:white; border-radius:12px; width:100%; max-width:420px; padding:1.5rem; margin:1rem;">
+    <div style="background:white; border-radius:12px; width:100%; max-width:440px; padding:1.5rem; margin:1rem;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
             <h3 style="margin:0; font-size:1rem; font-weight:600;">Edit Kode</h3>
             <button onclick="document.getElementById('modalEditKode').style.display='none'" style="background:none; border:none; font-size:1.25rem; cursor:pointer;"><i class="ph ph-x"></i></button>
         </div>
         <form id="formEditKode" method="POST">
             @csrf @method('PUT')
-            <div style="margin-bottom:1.25rem;">
+            <div style="margin-bottom:1rem;">
                 <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Nomor Urut *</label>
                 <input type="number" id="editKodeNomor" name="nomor_urut" required min="1"
+                       style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:1.25rem;">
+                <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Label Posisi</label>
+                <input type="text" id="editKodeLabelPosisi" name="label_posisi" maxlength="50" placeholder="Atas"
                        style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
             </div>
             <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
@@ -121,9 +144,10 @@
 </div>
 
 <script>
-function openEditKode(id, nomor) {
-    document.getElementById('editKodeNomor').value  = nomor;
-    document.getElementById('formEditKode').action  = '/konvensional/v2/kode/' + id;
+function openEditKode(id, nomor, labelPosisi) {
+    document.getElementById('editKodeNomor').value         = nomor;
+    document.getElementById('editKodeLabelPosisi').value   = labelPosisi;
+    document.getElementById('formEditKode').action         = '/konvensional/v2/kode/' + id;
     document.getElementById('modalEditKode').style.display = 'flex';
 }
 </script>

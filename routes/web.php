@@ -330,6 +330,10 @@ Route::middleware('auth')->group(function () {
             Route::put('/kode/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'kodeUpdate'])->name('konven.v2.kode.update');
             Route::delete('/kode/{id}', [\App\Http\Controllers\KonvenV2Controller::class, 'kodeDestroy'])->name('konven.v2.kode.destroy');
 
+            // Kode langsung dari Lahan (tanpa Posisi)
+            Route::get('/lahan/{lahan_id}/kode', [\App\Http\Controllers\KonvenV2Controller::class, 'kodeByLahan'])->name('konven.v2.kode.bylahan');
+            Route::post('/lahan/{lahan_id}/kode', [\App\Http\Controllers\KonvenV2Controller::class, 'kodeStoreDirect'])->name('konven.v2.kode.store.direct');
+
             // Zona
             Route::get('/kode/{kode_id}/zona', [\App\Http\Controllers\KonvenV2Controller::class, 'zonaIndex'])->name('konven.v2.zona');
             Route::post('/kode/{kode_id}/zona', [\App\Http\Controllers\KonvenV2Controller::class, 'zonaStore'])->name('konven.v2.zona.store');

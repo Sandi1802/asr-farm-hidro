@@ -32,16 +32,16 @@
             </div>
             <div>
                 <div style="font-weight:700; font-size:1rem; color:var(--text-main);">{{ $lahan->nama }}</div>
-                <div style="font-size:0.75rem; color:var(--text-muted);">{{ $lahan->posisis_count }} posisi</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">{{ $lahan->kodes_count }} kode</div>
             </div>
         </div>
         @if($lahan->catatan)
         <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem;">{{ $lahan->catatan }}</p>
         @endif
         <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <a href="{{ route('konven.v2.posisi', $lahan->id) }}"
+            <a href="{{ route('konven.v2.kode.bylahan', $lahan->id) }}"
                style="flex:1; text-align:center; padding:0.5rem; background:var(--asr-green); color:white; border-radius:8px; text-decoration:none; font-size:0.8rem; font-weight:600;">
-                <i class="ph ph-arrow-right"></i> Kelola
+                <i class="ph ph-arrow-right"></i> Kelola Kode
             </a>
             <button onclick="openEditLahan({{ $lahan->id }}, '{{ addslashes($lahan->nama) }}', '{{ addslashes($lahan->catatan ?? '') }}')"
                     style="padding:0.5rem 0.75rem; background:#f1f5f9; border:1px solid var(--border-color); border-radius:8px; cursor:pointer; font-size:0.8rem;">
