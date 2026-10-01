@@ -56,6 +56,7 @@ $plantStageJson = json_encode($plantStageData ?? []);
 .cal-scroll-wrapper::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 @media (max-width: 600px) {
     .cal-event-label { display: none !important; }
+    .cal-header-container { padding: 1rem 0.75rem !important; }
     .cal-event-pill { justify-content: center !important; text-align: center; padding: 2px 0 !important; font-size: 0.55rem !important; margin-bottom: 1px !important; border-left-width: 1px !important; }
     .cal-day { padding: 4px 2px !important; min-height: 55px !important; }
     .cal-day-num { font-size: 0.7rem !important; margin-bottom: 2px !important; }
@@ -136,14 +137,14 @@ $plantStageJson = json_encode($plantStageData ?? []);
 
         {{-- HARVEST CALENDAR --}}
         <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
-            <div style="padding: 1.1rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <div class="cal-header-container" style="padding: 1.1rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
                 <h2 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
                     <i class="ph ph-calendar-check" style="color: var(--asr-green);"></i> Kalender Pertumbuhan
                 </h2>
-                <div style="display: flex; align-items: center; gap: 0.5rem; position: relative;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; position: relative; flex-wrap: wrap; justify-content: flex-end;">
                     <button onclick="document.getElementById('addEventModal').classList.add('open')" style="border:none;background:var(--asr-green-light);color:var(--asr-green-dark);border-radius:7px;padding:0.4rem 0.8rem;cursor:pointer;font-weight:700;font-size:0.8rem;display:flex;align-items:center;gap:0.3rem;"><i class="ph ph-plus"></i> Kegiatan</button>
                     <button onclick="changeMonth(-1)" class="cal-nav-btn"><i class="ph ph-caret-left"></i></button>
-                    <div style="display:flex; gap:0.25rem; font-weight:700; font-size:1rem; color:var(--text-main); min-width:140px; justify-content:center; align-items:center;">
+                    <div style="display:flex; gap:0.25rem; font-weight:700; font-size:1rem; color:var(--text-main); justify-content:center; align-items:center;">
                         <span class="cal-month-selector" onclick="toggleMonthSelect()" id="calMonthText" style="cursor:pointer;"></span>
                         <span class="cal-year-selector" onclick="toggleYearSelect()" id="calYearText" style="cursor:pointer;"></span>
                     </div>
@@ -592,6 +593,7 @@ $plantStageJson = json_encode($plantStageData ?? []);
 .cal-scroll-wrapper::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 @media (max-width: 600px) {
     .cal-event-label { display: none !important; }
+    .cal-header-container { padding: 1rem 0.75rem !important; }
     .cal-event-pill { justify-content: center !important; text-align: center; padding: 2px 0 !important; font-size: 0.55rem !important; margin-bottom: 1px !important; border-left-width: 1px !important; }
     .cal-day { padding: 4px 2px !important; min-height: 55px !important; }
     .cal-day-num { font-size: 0.7rem !important; margin-bottom: 2px !important; }
@@ -706,6 +708,7 @@ $plantStageJson = json_encode($plantStageData ?? []);
 .cal-scroll-wrapper::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 @media (max-width: 600px) {
     .cal-event-label { display: none !important; }
+    .cal-header-container { padding: 1rem 0.75rem !important; }
     .cal-event-pill { justify-content: center !important; text-align: center; padding: 2px 0 !important; font-size: 0.55rem !important; margin-bottom: 1px !important; border-left-width: 1px !important; }
     .cal-day { padding: 4px 2px !important; min-height: 55px !important; }
     .cal-day-num { font-size: 0.7rem !important; margin-bottom: 2px !important; }
