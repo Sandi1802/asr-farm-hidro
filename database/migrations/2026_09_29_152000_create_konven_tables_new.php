@@ -9,31 +9,38 @@ return new class extends Migration
     public function up()
     {
         // 1. Lahan (Atas, Bawah)
-        Schema::create('konven_lahan', function (Blueprint $table) {
+        if (!Schema::hasTable('konven_lahan')) {
+            Schema::create('konven_lahan', function (Blueprint $table) {
             $table->id();
             $table->string('nama'); // "Atas", "Bawah"
             $table->timestamps();
         });
+        }
 
         // 2. Zona (Atas hanya 1 zona, Bawah punya Zona A & Zona B)
-        Schema::create('konven_zona', function (Blueprint $table) {
+        if (!Schema::hasTable('konven_zona')) {
+            Schema::create('konven_zona', function (Blueprint $table) {
             $table->id();
             $table->foreignId('lahan_id')->constrained('konven_lahan')->onDelete('cascade');
             $table->string('nama'); // "Atas", "Zona A", "Zona B"
             $table->timestamps();
         });
+        }
 
         // 3. Pola (A, B, C, ... J)
-        Schema::create('konven_pola', function (Blueprint $table) {
+        if (!Schema::hasTable('konven_pola')) {
+            Schema::create('konven_pola', function (Blueprint $table) {
             $table->id();
             $table->foreignId('zona_id')->constrained('konven_zona')->onDelete('cascade');
             $table->string('nama'); // "A", "B", ...
             $table->integer('urutan')->default(0);
             $table->timestamps();
         });
+        }
 
         // 4. Bedeng
-        Schema::create('konven_bedeng', function (Blueprint $table) {
+        if (!Schema::hasTable('konven_bedeng')) {
+            Schema::create('konven_bedeng', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pola_id')->constrained('konven_pola')->onDelete('cascade');
             $table->string('kode')->unique(); // "ATAS-A-01", "BAWAH-ZA-A-01"
@@ -42,9 +49,11 @@ return new class extends Migration
             $table->boolean('aktif')->default(true);
             $table->timestamps();
         });
+        }
 
         // 5. Master Tanaman
-        Schema::create('konven_tanaman', function (Blueprint $table) {
+        if (!Schema::hasTable('konven_tanaman')) {
+            Schema::create('konven_tanaman', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
             $table->string('varietas')->nullable();
@@ -54,9 +63,11 @@ return new class extends Migration
             $table->text('catatan')->nullable();
             $table->timestamps();
         });
+        }
 
         // 6. Tanam (satu siklus tanam pada satu bedeng)
-        Schema::create('konven_tanam', function (Blueprint $table) {
+        if (!Schema::hasTable('konven_tanam')) {
+            Schema::create('konven_tanam', function (Blueprint $table) {
             $table->id();
             $table->foreignId('bedeng_id')->constrained('konven_bedeng')->onDelete('cascade');
             $table->foreignId('tanaman_id')->constrained('konven_tanaman')->onDelete('cascade');
@@ -75,9 +86,11 @@ return new class extends Migration
 
             $table->foreign('dibuat_oleh')->references('id')->on('users')->nullOnDelete();
         });
+        }
 
         // 7. Panen
-        Schema::create('konven_panen', function (Blueprint $table) {
+        if (!Schema::hasTable('konven_panen')) {
+            Schema::create('konven_panen', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tanam_id')->constrained('konven_tanam')->onDelete('cascade');
             $table->date('tanggal_panen');
@@ -87,6 +100,7 @@ return new class extends Migration
             $table->text('catatan')->nullable();
             $table->timestamps();
         });
+        }
     }
 
     public function down()

@@ -13,7 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('asset_damage_notes', function (Blueprint $table) {
+        if (!Schema::hasTable('asset_damage_notes')) {
+            Schema::create('asset_damage_notes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             $table->string('asset_name');
@@ -25,6 +26,7 @@ return new class extends Migration
             $table->string('status')->default('open'); // open, handling, resolved
             $table->timestamps();
         });
+        }
     }
 
     /**
