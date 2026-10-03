@@ -7,76 +7,108 @@
             <h1 style="font-size: 1.5rem; color: var(--text-main); font-weight: 600; margin-bottom: 0.5rem;">Dashboard Paprika</h1>
             <p style="color: var(--text-muted); font-size: 0.95rem;">Ringkasan dan statistik tanaman paprika.</p>
         </div>
+        <div>
+            <a href="{{ route('paprika.v2.index') }}" class="btn-primary" style="display:inline-block; padding: 0.75rem 1.5rem; border-radius: 8px; background: var(--asr-green); color: white; text-decoration: none; font-weight:600;">
+                Kelola GH & Baris
+            </a>
+        </div>
     </div>
 </div>
 
-<div class="dashboard-stats" style="margin-top: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+<div class="stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1.5rem;">
     <!-- Card Total GH -->
     <a href="/paprika/v2" style="text-decoration:none;">
-        <div class="stat-big-card" style="background:#e0f2fe; padding:1.5rem; border-radius:12px; position:relative; overflow:hidden;">
-            <div>
-                <div style="font-size:2rem; font-weight:800; color:#0369a1;">{{ number_format($totalGh, 0, ',', '.') }}</div>
-                <div style="font-size:0.9rem; color:#0c4a6e; font-weight:600; margin-top:0.25rem;">Total GH</div>
+        <div class="stat-card" style="background: var(--card-bg); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 1.2rem; transition: transform 0.2s, box-shadow 0.2s;">
+            <div style="width: 56px; height: 56px; border-radius: 14px; background: rgba(34, 197, 94, 0.15); color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 1.75rem;">
+                <i class="ph ph-house-line"></i>
             </div>
-            <i class="ph ph-house-line" style="position:absolute; right:1rem; bottom:1rem; font-size:4rem; color:#0284c7; opacity:0.2;"></i>
+            <div>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.25rem; font-weight: 500;">Total GH</p>
+                <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">{{ number_format($totalGh, 0, ',', '.') }}</h3>
+            </div>
         </div>
     </a>
 
-    <!-- Card Total Tanaman -->
+    <!-- Card Total Tanaman (Red) -->
     <a href="/paprika/v2" style="text-decoration:none;">
-        <div class="stat-big-card" style="background:#f3f4f6; padding:1.5rem; border-radius:12px; position:relative; overflow:hidden;">
-            <div>
-                <div style="font-size:2rem; font-weight:800; color:#374151;">{{ number_format($totalPlants, 0, ',', '.') }}</div>
-                <div style="font-size:0.9rem; color:#4b5563; font-weight:600; margin-top:0.25rem;">Total Pot Paprika</div>
+        <div class="stat-card" style="background: var(--card-bg); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 1.2rem; transition: transform 0.2s, box-shadow 0.2s;">
+            <div style="width: 56px; height: 56px; border-radius: 14px; background: rgba(239, 68, 68, 0.15); color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 1.75rem;">
+                <i class="ph ph-plant"></i>
             </div>
-            <i class="ph ph-pepper" style="position:absolute; right:1rem; bottom:1rem; font-size:4rem; color:#6b7280; opacity:0.2;"></i>
+            <div>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.25rem; font-weight: 500;">Total Pot Paprika</p>
+                <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">{{ number_format($totalPlants, 0, ',', '.') }}</h3>
+            </div>
         </div>
     </a>
 
-    <!-- Card Ditanam -->
+    <!-- Card Ditanam (Orange) -->
     <a href="/paprika/v2" style="text-decoration:none;">
-        <div class="stat-big-card" style="background:#dcfce7; padding:1.5rem; border-radius:12px; position:relative; overflow:hidden;">
-            <div>
-                <div style="font-size:2rem; font-weight:800; color:#166534;">{{ number_format($totalPlanted, 0, ',', '.') }}</div>
-                <div style="font-size:0.9rem; color:#14532d; font-weight:600; margin-top:0.25rem;">Sedang Ditanam</div>
+        <div class="stat-card" style="background: var(--card-bg); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 1.2rem; transition: transform 0.2s, box-shadow 0.2s;">
+            <div style="width: 56px; height: 56px; border-radius: 14px; background: rgba(249, 115, 22, 0.15); color: #f97316; display: flex; align-items: center; justify-content: center; font-size: 1.75rem;">
+                <i class="ph ph-seedling"></i>
             </div>
-            <i class="ph ph-seedling" style="position:absolute; right:1rem; bottom:1rem; font-size:4rem; color:#16a34a; opacity:0.2;"></i>
+            <div>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.25rem; font-weight: 500;">Sedang Ditanam</p>
+                <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">{{ number_format($totalPlanted, 0, ',', '.') }}</h3>
+            </div>
         </div>
     </a>
 
-    <!-- Card Panen -->
+    <!-- Card Kosong (Gray) -->
     <a href="/paprika/v2" style="text-decoration:none;">
-        <div class="stat-big-card" style="background:#ffedd5; padding:1.5rem; border-radius:12px; position:relative; overflow:hidden;">
-            <div>
-                <div style="font-size:2rem; font-weight:800; color:#c2410c;">{{ number_format($totalPanen, 0, ',', '.') }}</div>
-                <div style="font-size:0.9rem; color:#9a3412; font-weight:600; margin-top:0.25rem;">Total Panen</div>
+        <div class="stat-card" style="background: var(--card-bg); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 1.2rem; transition: transform 0.2s, box-shadow 0.2s;">
+            <div style="width: 56px; height: 56px; border-radius: 14px; background: rgba(107, 114, 128, 0.15); color: #6b7280; display: flex; align-items: center; justify-content: center; font-size: 1.75rem;">
+                <i class="ph ph-circle-dashed"></i>
             </div>
-            <i class="ph ph-basket" style="position:absolute; right:1rem; bottom:1rem; font-size:4rem; color:#f97316; opacity:0.2;"></i>
+            <div>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.25rem; font-weight: 500;">Kosong</p>
+                <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">{{ number_format($totalKosong, 0, ',', '.') }}</h3>
+            </div>
         </div>
     </a>
 
-    <!-- Card Rusak/Gagal -->
+    <!-- Card Panen (Green) -->
     <a href="/paprika/v2" style="text-decoration:none;">
-        <div class="stat-big-card" style="background:#fee2e2; padding:1.5rem; border-radius:12px; position:relative; overflow:hidden;">
-            <div>
-                <div style="font-size:2rem; font-weight:800; color:#b91c1c;">{{ number_format($totalGagal, 0, ',', '.') }}</div>
-                <div style="font-size:0.9rem; color:#991b1b; font-weight:600; margin-top:0.25rem;">Rusak / Gagal</div>
+        <div class="stat-card" style="background: var(--card-bg); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 1.2rem; transition: transform 0.2s, box-shadow 0.2s;">
+            <div style="width: 56px; height: 56px; border-radius: 14px; background: rgba(34, 197, 94, 0.15); color: #22c55e; display: flex; align-items: center; justify-content: center; font-size: 1.75rem;">
+                <i class="ph ph-basket"></i>
             </div>
-            <i class="ph ph-warning-circle" style="position:absolute; right:1rem; bottom:1rem; font-size:4rem; color:#dc2626; opacity:0.2;"></i>
+            <div>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.25rem; font-weight: 500;">Total Panen</p>
+                <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">{{ number_format($totalPanen, 0, ',', '.') }}</h3>
+            </div>
+        </div>
+    </a>
+
+    <!-- Card Gagal (Dark Red) -->
+    <a href="/paprika/v2" style="text-decoration:none;">
+        <div class="stat-card" style="background: var(--card-bg); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 1.2rem; transition: transform 0.2s, box-shadow 0.2s;">
+            <div style="width: 56px; height: 56px; border-radius: 14px; background: rgba(185, 28, 28, 0.15); color: #b91c1c; display: flex; align-items: center; justify-content: center; font-size: 1.75rem;">
+                <i class="ph ph-x-circle"></i>
+            </div>
+            <div>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.25rem; font-weight: 500;">Rusak / Gagal</p>
+                <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">{{ number_format($totalGagal, 0, ',', '.') }}</h3>
+            </div>
         </div>
     </a>
 </div>
 
-<div class="content-body" style="margin-top: 2rem;">
-    <div style="background:white; border-radius:12px; padding:2rem; text-align:center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-        <img src="https://cdn-icons-png.flaticon.com/512/2821/2821808.png" width="120" style="opacity:0.8; margin-bottom:1rem;" />
-        <h3 style="font-size:1.2rem; color:var(--text-main); margin-bottom:0.5rem;">Selamat Datang di Paprika V2</h3>
-        <p style="color:var(--text-muted); max-width:600px; margin:0 auto 1.5rem auto; line-height:1.6;">
-            Sistem Paprika V2 memungkinkan Anda untuk mengelola seluruh siklus penanaman dengan terstruktur.<br>Mulai dari tingkat <strong>Greenhouse</strong> &rarr; <strong>Baris</strong> &rarr; hingga ke level <strong>Pot</strong>.
-        </p>
-        <a href="{{ route('paprika.v2.index') }}" class="btn-primary" style="display:inline-block; padding: 0.75rem 1.5rem; border-radius: 8px; background: var(--asr-green); color: white; text-decoration: none; font-weight:600;">
-            Kelola Greenhouse Paprika Sekarang
-        </a>
-    </div>
-</div>
+<style>
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    @media (max-width: 900px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+    }
+    @media (max-width: 600px) {
+        .stats-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
 @endsection
