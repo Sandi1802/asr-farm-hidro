@@ -94,6 +94,24 @@ class PaprikaV2Controller extends Controller
     }
 
     // Action Pot (Panen, Perawatan, Rusak)
+    public function destroyGh($id)
+    {
+        PaprikaGh::findOrFail($id)->delete();
+        return back()->with('success', 'GH berhasil dihapus');
+    }
+
+    public function destroyBaris($id)
+    {
+        PaprikaBaris::findOrFail($id)->delete();
+        return back()->with('success', 'Baris beserta Pot berhasil dihapus');
+    }
+
+    public function destroyPot($id)
+    {
+        PaprikaPot::findOrFail($id)->delete();
+        return back()->with('success', 'Pot berhasil dihapus');
+    }
+
     public function actionPot(Request $request, $pot_id)
     {
         $pot = PaprikaPot::findOrFail($pot_id);

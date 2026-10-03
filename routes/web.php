@@ -395,6 +395,9 @@ Route::middleware('auth')->group(function () {
             Route::get('/baris/{baris_id}/pot', [\App\Http\Controllers\PaprikaV2Controller::class, 'pot'])->name('paprika.v2.pot');
             Route::post('/baris/{baris_id}/tanam', [\App\Http\Controllers\PaprikaV2Controller::class, 'tanamMassal'])->name('paprika.v2.tanam.massal');
             Route::post('/pot/{pot_id}/action', [\App\Http\Controllers\PaprikaV2Controller::class, 'actionPot'])->name('paprika.v2.pot.action');
+            Route::delete('/gh/{id}', [\App\Http\Controllers\PaprikaV2Controller::class, 'destroyGh'])->name('paprika.v2.gh.destroy');
+            Route::delete('/baris/{id}', [\App\Http\Controllers\PaprikaV2Controller::class, 'destroyBaris'])->name('paprika.v2.baris.destroy');
+            Route::delete('/pot/{id}', [\App\Http\Controllers\PaprikaV2Controller::class, 'destroyPot'])->name('paprika.v2.pot.destroy');
         });
     });
 });
