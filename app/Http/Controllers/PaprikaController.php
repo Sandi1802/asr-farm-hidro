@@ -12,15 +12,16 @@ class PaprikaController extends Controller
 {
     public function dashboard(Request $request)
     {
-        $totalPlants = PaprikaPlant::count();
-        $totalPlanted = PaprikaPlant::where('status', 'ditanam')->count();
-        $totalProses = PaprikaPlant::where('status', 'proses')->count();
-        $totalPanen = PaprikaPlant::where('status', 'panen')->count();
-        $totalGagal = PaprikaPlant::where('status', 'gagal')->count();
-        $totalKosong = PaprikaPlant::where('status', 'kosong')->count();
+        $totalGh = \App\Models\PaprikaGh::count();
+        $totalPlants = \App\Models\PaprikaPot::count();
+        $totalPlanted = \App\Models\PaprikaPot::where('status', 'ditanam')->count();
+        $totalProses = 0; // Not used in V2
+        $totalPanen = \App\Models\PaprikaPot::where('status', 'panen')->count();
+        $totalGagal = \App\Models\PaprikaPot::where('status', 'rusak')->count();
+        $totalKosong = \App\Models\PaprikaPot::where('status', 'kosong')->count();
 
         return view('paprika.dashboard', compact(
-            'totalPlants', 'totalPlanted', 'totalProses', 'totalPanen', 'totalGagal', 'totalKosong'
+            'totalGh', 'totalPlants', 'totalPlanted', 'totalProses', 'totalPanen', 'totalGagal', 'totalKosong'
         ));
     }
 
