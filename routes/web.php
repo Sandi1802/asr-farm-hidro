@@ -385,8 +385,20 @@ Route::middleware('auth')->group(function () {
         Route::post('/pemupukan', [\App\Http\Controllers\PaprikaController::class, 'storePemupukan'])->name('paprika.pemupukan.store');
         Route::get('/penyemprotan', [\App\Http\Controllers\PaprikaController::class, 'penyemprotan'])->name('paprika.penyemprotan');
         Route::post('/penyemprotan', [\App\Http\Controllers\PaprikaController::class, 'storePenyemprotan'])->name('paprika.penyemprotan.store');
+
+        // Paprika V2 Routes
+        Route::prefix('v2')->group(function () {
+            Route::get('/', [\App\Http\Controllers\PaprikaV2Controller::class, 'index'])->name('paprika.v2.index');
+            Route::post('/gh', [\App\Http\Controllers\PaprikaV2Controller::class, 'storeGh'])->name('paprika.v2.gh.store');
+            Route::get('/gh/{gh_id}/baris', [\App\Http\Controllers\PaprikaV2Controller::class, 'baris'])->name('paprika.v2.baris');
+            Route::post('/gh/{gh_id}/baris', [\App\Http\Controllers\PaprikaV2Controller::class, 'storeBaris'])->name('paprika.v2.baris.store');
+            Route::get('/baris/{baris_id}/pot', [\App\Http\Controllers\PaprikaV2Controller::class, 'pot'])->name('paprika.v2.pot');
+            Route::post('/baris/{baris_id}/tanam', [\App\Http\Controllers\PaprikaV2Controller::class, 'tanamMassal'])->name('paprika.v2.tanam.massal');
+            Route::post('/pot/{pot_id}/action', [\App\Http\Controllers\PaprikaV2Controller::class, 'actionPot'])->name('paprika.v2.pot.action');
+        });
     });
 });
+
 
 
 

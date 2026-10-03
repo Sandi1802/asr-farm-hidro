@@ -118,6 +118,9 @@
             </div>
             
             <div class="nav-submenu {{ $paprikaActive ? 'open' : '' }}">
+                <a href="/paprika/v2" class="submenu-item {{ request()->is('paprika/v2*') ? 'active' : '' }}">
+                    <i class="ph ph-tree" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Paprika V2
+                </a>
                 <a href="/paprika/greenhouses" class="submenu-item {{ request()->is('paprika/greenhouses*') ? 'active' : '' }}">
                     <i class="ph ph-house-line" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> Greenhouse Paprika
                 </a>
@@ -244,3 +247,4 @@
         </nav>
     </aside>
     <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
