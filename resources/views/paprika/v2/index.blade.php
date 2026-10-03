@@ -1,68 +1,92 @@
 @extends('layouts.app')
-
+@section('title', 'Manajemen GH - Paprika V2')
 @section('content')
-<div class="dashboard-header">
-    <div style="display: flex; align-items: center; justify-content: space-between;">
-        <div>
-            <h1 style="font-size: 1.5rem; color: var(--text-main); font-weight: 600; margin-bottom: 0.5rem;">Paprika V2 - Daftar Greenhouse</h1>
-        </div>
-        <button onclick="document.getElementById('addGhModal').showModal()" class="btn-primary" style="padding: 0.5rem 1rem; border-radius: 8px; background: var(--primary-color); color: white; border: none; cursor: pointer;">
-            <i class="fas fa-plus"></i> Tambah GH
-        </button>
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div>
+        <h2 style="margin:0; font-size:1.25rem; font-weight:600; color:var(--text-main);">
+            <i class="ph ph-house-line"></i> Paprika V2 - Daftar Greenhouse
+        </h2>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.25rem;">
+            Kelola daftar Greenhouse untuk modul Paprika
+        </p>
     </div>
+    <button onclick="document.getElementById('modalTambahGh').style.display='flex'"
+            style="background:var(--asr-green); color:white; border:none; padding:0.6rem 1.2rem; border-radius:8px; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:0.5rem;">
+        <i class="ph ph-plus"></i> Tambah GH
+    </button>
 </div>
 
-<div class="content-body" style="padding: 20px; background: white; border-radius: 10px; margin-top: 20px;">
-    @if(session('success'))
-        <div style="padding: 10px; background: #d4edda; color: #155724; border-radius: 5px; margin-bottom: 15px;">{{ session('success') }}</div>
-    @endif
-    <table style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="border-bottom: 2px solid #eee;">
-                <th style="padding: 10px; text-align: left;">ID</th>
-                <th style="padding: 10px; text-align: left;">Nama GH</th>
-                <th style="padding: 10px; text-align: left;">Keterangan</th>
-                <th style="padding: 10px; text-align: left;">Aksi</th>
+@if(session('success'))
+<div style="background:#dcfce7; color:#166534; padding:0.9rem 1rem; border-radius:8px; margin-bottom:1rem; font-weight:500;">
+    <i class="ph ph-check-circle"></i> {{ session('success') }}
+</div>
+@endif
+
+<div style="background:white; border-radius:12px; border:1px solid var(--border-color); overflow-x:auto;">
+    <table class="table datatable" style="width:100%; border-collapse:collapse; text-align:left; min-width:600px;">
+        <thead style="background:#f8fafc; border-bottom:1px solid var(--border-color);">
+            <tr>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem; width:50px;">ID</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Nama GH</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem;">Keterangan</th>
+                <th style="padding:1rem; font-weight:600; color:var(--text-main); font-size:0.85rem; width:200px;">Aksi</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($ghs as $gh)
-            <tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 10px;">{{ $gh->id }}</td>
-                <td style="padding: 10px;">{{ $gh->nama_gh }}</td>
-                <td style="padding: 10px;">{{ $gh->keterangan }}</td>
-                <td style="padding: 10px;">
-                    <a href="{{ route('paprika.v2.baris', $gh->id) }}" style="padding: 5px 10px; background: #007bff; color: white; border-radius: 5px; text-decoration: none; margin-right:5px;">Masuk ke Baris</a>
-                    <form action="{{ route('paprika.v2.gh.destroy', $gh->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus GH ini beserta isinya?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            Hapus
-                        </button>
-                    </form>
+            @forelse($ghs as $gh)
+            <tr style="border-bottom:1px solid var(--border-color);">
+                <td style="padding:1rem; font-weight:600; color:var(--text-main);">{{ $gh->id }}</td>
+                <td style="padding:1rem; font-weight:600;">
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <i class="ph ph-house-line" style="color:var(--asr-green);"></i> {{ $gh->nama_gh }}
+                    </div>
+                </td>
+                <td style="padding:1rem; color:var(--text-muted); font-size:0.85rem;">{{ $gh->keterangan ?: '-' }}</td>
+                <td style="padding:1rem;">
+                    <div style="display:flex; gap:0.5rem;">
+                        <a href="{{ route('paprika.v2.baris', $gh->id) }}" style="padding:0.4rem 0.75rem; background:var(--asr-green); color:white; border-radius:6px; text-decoration:none; font-size:0.75rem; font-weight:600;"><i class="ph ph-arrow-right"></i> Masuk Baris</a>
+                        <form method="POST" action="{{ route('paprika.v2.gh.destroy', $gh->id) }}" onsubmit="return confirm('Yakin ingin menghapus GH ini beserta isinya?')" style="margin:0;">
+                            @csrf @method('DELETE')
+                            <button type="submit" style="padding:0.4rem 0.6rem; background:#fee2e2; border:1px solid #fca5a5; border-radius:6px; color:#dc2626; cursor:pointer;"><i class="ph ph-trash"></i></button>
+                        </form>
+                    </div>
                 </td>
             </tr>
-            @endforeach
+            @empty
+            <tr>
+                <td colspan="4" style="padding:3rem; text-align:center; color:var(--text-muted);">Belum ada Greenhouse. Silakan tambahkan GH baru.</td>
+            </tr>
+            @endforelse
         </tbody>
     </table>
 </div>
 
-<dialog id="addGhModal" style="border: none; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 400px; margin: auto;">
-    <h3 style="margin-top:0;">Tambah Greenhouse</h3>
-    <form action="{{ route('paprika.v2.gh.store') }}" method="POST">
-        @csrf
-        <div style="margin-bottom: 15px;">
-            <label>Nama GH</label>
-            <input type="text" name="nama_gh" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; margin-top: 5px;">
+{{-- Modal Tambah GH --}}
+<div id="modalTambahGh" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:12px; width:100%; max-width:460px; padding:1.5rem; margin:1rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+            <h3 style="margin:0; font-size:1rem; font-weight:600;">Tambah Greenhouse Paprika</h3>
+            <button type="button" onclick="document.getElementById('modalTambahGh').style.display='none'" style="background:none; border:none; font-size:1.25rem; cursor:pointer;"><i class="ph ph-x"></i></button>
         </div>
-        <div style="margin-bottom: 15px;">
-            <label>Keterangan</label>
-            <textarea name="keterangan" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; margin-top: 5px;"></textarea>
-        </div>
-        <div style="text-align: right;">
-            <button type="button" onclick="document.getElementById('addGhModal').close()" style="padding: 8px 15px; border: none; background: #ccc; border-radius: 5px; cursor: pointer;">Batal</button>
-            <button type="submit" style="padding: 8px 15px; border: none; background: #28a745; color: white; border-radius: 5px; cursor: pointer; margin-left: 10px;">Simpan</button>
-        </div>
-    </form>
-</dialog>
+        <form action="{{ route('paprika.v2.gh.store') }}" method="POST">
+            @csrf
+            <div style="margin-bottom:1rem;">
+                <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Nama GH *</label>
+                <input type="text" name="nama_gh" required placeholder="Contoh: GH Paprika 1"
+                       style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:1.25rem;">
+                <label style="display:block; margin-bottom:0.4rem; font-size:0.85rem; font-weight:500;">Keterangan</label>
+                <textarea name="keterangan" rows="3" placeholder="Deskripsi opsional..."
+                          style="width:100%; padding:0.65rem; border:1px solid var(--border-color); border-radius:8px; box-sizing:border-box;"></textarea>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+                <button type="button" onclick="document.getElementById('modalTambahGh').style.display='none'"
+                        style="padding:0.65rem 1.2rem; border:1px solid var(--border-color); background:white; border-radius:8px; cursor:pointer;">Batal</button>
+                <button type="submit" style="padding:0.65rem 1.2rem; border:none; background:var(--asr-green); color:white; border-radius:8px; cursor:pointer; font-weight:600;">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
