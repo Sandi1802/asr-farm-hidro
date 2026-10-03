@@ -33,7 +33,14 @@
                 <td style="padding: 10px;">{{ $b->nama_baris }}</td>
                 <td style="padding: 10px;">{{ $b->pots_count }}</td>
                 <td style="padding: 10px;">
-                    <a href="{{ route('paprika.v2.pot', $b->id) }}" style="padding: 5px 10px; background: #007bff; color: white; border-radius: 5px; text-decoration: none;">Masuk ke Pot</a>
+                    <a href="{{ route('paprika.v2.pot', $b->id) }}" style="padding: 5px 10px; background: #007bff; color: white; border-radius: 5px; text-decoration: none; margin-right:5px;">Masuk ke Pot</a>
+                    <form action="{{ route('paprika.v2.baris.destroy', $b->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus Baris ini beserta Pot-nya?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Hapus
+                        </button>
+                    </form>
                 </td>
             </tr>
             @endforeach

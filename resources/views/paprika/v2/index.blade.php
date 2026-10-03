@@ -32,7 +32,14 @@
                 <td style="padding: 10px;">{{ $gh->nama_gh }}</td>
                 <td style="padding: 10px;">{{ $gh->keterangan }}</td>
                 <td style="padding: 10px;">
-                    <a href="{{ route('paprika.v2.baris', $gh->id) }}" style="padding: 5px 10px; background: #007bff; color: white; border-radius: 5px; text-decoration: none;">Masuk ke Baris</a>
+                    <a href="{{ route('paprika.v2.baris', $gh->id) }}" style="padding: 5px 10px; background: #007bff; color: white; border-radius: 5px; text-decoration: none; margin-right:5px;">Masuk ke Baris</a>
+                    <form action="{{ route('paprika.v2.gh.destroy', $gh->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus GH ini beserta isinya?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Hapus
+                        </button>
+                    </form>
                 </td>
             </tr>
             @endforeach
