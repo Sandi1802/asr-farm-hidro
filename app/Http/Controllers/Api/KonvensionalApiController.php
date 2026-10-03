@@ -165,9 +165,9 @@ class KonvensionalApiController extends Controller
             'planted_at' => 'required|date'
         ]);
 
-        $combined = $r->plant_name_1;
-        if ($r->filled('plant_name_2')) {
-            $combined .= ', ' . $r->plant_name_2;
+        $combined = trim($r->plant_name_1);
+        if ($r->filled('plant_name_2') && trim($r->plant_name_2) !== trim($r->plant_name_1)) {
+            $combined .= ', ' . trim($r->plant_name_2);
         }
 
         $lubangs = KonvenLubangTanamV2::where('bedengan_id', $id)->where('status', 'kosong')->get();
@@ -280,9 +280,9 @@ class KonvensionalApiController extends Controller
             'jumlah' => 'required|integer|min:1'
         ]);
 
-        $combined = $r->plant_name_1;
-        if ($r->filled('plant_name_2')) {
-            $combined .= ', ' . $r->plant_name_2;
+        $combined = trim($r->plant_name_1);
+        if ($r->filled('plant_name_2') && trim($r->plant_name_2) !== trim($r->plant_name_1)) {
+            $combined .= ', ' . trim($r->plant_name_2);
         }
 
         $lubangKosong = \App\Models\KonvenLubangTanamV2::whereHas('bedengan', function($q) use ($id) {

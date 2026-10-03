@@ -99,11 +99,9 @@ class KonvensionalController extends Controller
         $tanamCounts = [];
         $panenCounts = [];
         foreach ($allTanam as $row) {
-            $plants = explode(', ', $row->plant_name);
+            // Fix issue where duplicate plants in same hole were counted twice
+            $plants = array_unique(array_filter(array_map('trim', explode(',', $row->plant_name))));
             foreach ($plants as $p) {
-                $p = trim($p);
-                if (empty($p)) continue;
-
                 if (!isset($tanamCounts[$p])) $tanamCounts[$p] = 0;
                 $tanamCounts[$p]++;
 

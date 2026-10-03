@@ -333,13 +333,18 @@ class KonvenV2Controller extends Controller
     {
         $zona      = KonvenZonaV2::with('kode.posisi.lahan', 'kode.lahan')->findOrFail($zona_id);
         $bedengans = KonvenBedenganV2::where('zona_id', $zona_id)
-            ->with(['lubangTanams'])
+            ->withCount(['lubangTanams', 'lubangTanams as terisi' => function ($q) {
+                $q->whereIn('status', ['ditanam']);
+            }, 'lubangTanams as kosong' => function ($q) {
+                $q->where('status', 'kosong');
+            }])
             ->orderBy('nomor')
             ->get()
             ->map(function ($b) {
-                $b->lubang_count  = $b->lubangTanams->count();
-                $b->terisi_count  = $b->lubangTanams->whereIn('status', ['ditanam'])->count();
-                $b->kosong_count  = $b->lubangTanams->where('status', 'kosong')->count();
+                // Ensure variables match blade expectations
+                $b->lubang_count  = $b->lubang_tanams_count;
+                $b->terisi_count  = $b->terisi;
+                $b->kosong_count  = $b->kosong;
                 return $b;
             });
 
@@ -504,9 +509,9 @@ class KonvenV2Controller extends Controller
             'estimated_harvest_at' => 'nullable|date',
         ]);
 
-        $combinedPlantName = $r->plant_name_1;
-        if ($r->filled('plant_name_2')) {
-            $combinedPlantName .= ', ' . $r->plant_name_2;
+        $combinedPlantName = trim($r->plant_name_1);
+        if ($r->filled('plant_name_2') && trim($r->plant_name_2) !== trim($r->plant_name_1)) {
+            $combinedPlantName .= ', ' . trim($r->plant_name_2);
         }
 
         $bedengan = KonvenBedenganV2::findOrFail($bedengan_id);
@@ -548,9 +553,9 @@ class KonvenV2Controller extends Controller
             'jumlah_tanaman'       => 'required|integer|min:1',
         ]);
 
-        $combinedPlantName = $r->plant_name_1;
-        if ($r->filled('plant_name_2')) {
-            $combinedPlantName .= ', ' . $r->plant_name_2;
+        $combinedPlantName = trim($r->plant_name_1);
+        if ($r->filled('plant_name_2') && trim($r->plant_name_2) !== trim($r->plant_name_1)) {
+            $combinedPlantName .= ', ' . trim($r->plant_name_2);
         }
 
         $zona = KonvenZonaV2::findOrFail($zona_id);
