@@ -134,6 +134,37 @@
             @endif
 
             @php
+                $iotActive = request()->is('iot*');
+            @endphp
+            {{-- IoT Agro Dropdown --}}
+            @if(in_array(Auth::user()?->role_agri, ['it_admin', 'atasan', 'produksi', 'produksi_gh', 'produksi_konvensional', 'produksi_paprika']))
+            <div class="nav-item nav-dropdown {{ $iotActive ? 'active' : '' }}" onclick="toggleDropdown(this)" style="margin-top: 1rem;">
+                <div style="display: flex; align-items: center;">
+                    <i class="ph ph-cpu"></i>
+                    <span class="nav-text">IoT Agro-System</span>
+                </div>
+                <i class="{{ $iotActive ? 'ph ph-caret-down' : 'ph ph-caret-left' }}" style="margin-right: 0; font-size: 0.9rem; transition: transform 0.2s;"></i>
+            </div>
+            <div class="nav-submenu {{ $iotActive ? 'open' : '' }}">
+                <a href="/iot/gh-hidroponik" class="submenu-item {{ request()->is('iot/gh-hidroponik*') ? 'active' : '' }}">
+                    <i class="ph ph-thermometer" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> IoT GH Hidroponik
+                </a>
+                <a href="/iot/gh-paprika" class="submenu-item {{ request()->is('iot/gh-paprika*') ? 'active' : '' }}">
+                    <i class="ph ph-plant" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> IoT GH Paprika
+                </a>
+                <a href="/iot/lahan-terbuka" class="submenu-item {{ request()->is('iot/lahan-terbuka*') ? 'active' : '' }}">
+                    <i class="ph ph-cloud-sun" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> IoT Lahan Terbuka
+                </a>
+                <a href="/iot/smart-lighting" class="submenu-item {{ request()->is('iot/smart-lighting*') ? 'active' : '' }}">
+                    <i class="ph ph-lightbulb" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> IoT Lampu Pintar
+                </a>
+                <a href="/iot/fertigasi" class="submenu-item {{ request()->is('iot/fertigasi*') ? 'active' : '' }}">
+                    <i class="ph ph-drop" style="margin-right: 0.5rem; font-size: 1.1rem;"></i> IoT Fertigasi
+                </a>
+            </div>
+            @endif
+
+            @php
                 $distribusiActive = request()->is('hydroponics/bandar*');
             @endphp
             {{-- Pusat Distribusi Dropdown --}}

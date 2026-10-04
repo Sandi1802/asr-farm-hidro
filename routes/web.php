@@ -225,6 +225,24 @@ Route::middleware('auth')->group(function () {
             Route::delete('/daily-tasks-api/{id}', [\App\Http\Controllers\DailyTaskController::class, 'apiDelete']);
         });
 
+        // IoT Agro System Routes (Placeholder)
+        Route::prefix('iot')->middleware('role:it_admin,atasan,produksi,produksi_gh,produksi_konvensional,produksi_paprika')->group(function () {
+            $iotView = function($title) {
+                return view('layouts.app')->with('content', '
+                    <div style="padding: 2rem; text-align: center; background: white; border-radius: 12px; margin-top: 2rem;">
+                        <i class="ph ph-cpu" style="font-size: 4rem; color: var(--asr-green); margin-bottom: 1rem;"></i>
+                        <h2 style="color: var(--text-main); margin-bottom: 0.5rem;">' . $title . '</h2>
+                        <p style="color: var(--text-muted);">Sistem integrasi sensor dan otomatisasi IoT sedang dalam tahap pengembangan.</p>
+                    </div>
+                ');
+            };
+            Route::get('/gh-hidroponik', fn() => $iotView('IoT Smart GH Hidroponik'))->name('iot.hidroponik');
+            Route::get('/gh-paprika', fn() => $iotView('IoT Smart GH Paprika'))->name('iot.paprika');
+            Route::get('/lahan-terbuka', fn() => $iotView('IoT Lahan Terbuka Konvensional'))->name('iot.konvensional');
+            Route::get('/smart-lighting', fn() => $iotView('IoT Lampu Pintar (Grow Light)'))->name('iot.lighting');
+            Route::get('/fertigasi', fn() => $iotView('IoT Fertigasi & Nutrisi Otomatis'))->name('iot.fertigasi');
+        });
+
         // Inventory - Produksi, Produksi GH, Produksi Konven, Keuangan, Pemasaran, Packing
         Route::middleware('role:produksi,produksi_gh,produksi_konvensional,produksi_paprika,keuangan,pemasaran,packing')->group(function () {
             Route::get('/inventory', [\App\Http\Controllers\InventoryController::class, 'index'])->name('hydroponics.inventory');
