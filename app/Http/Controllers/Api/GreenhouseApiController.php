@@ -88,6 +88,9 @@ class GreenhouseApiController extends Controller
             });
             $totalDitanam = $allHoles->where('status', 'ditanam')->count();
 
+            $defaultGrowthDays = 35;
+            $plantTypes = \App\Models\PlantType::all()->keyBy('name');
+
             $plantedPlants = $allHoles->where('status', 'ditanam')
                 ->filter(fn($h) => !empty($h->plant_name))
                 ->groupBy('plant_name');
@@ -104,6 +107,85 @@ class GreenhouseApiController extends Controller
                 ];
             }
 
+            $totalTargetPopulasi = 0;
+            $totalRealisasiTanam = 0;
+            $totalSisaTanam = 0;
+            $totalEstPanenKg = 0;
+
+            $racksList = $gh->racks->sortBy('name', SORT_NATURAL)->values()->map(function($r) use ($plantTypes, $defaultGrowthDays, &$totalTargetPopulasi, &$totalRealisasiTanam, &$totalSisaTanam, &$totalEstPanenKg) {
+                $rHoles = $r->rows->flatMap->holes;
+                $targetPopulasi = $rHoles->count();
+                $plantedHoles = $rHoles->where('status', 'ditanam');
+                $realisasiTanam = $plantedHoles->count();
+                $sisaTanam = $rHoles->where('status', 'kosong')->count();
+
+                $persenCapaian = $targetPopulasi > 0 ? round(($realisasiTanam / $targetPopulasi) * 100, 1) : 0;
+
+                // Komoditas
+                $activePlantNames = $plantedHoles->pluck('plant_name')->filter()->unique()->values();
+                $komoditas = $activePlantNames->count() > 0 ? $activePlantNames->implode(' & ') : '-';
+
+                // Tanggal Tanam & Hari
+                $holesWithDate = $plantedHoles->filter(fn($h) => !empty($h->planted_at))->sortBy('planted_at');
+                $firstHole = $holesWithDate->first();
+                $plantedAt = $firstHole ? Carbon::parse($firstHole->planted_at) : null;
+
+                // Plant Type target days
+                $firstPlantName = $firstHole ? $firstHole->plant_name : ($activePlantNames->first() ?? null);
+                $pt = $firstPlantName ? $plantTypes->get($firstPlantName) : null;
+                $masaPanenHst = $pt ? ($pt->growth_days ?: $defaultGrowthDays) : $defaultGrowthDays;
+
+                $hst = $plantedAt ? (int) $plantedAt->diffInDays(now()) : 0;
+                $isReady = $plantedAt ? ($hst >= $masaPanenHst) : false;
+
+                // Estimated harvest
+                $estTglPanen = $plantedAt ? $plantedAt->copy()->addDays($masaPanenHst) : null;
+
+                // Yield ratio: standard ~13 lubang per 1 kg
+                $lubangPerKg = 13;
+                $estPanenKg = $realisasiTanam > 0 ? (int) round($realisasiTanam / $lubangPerKg) : 0;
+
+                // Status
+                $status = 'Belum mulai';
+                if ($realisasiTanam > 0) {
+                    $status = $isReady ? 'Selesai' : 'Berjalan';
+                }
+
+                $totalTargetPopulasi += $targetPopulasi;
+                $totalRealisasiTanam += $realisasiTanam;
+                $totalSisaTanam += $sisaTanam;
+                $totalEstPanenKg += $estPanenKg;
+
+                return [
+                    'id' => $r->id,
+                    'name' => $r->name,
+                    'ppm_level' => $r->ppm_level,
+                    'ph_level' => $r->ph_level,
+                    'ditanam' => $realisasiTanam,
+                    'kosong' => $sisaTanam,
+                    'target_populasi' => $targetPopulasi,
+                    'realisasi_tanam' => $realisasiTanam,
+                    'sisa_tanam' => $sisaTanam,
+                    'persen_capaian' => $persenCapaian,
+                    'komoditas' => $komoditas,
+                    'tgl_tanam' => $plantedAt ? $plantedAt->locale('id')->isoFormat('dddd, D MMMM YYYY') : null,
+                    'tgl_tanam_short' => $plantedAt ? $plantedAt->locale('id')->isoFormat('D MMM YYYY') : null,
+                    'hari_tanam' => $plantedAt ? $plantedAt->locale('id')->isoFormat('dddd') : null,
+                    'masa_panen_hst' => $masaPanenHst,
+                    'hst' => $hst,
+                    'umur_hari' => $hst,
+                    'est_tgl_panen' => $estTglPanen ? $estTglPanen->locale('id')->isoFormat('D MMM YYYY') : null,
+                    'bulan_panen' => $estTglPanen ? $estTglPanen->locale('id')->isoFormat('MMMM YYYY') : null,
+                    'lubang_per_kg' => $lubangPerKg,
+                    'est_panen_kg' => $estPanenKg,
+                    'status' => $status,
+                    'is_ready' => $isReady,
+                ];
+            });
+
+            $persenCapaianGH = $totalTargetPopulasi > 0 ? round(($totalRealisasiTanam / $totalTargetPopulasi) * 100, 1) : 0;
+            $statusGH = $totalRealisasiTanam > 0 ? 'Berjalan' : 'Belum mulai';
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -118,18 +200,16 @@ class GreenhouseApiController extends Controller
                         'panen' => $countPanen,
                         'rusak' => $countRusak,
                     ],
+                    'table_summary' => [
+                        'target_populasi' => $totalTargetPopulasi,
+                        'realisasi_tanam' => $totalRealisasiTanam,
+                        'persen_capaian' => $persenCapaianGH,
+                        'sisa_tanam' => $totalSisaTanam,
+                        'est_panen_kg' => $totalEstPanenKg,
+                        'status' => $statusGH,
+                    ],
                     'plants' => $plantsArray,
-                    'racks' => $gh->racks->sortBy('name', SORT_NATURAL)->values()->map(function($r) {
-                        $rHoles = $r->rows->flatMap->holes;
-                        return [
-                            'id' => $r->id,
-                            'name' => $r->name,
-                            'ppm_level' => $r->ppm_level,
-                            'ph_level' => $r->ph_level,
-                            'ditanam' => $rHoles->where('status', 'ditanam')->count(),
-                            'kosong' => $rHoles->where('status', 'kosong')->count(),
-                        ];
-                    })
+                    'racks' => $racksList,
                 ]
             ], 200);
         } catch (\Exception $e) {
