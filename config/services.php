@@ -31,4 +31,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'farm' => [
+        'lat' => env('FARM_LAT', -6.8915),
+        'lon' => env('FARM_LON', 107.6107),
+        'location_name' => env('FARM_LOCATION_NAME', 'ASR Farm · Bandung'),
+    ],
+
 ];

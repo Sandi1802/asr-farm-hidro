@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\SemaiApiController;
 use App\Http\Controllers\Api\DamageApiController;
 use App\Http\Controllers\Api\PlantTypeApiController;
 use App\Http\Controllers\Api\MaintenanceLogController;
+use App\Http\Controllers\Api\WeatherApiController;
+use App\Http\Controllers\Api\NotificationApiController;
 
 // Public
 Route::post('/login', [MobileApiController::class, 'login']);
@@ -31,6 +33,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Read-only endpoints (all authenticated roles)
     Route::get('/dashboard', [DashboardApiController::class, 'index']);
+    Route::get('/weather', [WeatherApiController::class, 'index']);
+    Route::get('/notifications', [NotificationApiController::class, 'index']);
     Route::get('/greenhouses', [GreenhouseApiController::class, 'index']);
     Route::get('/greenhouses/{id}', [GreenhouseApiController::class, 'show']);
     Route::get('/racks', [RackApiController::class, 'index']);

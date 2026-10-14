@@ -41,6 +41,11 @@ class DashboardApiController extends Controller
                 ->count();
 
             $semaiAktif = Semai::where('status', 'aktif')->count();
+
+            $rackAlerts = NotificationApiController::rackAlerts();
+            $siapPanen = NotificationApiController::siapPanenGroups();
+            $totalHoles = (int)($holesCount->total ?? 0);
+            $occupancy = $totalHoles > 0 ? round(((int)($holesCount->ditanam ?? 0) / $totalHoles) * 100, 1) : 0;
             
             $today = Carbon::today()->toDateString();
             $semaiSiapPindah = Semai::where('status', 'aktif')
@@ -62,6 +67,10 @@ class DashboardApiController extends Controller
                     'alerts_count' => $alertsCount,
                     'semai_aktif' => $semaiAktif,
                     'semai_siap_pindah' => $semaiSiapPindah,
+                    'occupancy_percent' => $occupancy,
+                    'siap_panen_count' => (int) $siapPanen->sum('count'),
+                    'siap_panen_types' => $siapPanen->count(),
+                    'alerts' => $rackAlerts->take(10)->values(),
                 ]
             ], 200);
         } catch (\Exception $e) {
