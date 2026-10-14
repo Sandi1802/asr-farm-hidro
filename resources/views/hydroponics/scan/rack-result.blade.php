@@ -174,54 +174,116 @@
             </form>
         </div>
 
+        @if($countReady > 0)
+        <div style="background: linear-gradient(135deg, #15803d, #16a34a); color: white; padding: 1rem 1.25rem; border-radius: 14px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);">
+            <div>
+                <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9; font-weight: 700;">Status Panen</div>
+                <div style="font-size: 1.25rem; font-weight: 800; margin-top: 2px;">🌾 {{ $countReady }} Tanaman Siap Panen!</div>
+                <div style="font-size: 0.8rem; opacity: 0.95; margin-top: 2px;">Terdapat kloter yang telah mencapai usia panen di rak ini.</div>
+            </div>
+            <span style="background: rgba(255,255,255,0.25); padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: 800; font-size: 0.85rem;">Siap Panen</span>
+        </div>
+        @elseif($totalDitanam > 0)
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 0.85rem 1rem; border-radius: 12px; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+            <i class="ph ph-plant" style="font-size: 1.5rem; color: #16a34a;"></i>
+            <div>
+                <div style="font-weight: 700; font-size: 0.9rem;">Masa Pertumbuhan Aktif</div>
+                <div style="font-size: 0.8rem; color: #15803d;">Tanaman sedang dalam masa pemeliharaan, belum ada yang siap panen hari ini.</div>
+            </div>
+        </div>
+        @endif
+
         <div class="header-card" style="padding-top: 1rem;">
             <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.5rem;">Statistik Lubang Tanam</div>
             <div class="stats-grid">
                 <div class="stat-mini">
                     <div class="val" style="color: #16a34a;">{{ $totalDitanam }}</div>
-                    <div class="lbl">Tanam</div>
+                    <div class="lbl">Ditanam</div>
                 </div>
                 <div class="stat-mini">
                     <div class="val" style="color: #ea580c;">{{ $countReady }}</div>
-                    <div class="lbl">Siap</div>
+                    <div class="lbl">Siap Panen</div>
                 </div>
                 <div class="stat-mini">
-                    <div class="val" style="color: #2563eb;">{{ $countPanen }}</div>
-                    <div class="lbl">Panen</div>
+                    <div class="val" style="color: #6b7280;">{{ $countKosong }}</div>
+                    <div class="lbl">Kosong</div>
                 </div>
                 <div class="stat-mini">
-                    <div class="val" style="color: #dc2626;">{{ $countRusak }}</div>
-                    <div class="lbl">Rusak</div>
+                    <div class="val" style="color: #2563eb;">{{ $totalHoles }}</div>
+                    <div class="lbl">Kapasitas</div>
                 </div>
             </div>
+
+            @if(isset($uniquePlantTypes) && $uniquePlantTypes->count() > 0)
+            <div style="margin-top: 0.75rem; padding: 0.6rem 0.8rem; background: #f9fafb; border-radius: 8px; border: 1px solid var(--border); font-size: 0.85rem;">
+                <span style="color: var(--text-muted); font-weight: 600;">Jenis Tanaman:</span> 
+                <strong>{{ $uniquePlantTypes->implode(', ') }}</strong>
+            </div>
+            @endif
             
             <a href="{{ route('hydroponics.racks.show', $rack->id) }}" class="action-btn" style="background: #2563eb; margin-top:1.25rem;">
                 <i class="ph ph-table"></i> Manajemen Lubang Detail (Desktop View)
             </a>
         </div>
 
-        <h3 class="section-title"><i class="ph ph-plant" style="color:#16a34a;"></i> Tanaman di Rak Ini</h3>
+        <h3 class="section-title"><i class="ph ph-calendar-check" style="color:#16a34a;"></i> Kloter Tanam (HST & Tanggal)</h3>
         
-        @if($plantsPlanted->count() > 0)
-        <div class="plant-list">
-            @foreach($plantsPlanted as $name => $count)
-            @php 
-                $ready = $plantsReadyToHarvest[$name] ?? 0;
-            @endphp
-            <div class="plant-item">
-                <div class="plant-name">🌱 {{ $name }}</div>
-                <div style="display:flex; gap:0.4rem;">
-                    @if($ready > 0)
-                        <span class="badge badge-ready">{{ $ready }} Siap Panen</span>
+        @if(isset($batches) && $batches->count() > 0)
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            @foreach($batches as $idx => $batch)
+            <div style="background: white; border-radius: 12px; border: 1px solid {{ $batch['is_ready'] ? '#86efac' : 'var(--border)' }}; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); {{ $batch['is_ready'] ? 'border-left: 5px solid #16a34a;' : '' }}">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 1rem; color: #111827; display: flex; align-items: center; gap: 0.4rem;">
+                            🌱 {{ $batch['plant_name'] }} 
+                            <span style="font-size: 0.75rem; font-weight: 600; color: #6b7280;">(Kloter {{ $idx + 1 }})</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #4b5563; margin-top: 3px;">
+                            📅 Tanam: <strong>{{ $batch['planted_at_formatted'] }}</strong>
+                        </div>
+                    </div>
+                    @if($batch['is_ready'])
+                        <span class="badge badge-ready" style="font-size: 0.75rem;">🌾 Siap Panen</span>
+                    @else
+                        <span class="badge badge-ditanam" style="font-size: 0.75rem;">🌱 {{ $batch['hst'] }} HST</span>
                     @endif
-                    <span class="badge badge-ditanam">{{ $count }} Total</span>
                 </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed #e5e7eb; font-size: 0.8rem;">
+                    <div>
+                        <span style="color: #6b7280;">Jumlah Tanaman:</span><br>
+                        <strong style="color: #111827;">{{ $batch['count'] }} Lubang</strong>
+                    </div>
+                    <div>
+                        <span style="color: #6b7280;">Umur Tanaman (HST):</span><br>
+                        <strong style="color: #15803d;">{{ $batch['hst'] }} Hari</strong> 
+                        <span style="color: #9ca3af; font-size: 0.75rem;">/ {{ $batch['growth_days'] }} hr</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 0.6rem; background: #e5e7eb; border-radius: 999px; height: 6px; overflow: hidden;">
+                    <div style="background: {{ $batch['is_ready'] ? '#16a34a' : '#2563eb' }}; width: {{ $batch['progress_percent'] }}%; height: 100%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #6b7280; margin-top: 3px;">
+                    <span>Target: {{ $batch['growth_days'] }} Hari</span>
+                    @if($batch['is_ready'])
+                        <span style="color: #15803d; font-weight: 700;">Tercapai (Siap Panen)</span>
+                    @else
+                        <span>Sisa {{ $batch['days_remaining'] }} hari lagi</span>
+                    @endif
+                </div>
+
+                @if($batch['estimated_harvest_at'])
+                <div style="font-size: 0.75rem; color: #4b5563; margin-top: 0.5rem; background: #f9fafb; padding: 0.4rem 0.6rem; border-radius: 6px;">
+                    🎯 Estimasi Panen: <strong>{{ $batch['estimated_harvest_at'] }}</strong>
+                </div>
+                @endif
             </div>
             @endforeach
         </div>
         @else
         <div style="text-align:center; padding: 1.5rem; background:white; border-radius:12px; border:1px dashed #d1d5db; color: #9ca3af; font-size:0.85rem;">
-            Rak ini masih kosong.
+            Rak ini masih kosong (belum ada tanaman yang ditanam).
         </div>
         @endif
 

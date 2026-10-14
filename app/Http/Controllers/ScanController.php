@@ -76,6 +76,7 @@ class ScanController extends Controller
         $plantTypeMap = $plantTypes->pluck('growth_days', 'name');
         
         $allHoles = $rack->rows->flatMap->holes;
+        $totalHoles   = $allHoles->count();
         $countKosong  = $allHoles->where('status', 'kosong')->count();
         $countPanen   = $allHoles->where('status', 'panen')->count();
         $countRusak   = $allHoles->where('status', 'rusak')->count();
@@ -83,26 +84,67 @@ class ScanController extends Controller
 
         $defaultGrowthDays = 30;
 
-        $plantsReadyToHarvest = $allHoles->where('status', 'ditanam')
-            ->filter(function($h) use ($plantTypeMap, $defaultGrowthDays) {
-                if (empty($h->plant_name) || !$h->planted_at) return false;
-                $days = $plantTypeMap[$h->plant_name] ?? $defaultGrowthDays;
-                return \Carbon\Carbon::parse($h->planted_at)->addDays($days)->lte(now());
-            })
-            ->groupBy('plant_name')
-            ->map(fn($g) => $g->count());
+        $activeHoles = $allHoles->where('status', 'ditanam')
+            ->filter(fn($h) => !empty($h->plant_name));
 
-        $countReady = $plantsReadyToHarvest->sum();
+        // Group by plant_name AND planted_at date
+        $batchGroups = $activeHoles->groupBy(function($h) {
+            $dateKey = $h->planted_at ? Carbon::parse($h->planted_at)->format('Y-m-d') : 'unknown';
+            return $h->plant_name . '___' . $dateKey;
+        });
 
-        $plantsPlanted = $allHoles->where('status', 'ditanam')
-            ->filter(fn($h) => !empty($h->plant_name))
-            ->groupBy('plant_name')
-            ->map(fn($g) => $g->count());
+        $batches = collect();
+        $countReady = 0;
+
+        foreach ($batchGroups as $batchKey => $holesInBatch) {
+            $firstHole = $holesInBatch->first();
+            $plantName = $firstHole->plant_name;
+            $plantedAt = $firstHole->planted_at ? Carbon::parse($firstHole->planted_at) : null;
+            $growthDays = $plantTypeMap[$plantName] ?? $defaultGrowthDays;
+
+            $ageDays = $plantedAt ? (int) $plantedAt->diffInDays(now()) : 0;
+            $isReady = $plantedAt ? ($ageDays >= $growthDays) : false;
+            $daysRemaining = max(0, $growthDays - $ageDays);
+            $estimatedHarvest = $plantedAt ? $plantedAt->copy()->addDays($growthDays) : null;
+            $count = $holesInBatch->count();
+
+            if ($isReady) {
+                $countReady += $count;
+            }
+
+            $batches->push([
+                'name' => $plantName,
+                'plant_name' => $plantName,
+                'count' => $count,
+                'planted_at' => $plantedAt ? $plantedAt->format('Y-m-d') : null,
+                'planted_at_formatted' => $plantedAt ? $plantedAt->locale('id')->isoFormat('dddd, D MMMM YYYY') : 'Tanpa Tanggal',
+                'planted_date' => $plantedAt ? $plantedAt->locale('id')->isoFormat('D MMM YYYY') : 'Tanpa Tanggal',
+                'day_name' => $plantedAt ? $plantedAt->locale('id')->isoFormat('dddd') : '-',
+                'age_days' => $ageDays,
+                'hst' => $ageDays,
+                'growth_days' => $growthDays,
+                'days_remaining' => $daysRemaining,
+                'is_ready' => $isReady,
+                'progress_percent' => $growthDays > 0 ? min(100, (int) round(($ageDays / $growthDays) * 100)) : 100,
+                'estimated_harvest_at' => $estimatedHarvest ? $estimatedHarvest->locale('id')->isoFormat('dddd, D MMMM YYYY') : null,
+            ]);
+        }
+
+        // Sort: ready to harvest first, then oldest planted
+        $batches = $batches->sort(function($a, $b) {
+            if ($a['is_ready'] !== $b['is_ready']) {
+                return $b['is_ready'] <=> $a['is_ready'];
+            }
+            return ($b['age_days'] ?? 0) <=> ($a['age_days'] ?? 0);
+        })->values();
+
+        $uniquePlantTypes = $activeHoles->pluck('plant_name')->unique()->values();
+        $plantsPlanted = $activeHoles->groupBy('plant_name')->map->count();
 
         return view('hydroponics.scan.rack-result', compact(
-            'rack', 'plantTypes', 'plantTypeMap',
+            'rack', 'plantTypes', 'plantTypeMap', 'totalHoles',
             'countKosong', 'countPanen', 'countRusak', 'totalDitanam',
-            'countReady', 'plantsPlanted', 'plantsReadyToHarvest'
+            'countReady', 'plantsPlanted', 'batches', 'uniquePlantTypes'
         ));
     }
 }

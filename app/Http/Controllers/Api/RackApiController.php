@@ -128,22 +128,69 @@ class RackApiController extends Controller
                 ->whereYear('created_at', now()->year)
                 ->count();
 
-            // Plants Summary (Grouping)
-            $plantedPlants = $allHoles->where('status', 'ditanam')
-                ->filter(fn($h) => !empty($h->plant_name))
-                ->groupBy('plant_name');
+            // Plants & Batches Summary (Grouped by Plant Name AND Planted Date)
+            $defaultGrowthDays = 30;
+            $plantTypes = \App\Models\PlantType::all()->keyBy('name');
 
-            $plantsArray = [];
-            foreach ($plantedPlants as $name => $group) {
-                $oldestHole = $group->filter(fn($h) => $h->planted_at != null)->sortBy('planted_at')->first();
-                $ageDays = $oldestHole ? Carbon::parse($oldestHole->planted_at)->diffInDays(now()) : 0;
-                
-                $plantsArray[] = [
-                    'name' => $name,
-                    'count' => $group->count(),
-                    'age_days' => $ageDays
+            $activeHoles = $allHoles->where('status', 'ditanam')
+                ->filter(fn($h) => !empty($h->plant_name));
+
+            $batchesArray = [];
+            $batchGroups = $activeHoles->groupBy(function($h) {
+                $dateKey = $h->planted_at ? Carbon::parse($h->planted_at)->format('Y-m-d') : 'unknown';
+                return $h->plant_name . '___' . $dateKey;
+            });
+
+            $siapPanenCount = 0;
+
+            foreach ($batchGroups as $batchKey => $holesInBatch) {
+                $firstHole = $holesInBatch->first();
+                $plantName = $firstHole->plant_name;
+                $plantedAt = $firstHole->planted_at ? Carbon::parse($firstHole->planted_at) : null;
+
+                $pt = $plantTypes->get($plantName);
+                $growthDays = $pt ? ($pt->growth_days ?: $defaultGrowthDays) : $defaultGrowthDays;
+
+                $ageDays = $plantedAt ? (int) $plantedAt->diffInDays(now()) : 0;
+                $isReady = $plantedAt ? ($ageDays >= $growthDays) : false;
+                $daysRemaining = max(0, $growthDays - $ageDays);
+                $estimatedHarvest = $plantedAt ? $plantedAt->copy()->addDays($growthDays) : null;
+                $count = $holesInBatch->count();
+
+                if ($isReady) {
+                    $siapPanenCount += $count;
+                }
+
+                $batchItem = [
+                    'name' => $plantName,
+                    'plant_name' => $plantName,
+                    'count' => $count,
+                    'planted_at' => $plantedAt ? $plantedAt->format('Y-m-d') : null,
+                    'planted_at_formatted' => $plantedAt ? $plantedAt->locale('id')->isoFormat('dddd, D MMMM YYYY') : 'Tanpa Tanggal',
+                    'planted_date' => $plantedAt ? $plantedAt->locale('id')->isoFormat('D MMM YYYY') : 'Tanpa Tanggal',
+                    'day_name' => $plantedAt ? $plantedAt->locale('id')->isoFormat('dddd') : '-',
+                    'age_days' => $ageDays,
+                    'hst' => $ageDays,
+                    'growth_days' => $growthDays,
+                    'days_remaining' => $daysRemaining,
+                    'is_ready' => $isReady,
+                    'progress_percent' => $growthDays > 0 ? min(100, (int) round(($ageDays / $growthDays) * 100)) : 100,
+                    'estimated_harvest_at' => $estimatedHarvest ? $estimatedHarvest->locale('id')->isoFormat('dddd, D MMMM YYYY') : null,
+                    'estimated_harvest_short' => $estimatedHarvest ? $estimatedHarvest->locale('id')->isoFormat('D MMM YYYY') : null,
                 ];
+
+                $batchesArray[] = $batchItem;
             }
+
+            // Sort: ready to harvest first, then oldest planted
+            usort($batchesArray, function($a, $b) {
+                if ($a['is_ready'] !== $b['is_ready']) {
+                    return $b['is_ready'] <=> $a['is_ready'];
+                }
+                return ($b['age_days'] ?? 0) <=> ($a['age_days'] ?? 0);
+            });
+
+            $uniquePlantNames = $activeHoles->pluck('plant_name')->unique()->values()->all();
 
             return response()->json([
                 'success' => true,
@@ -161,8 +208,19 @@ class RackApiController extends Controller
                         'kosong' => $countKosong,
                         'panen' => $countPanen,
                         'rusak' => $countRusak,
+                        'siap_panen' => $siapPanenCount,
                     ],
-                    'plants' => $plantsArray,
+                    'summary_info' => [
+                        'total_tanaman' => $totalDitanam,
+                        'total_kosong' => $countKosong,
+                        'total_kapasitas' => $allHoles->count(),
+                        'siap_panen_count' => $siapPanenCount,
+                        'is_siap_panen' => $siapPanenCount > 0,
+                        'jenis_tanaman' => $uniquePlantNames,
+                        'jenis_tanaman_text' => count($uniquePlantNames) > 0 ? implode(', ', $uniquePlantNames) : 'Belum ada tanaman',
+                    ],
+                    'batches' => $batchesArray,
+                    'plants' => $batchesArray,
                     'rows' => $rack->rows->map(function($row) {
                         return [
                             'id' => $row->id,
